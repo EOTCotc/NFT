@@ -79,7 +79,7 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="countdownFlag?noshowcard(0):noshowcard(1)"
+                  <div @click="countdownFlag?showCard(0):showCard(1)"
                        class="top">
                     <p>
                       <span class="cardAdd">+</span>
@@ -87,14 +87,14 @@
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="countdownFlag?noshowcard(0):noshowcard(1)">
+                  <div @click="countdownFlag?showCard(0):showCard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="countdownFlag?noshowcard(0):noshowcard(2)">
+                  <div @click="countdownFlag?showCard(0):showCard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -103,7 +103,7 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="countdownFlag?noshowcard(0):show1 = true"
+                  <div @click="countdownFlag?showCard(0):show1 = true"
                        class="ftop">
                     <van-button :disabled="false"
                                 type="info">100%合成</van-button>
@@ -117,21 +117,21 @@
               <div class="addcardwarp">
                 <div class="addcard">
                   <div class="top"
-                       @click="noshowcard(1)">
+                       @click="showCard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="noshowcard(1)">
+                  <div @click="showCard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="noshowcard(2)">
+                  <div @click="showCard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -155,14 +155,14 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="noshowcard(1)">
+                  <div @click="showCard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="noshowcard(2)">
+                  <div @click="showCard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -200,7 +200,7 @@
                      alt="" />
               </div>
               <div class="addcard"
-                   @click="noshowcard(3)">
+                   @click="showCard(3)">
                 <p>
                   <span class="add">+</span>
                   <br />
@@ -231,7 +231,7 @@
                      alt="" />
               </div>
               <div class="addcard"
-                   @click="noshowcard(4)">
+                   @click="showCard(4)">
                 <p>
                   <span class="add">+</span>
                   <br />
@@ -262,7 +262,7 @@
                      alt="" />
               </div>
               <div class="addcard"
-                   @click="noshowcard(5)">
+                   @click="showCard(5)">
                 <p>
                   <span class="add">+</span>
                   <br />
@@ -604,8 +604,8 @@ export default {
       numOne: 0, //一级卡牌数量
       numTwo: 0, //二级卡牌数量
       numThree: 0, //三级卡牌数量
-      numFour: 1, //四级卡牌数量
-      numFive: 1, //五级卡牌数量
+      numFour: 0, //四级卡牌数量
+      numFive: 0, //五级卡牌数量
       time: 10 * 60 * 1000,
       synthActiveName: '1',
       countdownFlag: true,
@@ -728,7 +728,7 @@ export default {
       this.time = 10 * 60 * 1000
       this.countdownFlag = true
     },
-    noshowcard(i) {
+    showCard(i) {
       let count = ['一', '二', '三', '四', '五', '六', '七']
       if (i == 0) {
         // 活动未开始
@@ -739,14 +739,15 @@ export default {
       } else {
         this.num = count[i - 1]
         // 有卡牌
-        if (this.numOne || this.numTwo) {
+        if ((i == 1 || i == 2) && (this.numOne || this.numTwo)) {
           // 单选
           this.showcard = true
-        } else if (this.numThree || this.numFour || this.numFive) {
+        } else if ((i == 3 || i == 4 || i == 5) && (this.numThree || this.numFour || this.numFive)) {
           // 多选
           this.showcards = true
         } else {
           // 没有该卡牌
+          this.number = true
           setTimeout(() => {
             this.number = false
           }, 500)
