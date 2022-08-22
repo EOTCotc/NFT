@@ -1,54 +1,48 @@
 <template>
   <div class="synthesispage">
     <div class="top">
-      <van-nav-bar
-        title="合成"
-        left-arrow
-        fixed
-        placeholder
-        @click-left="onClickLeft"
-      />
+      <van-nav-bar title="合成"
+                   left-arrow
+                   fixed
+                   placeholder
+                   @click-left="onClickLeft" />
     </div>
     <!-- 主体内容 -->
     <div class="sythcontent">
-      <van-tabs
-        background="#121933"
-        title-inactive-color="#666"
-        title-active-color="#fff"
-        v-model="synthActiveName"
-      >
-        <van-tab title="三级卡牌" name="1">
+      <van-tabs background="#121933"
+                title-inactive-color="#666"
+                title-active-color="#fff"
+                v-model="synthActiveName">
+        <van-tab title="三级卡牌"
+                 name="1">
           <div class="threecard">
             <!-- 头部标题 -->
             <div class="threecardTop">
               <div class="title">铸造合成三级卡牌</div>
-              <img
-                class="start1"
-                src="../../assets/img/synth/start1.png"
-                alt=""
-              />
-              <img
-                class="start2"
-                src="../../assets/img/synth/start2.png"
-                alt=""
-              />
+              <img class="start1"
+                   src="../../assets/img/synth/start1.png"
+                   alt="" />
+              <img class="start2"
+                   src="../../assets/img/synth/start2.png"
+                   alt="" />
             </div>
             <div class="threecardlog">
               <div class="img">
-                <img src="../../assets/img/synth/synthlog.png" alt="" />
+                <img src="../../assets/img/synth/synthlog.png"
+                     alt="" />
               </div>
             </div>
             <div class="synthcard">
               <!-- 倒计时 -->
               <!-- 距离开始还剩 -->
-              <div :key="1" v-if="countdownFlag" class="countdown">
+              <div :key="1"
+                   v-if="countdownFlag"
+                   class="countdown">
                 <span class="text">距离开始还剩: </span>
                 <span class="time">
-                  <van-count-down
-                    @finish="finishHandler"
-                    millisecond
-                    :time="time"
-                  >
+                  <van-count-down @finish="finishHandler"
+                                  millisecond
+                                  :time="time">
                     <template #default="timeData">
                       <span class="block">0{{ timeData.minutes }}</span>
                       <span class="colon">:</span>
@@ -62,14 +56,14 @@
                 </span>
               </div>
               <!-- 距离结束还剩 -->
-              <div :key="2" v-if="!countdownFlag" class="countdown bgcountdown">
+              <div :key="2"
+                   v-if="!countdownFlag"
+                   class="countdown bgcountdown">
                 <span class="text bgtext">距离结束还剩: </span>
                 <span class="time">
-                  <van-count-down
-                    @finish="finishHandler2"
-                    millisecond
-                    :time="time"
-                  >
+                  <van-count-down @finish="finishHandler2"
+                                  millisecond
+                                  :time="time">
                     <template #default="timeData">
                       <span class="block bgblock">0{{ timeData.minutes }}</span>
                       <span class="colon bgcolon">:</span>
@@ -85,21 +79,22 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="showcard = true" class="top">
+                  <div @click="countdownFlag?noshowcard(0):noshowcard(1)"
+                       class="top">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div>
+                  <div @click="countdownFlag?noshowcard(0):noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div>
+                  <div @click="countdownFlag?noshowcard(0):noshowcard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -108,10 +103,10 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="show1 = true" class="ftop">
-                    <van-button :disabled="false" type="info"
-                      >100%合成</van-button
-                    >
+                  <div @click="countdownFlag?noshowcard(0):show1 = true"
+                       class="ftop">
+                    <van-button :disabled="false"
+                                type="info">100%合成</van-button>
                   </div>
                   <p>成功概率100%</p>
                   <p>一级卡牌*2+二级卡牌 铸造合成三级卡牌</p>
@@ -121,21 +116,22 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div class="top">
+                  <div class="top"
+                       @click="noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div>
+                  <div @click="noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div>
+                  <div @click="noshowcard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -144,13 +140,11 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="show1 = true" class="ftop">
-                    <van-button
-                      style="padding: 0 50px"
-                      :disabled="false"
-                      type="info"
-                      >合成</van-button
-                    >
+                  <div @click="show1 = true"
+                       class="ftop">
+                    <van-button style="padding: 0 50px"
+                                :disabled="false"
+                                type="info">合成</van-button>
                   </div>
                   <p>成功概率80%</p>
                   <p>合成失败(20%)全部销毁</p>
@@ -161,14 +155,14 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div>
+                  <div @click="noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div>
+                  <div @click="noshowcard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -177,13 +171,11 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="show1 = true" class="ftop">
-                    <van-button
-                      style="padding: 0 50px"
-                      :disabled="false"
-                      type="info"
-                      >合成</van-button
-                    >
+                  <div @click="show1 = true"
+                       class="ftop">
+                    <van-button style="padding: 0 50px"
+                                :disabled="false"
+                                type="info">合成</van-button>
                   </div>
                   <p>成功概率40%</p>
                   <p>合成失败(60%)全部销毁</p>
@@ -193,24 +185,22 @@
             </div>
           </div>
         </van-tab>
-        <van-tab title="权益卡" name="2">
+        <van-tab title="权益卡"
+                 name="2">
           <div class="equity">
             <!-- 分红权益卡牌 -->
             <div class="econtentTtem">
               <div class="etop">
                 <p class="title">实时节点分红权益卡</p>
-                <img
-                  class="start1"
-                  src="../../assets/img/synth/start1.png"
-                  alt=""
-                />
-                <img
-                  class="start2"
-                  src="../../assets/img/synth/start2.png"
-                  alt=""
-                />
+                <img class="start1"
+                     src="../../assets/img/synth/start1.png"
+                     alt="" />
+                <img class="start2"
+                     src="../../assets/img/synth/start2.png"
+                     alt="" />
               </div>
-              <div class="addcard">
+              <div class="addcard"
+                   @click="noshowcard(3)">
                 <p>
                   <span class="add">+</span>
                   <br />
@@ -218,13 +208,10 @@
                 </p>
               </div>
               <div class="sythnBtn">
-                <van-button
-                  @click="equityBtnHandler"
-                  :disabled="false"
-                  style="width: 170px"
-                  type="info"
-                  >合成</van-button
-                >
+                <van-button @click="equityBtnHandler"
+                            :disabled="true"
+                            style="width: 170px"
+                            type="info">合成</van-button>
               </div>
               <div class="msg">
                 <p>成功概率25%</p>
@@ -236,18 +223,15 @@
             <div class="econtentTtem">
               <div class="etop">
                 <p class="title">中级节点分红权益卡</p>
-                <img
-                  class="start1"
-                  src="../../assets/img/synth/start1.png"
-                  alt=""
-                />
-                <img
-                  class="start2"
-                  src="../../assets/img/synth/start2.png"
-                  alt=""
-                />
+                <img class="start1"
+                     src="../../assets/img/synth/start1.png"
+                     alt="" />
+                <img class="start2"
+                     src="../../assets/img/synth/start2.png"
+                     alt="" />
               </div>
-              <div class="addcard">
+              <div class="addcard"
+                   @click="noshowcard(4)">
                 <p>
                   <span class="add">+</span>
                   <br />
@@ -255,9 +239,9 @@
                 </p>
               </div>
               <div class="sythnBtn">
-                <van-button :disabled="true" style="width: 170px" type="info"
-                  >合成</van-button
-                >
+                <van-button :disabled="true"
+                            style="width: 170px"
+                            type="info">合成</van-button>
               </div>
               <div class="msg">
                 <p>成功概率25%</p>
@@ -266,21 +250,19 @@
               </div>
             </div>
 
-            <div style="padding-bottom: 60px" class="econtentTtem">
+            <div style="padding-bottom: 60px"
+                 class="econtentTtem">
               <div class="etop">
                 <p class="title">高级节点分红权益卡</p>
-                <img
-                  class="start1"
-                  src="../../assets/img/synth/start1.png"
-                  alt=""
-                />
-                <img
-                  class="start2"
-                  src="../../assets/img/synth/start2.png"
-                  alt=""
-                />
+                <img class="start1"
+                     src="../../assets/img/synth/start1.png"
+                     alt="" />
+                <img class="start2"
+                     src="../../assets/img/synth/start2.png"
+                     alt="" />
               </div>
-              <div class="addcard">
+              <div class="addcard"
+                   @click="noshowcard(5)">
                 <p>
                   <span class="add">+</span>
                   <br />
@@ -288,9 +270,9 @@
                 </p>
               </div>
               <div class="sythnBtn">
-                <van-button :disabled="true" style="width: 170px" type="info"
-                  >合成</van-button
-                >
+                <van-button :disabled="true"
+                            style="width: 170px"
+                            type="info">合成</van-button>
               </div>
               <div class="msg">
                 <p>成功概率25%</p>
@@ -300,21 +282,18 @@
             </div>
           </div>
         </van-tab>
-        <van-tab title="永久权益卡" name="3">
+        <van-tab title="永久权益卡"
+                 name="3">
           <div class="eikycard">
             <div class="eikycardItem">
               <div class="eikytop">
                 <p class="title">永久实时节点分红权益卡</p>
-                <img
-                  class="start1"
-                  src="../../assets/img/synth/start1.png"
-                  alt=""
-                />
-                <img
-                  class="start2"
-                  src="../../assets/img/synth/start2.png"
-                  alt=""
-                />
+                <img class="start1"
+                     src="../../assets/img/synth/start1.png"
+                     alt="" />
+                <img class="start2"
+                     src="../../assets/img/synth/start2.png"
+                     alt="" />
               </div>
               <div class="eikyaddcard">
                 <div>
@@ -343,9 +322,9 @@
                 </div>
               </div>
               <div class="eikybtn">
-                <van-button :disabled="true" style="width: 170px" type="info"
-                  >合成</van-button
-                >
+                <van-button :disabled="true"
+                            style="width: 170px"
+                            type="info">合成</van-button>
               </div>
               <div class="eiktfooter">
                 <p>成功概率100%</p>
@@ -357,16 +336,12 @@
             <div class="eikycardItem">
               <div class="eikytop">
                 <p class="title">永久中级节点分红权益卡</p>
-                <img
-                  class="start1"
-                  src="../../assets/img/synth/start1.png"
-                  alt=""
-                />
-                <img
-                  class="start2"
-                  src="../../assets/img/synth/start2.png"
-                  alt=""
-                />
+                <img class="start1"
+                     src="../../assets/img/synth/start1.png"
+                     alt="" />
+                <img class="start2"
+                     src="../../assets/img/synth/start2.png"
+                     alt="" />
               </div>
               <div class="eikyaddcard">
                 <div>
@@ -395,9 +370,9 @@
                 </div>
               </div>
               <div class="eikybtn">
-                <van-button :disabled="true" style="width: 170px" type="info"
-                  >合成</van-button
-                >
+                <van-button :disabled="true"
+                            style="width: 170px"
+                            type="info">合成</van-button>
               </div>
               <div class="eiktfooter">
                 <p>成功概率100%</p>
@@ -409,16 +384,12 @@
             <div class="eikycardItem">
               <div class="eikytop">
                 <p class="title">永久高级节点分红权益卡</p>
-                <img
-                  class="start1"
-                  src="../../assets/img/synth/start1.png"
-                  alt=""
-                />
-                <img
-                  class="start2"
-                  src="../../assets/img/synth/start2.png"
-                  alt=""
-                />
+                <img class="start1"
+                     src="../../assets/img/synth/start1.png"
+                     alt="" />
+                <img class="start2"
+                     src="../../assets/img/synth/start2.png"
+                     alt="" />
               </div>
               <div class="eikyaddcard">
                 <div>
@@ -447,9 +418,9 @@
                 </div>
               </div>
               <div class="eikybtn">
-                <van-button :disabled="true" style="width: 170px" type="info"
-                  >合成</van-button
-                >
+                <van-button :disabled="true"
+                            style="width: 170px"
+                            type="info">合成</van-button>
               </div>
               <div class="eiktfooter">
                 <p>成功概率100%</p>
@@ -464,15 +435,21 @@
     <!-- 页脚 -->
     <div class="synthFooter">
       <p class="img-icons">
-        <img src="@/assets/img/icon-telegram.png" alt />
-        <img src="@/assets/img/icon-twitter.png" alt />
-        <img src="@/assets/img/icon-email.png" alt />
+        <img src="@/assets/img/icon-telegram.png"
+             alt />
+        <img src="@/assets/img/icon-twitter.png"
+             alt />
+        <img src="@/assets/img/icon-email.png"
+             alt />
       </p>
       <p class="footer-p">&copy;&nbsp;2022年EOTC版权所有。</p>
     </div>
     <!-- 合成遮罩 -->
-    <van-overlay :show="show1" :key="1.1" @click="show1 = false">
-      <div class="wrapper" @click.stop>
+    <van-overlay :show="show1"
+                 :key="1.1"
+                 @click="show1 = false">
+      <div class="wrapper"
+           @click.stop>
         <div class="maskbox">
           <div>
             风险提示: <br />
@@ -482,58 +459,103 @@
             <p @click="show1 = false">取消</p>
             <p @click="confirmHandler">确定</p>
           </div>
-          <img
-            class="img"
-            src="../../assets/img/coincard/icon1.png"
-            alt="警告"
-          />
+          <img class="img"
+               src="../../assets/img/coincard/icon1.png"
+               alt="警告" />
         </div>
       </div>
     </van-overlay>
-    <van-overlay :show="show2" :key="1.2" @click="show2 = false">
-      <div class="wrapper" @click.stop>
+    <van-overlay :show="show2"
+                 :key="1.2"
+                 @click="show2 = false">
+      <div class="wrapper"
+           @click.stop>
         <div class="maskbox">
           <div style="color: #333333">请确定是否要开始进行合成</div>
           <div>
             <p @click="show2 = false">取消</p>
             <p @click="confirmHandler2">确定</p>
           </div>
-          <img
-            class="img"
-            src="../../assets/img/coincard/icon1.png"
-            alt="警告"
-          />
+          <img class="img"
+               src="../../assets/img/coincard/icon1.png"
+               alt="警告" />
         </div>
       </div>
     </van-overlay>
     <!-- 选择卡牌遮罩 -->
+    <!-- 没有该卡牌 -->
+    <div class="showTime"
+         v-if="number">
+      <p>暂无{{num}}级卡牌</p>
+    </div>
     <div id="maskwait">
-      <van-overlay :lock-scroll="false" :show="showcard">
-        <div class="waitWrapper" @click.stop>
+      <!-- 单选 -->
+      <van-overlay :lock-scroll="false"
+                   :show="showcard">
+        <div class="waitWrapper"
+             @click.stop>
           <div class="waitTop">
             <div @click="maskCancelHandler">取消</div>
-            <div>选择卡牌</div>
+            <div>选择{{num}}级卡牌</div>
             <div>确定</div>
           </div>
           <ul class="cardContent">
-            <li v-for="item in maskcardData" :key="item.id">
-              <img :src="item.url" alt="" />
-              <p class="title">{{ item.title }}</p>
-              <p class="text">#{{ item.ucode }}</p>
-              <div class="cardselect">
-                <van-checkbox
-                  v-model="cardmaskFlag"
-                  icon-size="20px"
-                ></van-checkbox>
-              </div>
-            </li>
+            <van-radio-group v-model="cardmaskFlag"
+                             direction="horizontal">
+              <li v-for="item in maskcardData"
+                  :key="item.id"
+                  @click="cardmaskFlag = item.id">
+                <img :src="item.url" />
+                <p class="title">{{ item.title }}</p>
+                <p class="text">#{{ item.ucode }}</p>
+                <div class="cardselect">
+                  <van-radio :name="item.id"
+                             icon-size="20px"></van-radio>
+                </div>
+              </li>
+            </van-radio-group>
           </ul>
         </div>
       </van-overlay>
+
+      <!-- 多选 -->
+
+      <van-overlay :lock-scroll="false"
+                   :show="showcards">
+        <div class="waitWrapper"
+             @click.stop>
+          <div class="waitTop">
+            <div @click="maskCancelHandler">取消</div>
+            <div>选择{{num}}级卡牌</div>
+            <div>确定</div>
+          </div>
+          <ul class="cardContent">
+            <van-checkbox-group v-model="cardmaskFlags"
+                                direction="horizontal">
+              <li v-for="item in maskcardData"
+                  :key="item.id"
+                  @click="pushCard(item.id)">
+                <img :src="item.url" />
+                <p class="title">{{ item.title }}</p>
+                <p class="text">#{{ item.ucode }}</p>
+                <div class="cardselect">
+                  <van-checkbox :name="item.id"
+                                icon-size="20px"></van-checkbox>
+                </div>
+              </li>
+            </van-checkbox-group>
+          </ul>
+
+        </div>
+      </van-overlay>
+
     </div>
     <!-- 权益卡遮罩 -->
-    <van-overlay :show="show3" :key="1.3" @click="show3 = false">
-      <div class="wrapper" @click.stop>
+    <van-overlay :show="show3"
+                 :key="1.3"
+                 @click="show3 = false">
+      <div class="wrapper"
+           @click.stop>
         <div class="maskbox">
           <div style="color: #333333">
             合成:
@@ -543,11 +565,9 @@
             <p @click="show3 = false">取消</p>
             <p @click="econfirmHandler">确定</p>
           </div>
-          <img
-            class="img"
-            src="../../assets/img/coincard/icon1.png"
-            alt="警告"
-          />
+          <img class="img"
+               src="../../assets/img/coincard/icon1.png"
+               alt="警告" />
         </div>
       </div>
       <!-- <Popout :show="show3">
@@ -555,9 +575,15 @@
         合成后无论是否成功卡牌都将销毁
       </Popout> -->
     </van-overlay>
+    <!-- 活动未开始 -->
+    <div class="showTime"
+         v-show="noshow">
+      <p>暂未开始</p>
+    </div>
   </div>
 </template>
 <script>
+// import { install } from 'vant'
 // import Popout from "../tool/Scroll/popout/popout_page.vue";
 export default {
   // components: {
@@ -565,135 +591,180 @@ export default {
   // },
   data() {
     return {
-      cardmaskFlag: false, //复选框
-      showcard: false, //卡牌选择遮罩
+      cardmaskFlag: 0, //单选框
+      cardmaskFlags: [], //多选框
+      showcard: false, //卡牌单选遮罩
+      showcards: false, //卡牌多选遮罩
+      noshow: false, //活动未开始
       show1: false, //合成遮罩
       show2: false,
       show3: false, //权益卡牌
+      num: false,
+      number: false,
+      numOne: 0, //一级卡牌数量
+      numTwo: 0, //二级卡牌数量
+      numThree: 0, //三级卡牌数量
+      numFour: 1, //四级卡牌数量
+      numFive: 1, //五级卡牌数量
       time: 10 * 60 * 1000,
-      synthActiveName: "3",
+      synthActiveName: '1',
       countdownFlag: true,
       // 定义卡牌数据
       maskcardData: [
         {
           id: 1,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 2,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 3,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 4,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 5,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 6,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 7,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 8,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 9,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 10,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 11,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 12,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
         },
         {
           id: 13,
-          title: "一级黄金甲犀牛",
-          ucode: "000001",
-          url: require("../../assets/img/blindbox/card1.png"),
-        },
-      ],
+          title: '一级黄金甲犀牛',
+          ucode: '000001',
+          url: require('../../assets/img/blindbox/card1.png')
+        }
+      ]
       //maskFlag1: false, //遮罩第一次状态
-    };
+    }
   },
-
   methods: {
     // 权益卡遮罩确认处理
     econfirmHandler() {},
     equityBtnHandler() {
       // console.log("1111");
-      this.show3 = true;
+      this.show3 = true
     },
     maskCancelHandler() {
-      this.showcard = false;
+      this.showcard = false
+      this.showcards = false
     },
     showCardHandler() {
-      this.showcard = true;
+      this.showcard = true
     },
     confirmHandler2() {
-      this.show2 = false;
-      console.log("动画执行...");
+      this.show2 = false
+      console.log('动画执行...')
     },
     confirmHandler() {
       // console.log("666");
-      this.show1 = false;
-      this.show2 = true;
+      this.show1 = false
+      this.show2 = true
     },
     // 点击合成
     onClickLeft() {
-      this.$router.back();
+      this.$router.back()
     },
     finishHandler() {
-      this.time = 10 * 60 * 1000;
-      this.countdownFlag = false;
+      this.time = 10 * 60 * 1000
+      this.countdownFlag = false
     },
     finishHandler2() {
-      this.time = 10 * 60 * 1000;
-      this.countdownFlag = true;
+      this.time = 10 * 60 * 1000
+      this.countdownFlag = true
     },
-  },
-};
+    noshowcard(i) {
+      let count = ['一', '二', '三', '四', '五', '六', '七']
+      if (i == 0) {
+        // 活动未开始
+        this.noshow = true
+        setTimeout(() => {
+          this.noshow = false
+        }, 500)
+      } else {
+        this.num = count[i - 1]
+        // 有卡牌
+        if (this.numOne || this.numTwo) {
+          // 单选
+          this.showcard = true
+        } else if (this.numThree || this.numFour || this.numFive) {
+          // 多选
+          this.showcards = true
+        } else {
+          // 没有该卡牌
+          setTimeout(() => {
+            this.number = false
+          }, 500)
+        }
+      }
+    },
+    pushCard(id) {
+      if (this.cardmaskFlags.length > 4) {
+        // 提示只能选择5张
+        console.log('只能选择5张')
+      } else {
+        this.cardmaskFlags.push(id)
+      }
+      this.cardmaskFlags = [...new Set(this.cardmaskFlags)]
+      console.log(this.cardmaskFlags)
+    }
+  }
+}
 </script>
 <style lang="less" scoped>
 .synthesispage {
@@ -810,6 +881,7 @@ export default {
         // 结束样式
         .bgcountdown {
           background: #6b403a;
+          opacity: 1;
         }
         .bgtext {
           color: #ff7464 !important;
@@ -1138,8 +1210,8 @@ export default {
         position: relative;
         .cardselect {
           position: absolute;
-          top: 10px;
-          right: 10px;
+          top: 16px;
+          left: 112px;
         }
         img {
           width: 165px;
@@ -1148,6 +1220,7 @@ export default {
           margin-bottom: 10px;
         }
         .title {
+          width: 178px;
           font-size: 20px;
           color: #fff;
           transform: scale(0.9);
@@ -1158,6 +1231,26 @@ export default {
           margin-left: 8px;
         }
       }
+    }
+  }
+  // ?活动未开始
+  // ?没有该卡牌
+  .showTime {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 260px;
+    height: 88px;
+    border-radius: 20px;
+    background: #3a3a3a;
+    color: #ffffff;
+    font-size: 28px;
+    opacity: 0.8;
+
+    p {
+      line-height: 88px;
+      text-align: center;
     }
   }
 }

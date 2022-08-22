@@ -36,7 +36,7 @@
     <div class="intro">
       <p class="title">作品简介</p>
       <p class="content">
-        联合会权益卡，全球仅限666引张，享有全网EOTCNFT 1%手续费平均分红，EOTC DAO的治理投票权。
+        联合会权益卡，全球仅限666张，享有全网EOTCNFT 1%手续费平均分红，EOTC DAO的治理投票权。
       </p>
     </div>
     <!-- 作品信息 -->

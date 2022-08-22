@@ -96,11 +96,38 @@
         </div>
       </div>
     </div>
+
+    <!-- 交易成功提示 -->
+    <div class="success">
+      <van-overlay :show="show"
+                   @click="show = false">
+        <div class="wrapper"
+             @click.stop>
+          <div class="maskbox">
+            <div style="color: #333333">
+              交易成功，等待区块确认
+            </div>
+            <div>
+              <p @click="show= false">
+                好的</p>
+            </div>
+            <img class="img"
+                 src="../../assets/img/successTop.png"
+                 alt="警告" />
+          </div>
+        </div>
+      </van-overlay>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      show: false
+    }
+  },
   methods: {
     toRouter_view() {
       this.$router.push({
@@ -220,6 +247,57 @@ export default {
     .sec-p {
       font-size: 0.4rem;
       text-align: center;
+    }
+  }
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  .maskbox {
+    width: 510px;
+    height: 333px;
+    background-color: #fff;
+    border-radius: 20px;
+    position: relative;
+
+    div {
+      &:nth-child(1) {
+        padding: 100px 30px 40px 30px;
+        font-size: 32px;
+        line-height: 70px;
+        text-align: center;
+        font-family: PingFang SC-Regular, PingFang SC;
+      }
+      &:nth-child(2) {
+        width: 100%;
+        height: 95px;
+        line-height: 95px;
+        display: flex;
+        align-items: center;
+        font-size: 32px;
+        p {
+          width: 340px;
+          height: 88px;
+          background: #237ff8;
+          border-radius: 44px 44px 44px 44px;
+          opacity: 1;
+          margin: 0 auto;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+    }
+    .img {
+      width: 200px;
+      height: 200px;
+      position: absolute;
+      top: -25%;
+      left: 50%;
+      transform: translate(-50%, 0%);
     }
   }
 }

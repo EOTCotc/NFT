@@ -2,148 +2,129 @@
   <div class="mynft_container">
     <div class="haveCard">
       <div class="top">
-        <van-nav-bar
-          title="权益卡牌"
-          fixed
-          placeholder
-          z-index="99"
-          left-arrow
-          @click-left="onClickLeft"
-        />
+        <van-nav-bar title="权益卡牌"
+                     fixed
+                     placeholder
+                     z-index="99"
+                     left-arrow
+                     @click-left="onClickLeft" />
       </div>
       <!-- 切换 -->
       <div class="toggle">
-        <van-tabs
-          v-model="toggleActive"
-          @click="waitactiveHandle"
-          background="#121933"
-          title-inactive-color="#666"
-          title-active-color="#fff"
-          swipeable
-        >
-          <van-tab name="4" title="已拥有">
+        <van-tabs v-model="toggleActive"
+                  @click="waitactiveHandle"
+                  background="#121933"
+                  title-inactive-color="#666"
+                  title-active-color="#fff"
+                  swipeable>
+          <van-tab name="4"
+                   title="已拥有">
             <div class="ownPage">
               <div class="no_card">
                 <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
                 <p>暂无权益卡牌</p> -->
-                <van-empty
-                  class="custom-image"
-                  :image="require('../../assets/img/cardPage/cardNull.png')"
-                  description="暂无权益卡牌"
-                />
+                <van-empty class="custom-image"
+                           :image="require('../../assets/img/cardPage/cardNull.png')"
+                           description="暂无权益卡牌" />
               </div>
             </div>
           </van-tab>
-          <van-tab name="3" title="待领取">
+          <van-tab name="3"
+                   title="待领取">
             <div class="awaitPage">
-              <div class="no_card" v-if="cardState.length === 0">
+              <div class="no_card"
+                   v-if="cardState.length === 0">
                 <!-- <div class="no_card" v-if="false"> -->
                 <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
                 <p>暂无权益卡牌</p> -->
-                <van-empty
-                  class="custom-image"
-                  :image="require('../../assets/img/cardPage/cardNull.png')"
-                  description="暂无权益卡牌"
-                />
+                <van-empty class="custom-image"
+                           :image="require('../../assets/img/cardPage/cardNull.png')"
+                           description="暂无权益卡牌" />
               </div>
-              <div
-                v-else
-                class="awaitItem"
-                v-for="(item, i) in cardState"
-                :key="i"
-              >
+              <div v-else
+                   class="awaitItem"
+                   v-for="(item, i) in cardState"
+                   :key="i">
                 <template v-if="item.Activate === '1' && item.Type === '1'">
-                  <div @click="cardDetailsHandler" class="left">
-                    <img src="../../assets/img/equityItem1.png" alt="" />
+                  <div @click="cardDetailsHandler"
+                       class="left">
+                    <img src="../../assets/img/equityItem1.png"
+                         alt="" />
                   </div>
                   <div class="right">
                     <div class="titleWarp">
                       <span>创世会权益卡</span>
                       <span>
-                        <van-checkbox
-                          icon-size="16px"
-                          v-model="item.ischecked"
-                        ></van-checkbox>
+                        <van-checkbox icon-size="16px"
+                                      v-model="item.ischecked"></van-checkbox>
                       </span>
                     </div>
-                    <section
-                      class="msg"
-                      :class="{ 'van-multi-ellipsis--l2': item.isopen }"
-                      @click="item.isopen = !item.isopen"
-                    >
+                    <section class="msg"
+                             :class="{ 'van-multi-ellipsis--l2': item.isopen }"
+                             @click="item.isopen = !item.isopen">
                       创世会，传说级卡牌，全球仅限 66 张,享有全网创世会 EOTC NFT
                       1% 手续费平均分红，EOTC DAO 治理投票权。
-                      <span
-                        v-if="!item.isopen"
-                        @click="item.isopen = false"
-                        :style="{ color: '#fdd16a' }"
-                        >收起.</span
-                      >
+                      <span v-if="!item.isopen"
+                            @click="item.isopen = false"
+                            :style="{ color: '#fdd16a' }">收起.</span>
                     </section>
                   </div>
                 </template>
-                <template
-                  v-else-if="item.Activate === '1' && item.Type === '2'"
-                >
-                  <div @click="cardDetailsHandler" class="left">
-                    <img src="../../assets/img/equityItem2.png" alt="" />
+                <template v-else-if="item.Activate === '1' && item.Type === '2'">
+                  <div @click="cardDetailsHandler"
+                       class="left">
+                    <img src="../../assets/img/equityItem2.png"
+                         alt="" />
                   </div>
                   <div class="right">
                     <div class="titleWarp">
                       <span>联合会权益卡</span>
                       <span>
-                        <van-checkbox
-                          icon-size="16px"
-                          v-model="item.ischecked"
-                        ></van-checkbox>
+                        <van-checkbox icon-size="16px"
+                                      v-model="item.ischecked"></van-checkbox>
                       </span>
                     </div>
-                    <section
-                      class="msg"
-                      :class="{ 'van-multi-ellipsis--l2': item.isopen }"
-                      @click="item.isopen = !item.isopen"
-                    >
+                    <section class="msg"
+                             :class="{ 'van-multi-ellipsis--l2': item.isopen }"
+                             @click="item.isopen = !item.isopen">
                       联合会，史诗级卡牌，全球仅限 666 张，享有全网联合会 EOTC
                       NFT 1% 手续费平均分红，EOTC DAO 治理投票权。
-                      <span
-                        v-if="!item.isopen"
-                        @click="item.isopen = false"
-                        :style="{ color: '#fdd16a' }"
-                        >收起.</span
-                      >
+                      <span v-if="!item.isopen"
+                            @click="item.isopen = false"
+                            :style="{ color: '#fdd16a' }">收起.</span>
                     </section>
                   </div>
                 </template>
               </div>
             </div>
           </van-tab>
-          <van-tab name="2" title="待铸造">
+          <van-tab name="2"
+                   title="待铸造">
             <div class="waitcoin">
-              <div v-if="coinFlag" class="no_card">
-                <van-empty
-                  class="custom-image"
-                  :image="require('../../assets/img/cardPage/cardNull.png')"
-                  description="暂无权益卡牌"
-                />
+              <div v-if="coinFlag"
+                   class="no_card">
+                <van-empty class="custom-image"
+                           :image="require('../../assets/img/cardPage/cardNull.png')"
+                           description="暂无权益卡牌" />
               </div>
-              <div v-if="!coinFlag" class="coinwarp">
-                <div
-                  v-for="(cast, index) in castDataList"
-                  :key="cast.castid"
-                  class="coineditem"
-                >
+              <div v-if="!coinFlag"
+                   class="coinwarp">
+                <div v-for="(cast, index) in castDataList"
+                     :key="cast.castid"
+                     class="coineditem">
                   <div class="left">
-                    <img :src="cast.castimg" alt="卡牌" />
+                    <img :src="cast.castimg"
+                         alt="卡牌" />
                   </div>
                   <div class="right">
                     <div>{{ cast.castname }}</div>
                     <div>数量：{{ cast.castnum }}</div>
                     <div v-if="currentIndex == index ? fontFlag : !fontFlag">
-                      <span @click="coincardHandler(cast, index)"
-                        ><img :src="cast.casticon" alt="铸造" />铸造</span
-                      >
+                      <span @click="coincardHandler(cast, index)"><img :src="cast.casticon"
+                             alt="铸造" />铸造</span>
                     </div>
-                    <div v-else class="waitrank">
+                    <div v-else
+                         class="waitrank">
                       <p>铸造中…</p>
                       <p>铸造完成后可在待领取中进行领取</p>
                     </div>
@@ -152,26 +133,25 @@
               </div>
             </div>
           </van-tab>
-          <van-tab name="1" title="待激活">
+          <van-tab name="1"
+                   title="待激活">
             <div class="waitActive">
-              <div class="no_card" v-if="Not_activatedList.length === 0">
+              <div class="no_card"
+                   v-if="Not_activatedList.length === 0">
                 <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
                 <p>暂无权益卡牌</p> -->
-                <van-empty
-                  class="custom-image"
-                  :image="require('../../assets/img/cardPage/cardNull.png')"
-                  description="暂无权益卡牌"
-                />
+                <van-empty class="custom-image"
+                           :image="require('../../assets/img/cardPage/cardNull.png')"
+                           description="暂无权益卡牌" />
               </div>
-              <div
-                v-else
-                class="itemCard isgary"
-                v-for="(item, i) in Not_activatedList"
-                :key="i"
-              >
+              <div v-else
+                   class="itemCard isgary"
+                   v-for="(item, i) in Not_activatedList"
+                   :key="i">
                 <template>
                   <div>
-                    <img src="../../assets/img/equityItem2.png" alt="" />
+                    <img src="../../assets/img/equityItem2.png"
+                         alt="" />
                     <p>联合会权益NFT</p>
                   </div>
                 </template>
@@ -181,24 +161,22 @@
         </van-tabs>
       </div>
       <!-- 页脚 -->
-      <div class="footer" v-if="showFooter">
+      <div class="footer"
+           v-if="showFooter">
         <div class="left">
           <p>已选择 {{ selecked }} 个</p>
           <p>提示:选择同种类NFT</p>
         </div>
         <div class="right">
-          <van-button
-            round
-            :disabled="isselect"
-            block
-            type="info"
-            @click="getCard()"
-            >领取</van-button
-          >
+          <van-button round
+                      :disabled="isselect"
+                      block
+                      type="info"
+                      @click="getCard()">领取</van-button>
         </div>
       </div>
     </div>
-      
+
     <!-- 遮罩 -->
     <div v-show="maskFlag1"
          class="rankmask">
@@ -250,16 +228,16 @@
 </template>
 
 <script>
-import { myNft } from "@/api/newReqets";
+import { myNft } from '@/api/newReqets'
 
 export default {
-  name: "myNFT-list",
+  name: 'myNFT-list',
   data() {
     return {
       showFooter: false,
       cardList: [],
       contentFlag: true,
-      toggleActive: "1",
+      toggleActive: '1',
       cardState: [],
       coinFlag: false,
       // activeName:'1'
@@ -270,49 +248,50 @@ export default {
       maskFlag3: false, //遮罩第三次状态
       fontFlag: false, //字体状态
       // 定义卡牌数据
+      // castDataList: [],
       castDataList: [
         {
-          castid: Math.floor(Math.random() * 100) + "",
-          castname: "三级青铜甲犀牛",
-          castnum: "1",
-          casticon: require("../../assets/img/coincard/icon3.png"),
-          castimg: require("../../assets/img/coincard/card1.png"),
+          castid: Math.floor(Math.random() * 100) + '',
+          castname: '三级青铜甲犀牛',
+          castnum: '1',
+          casticon: require('../../assets/img/coincard/icon3.png'),
+          castimg: require('../../assets/img/coincard/card1.png')
         },
         {
-          castid: Math.floor(Math.random() * 100) + "",
-          castname: "三级青铜甲犀牛",
-          castnum: "1",
-          casticon: require("../../assets/img/coincard/icon3.png"),
-          castimg: require("../../assets/img/coincard/card1.png"),
+          castid: Math.floor(Math.random() * 100) + '',
+          castname: '三级青铜甲犀牛',
+          castnum: '1',
+          casticon: require('../../assets/img/coincard/icon3.png'),
+          castimg: require('../../assets/img/coincard/card1.png')
         },
         {
-          castid: Math.floor(Math.random() * 100) + "",
-          castname: "三级青铜甲犀牛",
-          castnum: "1",
-          casticon: require("../../assets/img/coincard/icon3.png"),
-          castimg: require("../../assets/img/coincard/card1.png"),
+          castid: Math.floor(Math.random() * 100) + '',
+          castname: '三级青铜甲犀牛',
+          castnum: '1',
+          casticon: require('../../assets/img/coincard/icon3.png'),
+          castimg: require('../../assets/img/coincard/card1.png')
         },
         {
-          castid: Math.floor(Math.random() * 100) + "",
-          castname: "三级青铜甲犀牛",
-          castnum: "1",
-          casticon: require("../../assets/img/coincard/icon3.png"),
-          castimg: require("../../assets/img/coincard/card1.png"),
-        },
-      ],
-    };
+          castid: Math.floor(Math.random() * 100) + '',
+          castname: '三级青铜甲犀牛',
+          castnum: '1',
+          casticon: require('../../assets/img/coincard/icon3.png'),
+          castimg: require('../../assets/img/coincard/card1.png')
+        }
+      ]
+    }
   },
   created() {
-    this.getMyNFT();
-    this.waitactiveHandle();
+    this.getMyNFT()
+    this.waitactiveHandle()
   },
   methods: {
-    coincardHandler(item,index) {
+    coincardHandler(item, index) {
       // console.log(item);
       // console.log('dddd');
-      this.index=null
+      this.index = null
       // this.cardData.push(item)
-      this.index=index
+      this.index = index
       this.maskFlag1 = true
     },
     cancelHandler() {
@@ -328,7 +307,7 @@ export default {
       this.maskFlag2 = false
     },
     confirmRankHandler() {
-       this.currentIndex=this.index
+      this.currentIndex = this.index
       this.maskFlag2 = false
       this.maskFlag3 = true
     },
@@ -336,18 +315,20 @@ export default {
       this.maskFlag3 = false
     },
     waitactiveHandle() {
-      if (this.toggleActive === "1") {
-        this.showFooter = false;
-      } else if (this.toggleActive === "2") {
-        this.showFooter = false;
-      } else if (this.toggleActive === "3") {
-        this.showFooter = true;
-      } else if (this.toggleActive === "4") {
-        this.showFooter = false;
-      }
+      // if (this.toggleActive === '1') {
+      //   this.showFooter = false
+      // } else if (this.toggleActive === '2') {
+      //   this.showFooter = false
+      // } else if (this.toggleActive === '3') {
+      //   this.showFooter = true
+      // } else if (this.toggleActive === '4') {
+      //   this.showFooter = false
+      // }
+
+      this.toggleActive === '3' ? (this.showFooter = true) : (this.showFooter = false)
     },
     onClickLeft() {
-      this.$router.back();
+      this.$router.back()
     },
     cardDetailsHandler() {
       // this.$router.push({
@@ -359,38 +340,38 @@ export default {
       // this.$toast.warning("卡牌暂不可领取!");
     },
     async getMyNFT() {
-      const { data } = await myNft(1);
-      console.log(data);
-      this.cardList = data.reverse();
+      const { data } = await myNft(1)
+      console.log(data)
+      this.cardList = data.reverse()
       this.pd_card.forEach((card) => {
         this.cardState.push({
           ...card,
           ischecked: false,
-          isopen: true,
-        });
-      });
+          isopen: true
+        })
+      })
     },
     createCard(item) {
-      this.$toast.clear();
-      this.$toast.warning("卡牌铸造中，敬请期待！");
-    },
+      this.$toast.clear()
+      this.$toast.warning('卡牌铸造中，敬请期待！')
+    }
   },
   computed: {
     Not_activatedList() {
-      return this.cardList.filter((card) => card.Activate === "0");
+      return this.cardList.filter((card) => card.Activate === '0')
     },
     pd_card() {
-      return this.cardList.filter((card) => card.Activate === "1");
+      return this.cardList.filter((card) => card.Activate === '1')
     },
     selecked() {
-      return this.cardState.filter((card) => card.ischecked === true).length;
+      return this.cardState.filter((card) => card.ischecked === true).length
     },
     isselect() {
       // return this.selecked > 0 ? false : true;
-      return true;
-    },
-  },
-};
+      return true
+    }
+  }
+}
 </script>
 
 <style lang="less" scoped>
@@ -428,67 +409,66 @@ export default {
   text-align: center;
 }
 
+// 遮罩样式
+.rankmask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 99;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .maskbox {
+    width: 590px;
+    background-color: #fff;
+    border-radius: 20px;
+    position: relative;
 
-  // 遮罩样式
-  .rankmask {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 99;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .maskbox {
-      width: 590px;
-      background-color: #fff;
-      border-radius: 20px;
-      position: relative;
+    div {
+      &:nth-child(1) {
+        padding: 100px 30px 40px 30px;
+        color: #333333;
+        font-size: 32px;
+        line-height: 53px;
+        text-align: center;
+      }
+      &:nth-child(2) {
+        width: 100%;
+        height: 95px;
+        line-height: 95px;
+        display: flex;
+        align-items: center;
+        font-size: 32px;
+        border-top: 1px solid #f3f4f5;
 
-      div {
-        &:nth-child(1) {
-          padding: 100px 30px 40px 30px;
-          color: #333333;
-          font-size: 32px;
-          line-height: 53px;
+        p {
+          flex: 1;
           text-align: center;
-        }
-        &:nth-child(2) {
-          width: 100%;
-          height: 95px;
-          line-height: 95px;
-          display: flex;
-          align-items: center;
           font-size: 32px;
-          border-top: 1px solid #f3f4f5;
-
-          p {
-            flex: 1;
-            text-align: center;
-            font-size: 32px;
-            height: 100%;
-            &:nth-child(1) {
-              color: #666666;
-              border-right: 1px solid #f3f4f5;
-            }
-            &:nth-child(2) {
-              color: #1b2945;
-            }
+          height: 100%;
+          &:nth-child(1) {
+            color: #666666;
+            border-right: 1px solid #f3f4f5;
+          }
+          &:nth-child(2) {
+            color: #1b2945;
           }
         }
       }
-      .img {
-        width: 200px;
-        height: 200px;
-        position: absolute;
-        top: -25%;
-        left: 50%;
-        transform: translate(-50%, 0%);
-      }
+    }
+    .img {
+      width: 200px;
+      height: 200px;
+      position: absolute;
+      top: -25%;
+      left: 50%;
+      transform: translate(-50%, 0%);
     }
   }
+}
 .isgary {
   filter: grayscale(1);
   -webkit-filter: grayscale(1);
@@ -500,7 +480,7 @@ export default {
   .top {
     /deep/ .van-nav-bar__content {
       // background-color: #172C58;
-      background: #1B2945;
+      background: #1b2945;
     }
     /deep/ .van-nav-bar {
       background-color: none;
@@ -521,7 +501,7 @@ export default {
       background-color: #237ff8;
     }
     // /deep/ .van-tabs__wrap {
-      // margin-bottom: 39px;
+    // margin-bottom: 39px;
     // }
     .no_card {
       display: flex;
