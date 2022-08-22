@@ -79,7 +79,7 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="countdownFlag?noshowcard(0):numOne?showcard=true:noshowcard(1)"
+                  <div @click="countdownFlag?noshowcard(0):noshowcard(1)"
                        class="top">
                     <p>
                       <span class="cardAdd">+</span>
@@ -87,14 +87,14 @@
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="countdownFlag?noshowcard(0):numOne?showcard=true:noshowcard(1)">
+                  <div @click="countdownFlag?noshowcard(0):noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="countdownFlag?noshowcard(0):numTwo?showcard=true:noshowcard(2)">
+                  <div @click="countdownFlag?noshowcard(0):noshowcard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -117,21 +117,21 @@
               <div class="addcardwarp">
                 <div class="addcard">
                   <div class="top"
-                       @click="numOne?showcard=true:noshowcard(1)">
+                       @click="noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="numOne?showcard=true:noshowcard(1)">
+                  <div @click="noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="numTwo?showcard=true:noshowcard(2)">
+                  <div @click="noshowcard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -155,14 +155,14 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="numOne?showcard=true:noshowcard(1)">
+                  <div @click="noshowcard(1)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="numTwo?showcard=true:noshowcard(2)">
+                  <div @click="noshowcard(2)">
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -485,18 +485,18 @@
     <!-- 选择卡牌遮罩 -->
     <!-- 没有该卡牌 -->
     <div class="showTime"
-         v-if="num">
+         v-if="number">
       <p>暂无{{num}}级卡牌</p>
     </div>
-    <!-- 单选 -->
     <div id="maskwait">
+      <!-- 单选 -->
       <van-overlay :lock-scroll="false"
                    :show="showcard">
         <div class="waitWrapper"
              @click.stop>
           <div class="waitTop">
             <div @click="maskCancelHandler">取消</div>
-            <div>选择一级卡牌</div>
+            <div>选择{{num}}级卡牌</div>
             <div>确定</div>
           </div>
           <ul class="cardContent">
@@ -515,9 +515,40 @@
               </li>
             </van-radio-group>
           </ul>
+        </div>
+      </van-overlay>
+
+      <!-- 多选 -->
+
+      <van-overlay :lock-scroll="false"
+                   :show="showcards">
+        <div class="waitWrapper"
+             @click.stop>
+          <div class="waitTop">
+            <div @click="maskCancelHandler">取消</div>
+            <div>选择{{num}}级卡牌</div>
+            <div>确定</div>
+          </div>
+          <ul class="cardContent">
+            <van-checkbox-group v-model="cardmaskFlags"
+                                direction="horizontal">
+              <li v-for="item in maskcardData"
+                  :key="item.id"
+                  @click="pushCard(item.id)">
+                <img :src="item.url" />
+                <p class="title">{{ item.title }}</p>
+                <p class="text">#{{ item.ucode }}</p>
+                <div class="cardselect">
+                  <van-checkbox :name="item.id"
+                                icon-size="20px"></van-checkbox>
+                </div>
+              </li>
+            </van-checkbox-group>
+          </ul>
 
         </div>
       </van-overlay>
+
     </div>
     <!-- 权益卡遮罩 -->
     <van-overlay :show="show3"
@@ -561,15 +592,20 @@ export default {
   data() {
     return {
       cardmaskFlag: 0, //单选框
-      showcard: false, //卡牌选择遮罩
+      cardmaskFlags: [], //多选框
+      showcard: false, //卡牌单选遮罩
+      showcards: false, //卡牌多选遮罩
       noshow: false, //活动未开始
       show1: false, //合成遮罩
       show2: false,
       show3: false, //权益卡牌
       num: false,
+      number: false,
       numOne: 0, //一级卡牌数量
       numTwo: 0, //二级卡牌数量
       numThree: 0, //三级卡牌数量
+      numFour: 1, //四级卡牌数量
+      numFive: 1, //五级卡牌数量
       time: 10 * 60 * 1000,
       synthActiveName: '1',
       countdownFlag: true,
@@ -666,6 +702,7 @@ export default {
     },
     maskCancelHandler() {
       this.showcard = false
+      this.showcards = false
     },
     showCardHandler() {
       this.showcard = true
@@ -691,9 +728,8 @@ export default {
       this.time = 10 * 60 * 1000
       this.countdownFlag = true
     },
-    // 活动未开始||无该卡牌
     noshowcard(i) {
-      let number = ['一', '二', '三', '四', '五', '六', '七']
+      let count = ['一', '二', '三', '四', '五', '六', '七']
       if (i == 0) {
         // 活动未开始
         this.noshow = true
@@ -701,12 +737,31 @@ export default {
           this.noshow = false
         }, 500)
       } else {
-        // 没有该卡牌
-        this.num = number[i - 1]
-        setTimeout(() => {
-          this.num = false
-        }, 500)
+        this.num = count[i - 1]
+        // 有卡牌
+        if (this.numOne || this.numTwo) {
+          // 单选
+          this.showcard = true
+        } else if (this.numThree || this.numFour || this.numFive) {
+          // 多选
+          this.showcards = true
+        } else {
+          // 没有该卡牌
+          setTimeout(() => {
+            this.number = false
+          }, 500)
+        }
       }
+    },
+    pushCard(id) {
+      if (this.cardmaskFlags.length > 4) {
+        // 提示只能选择5张
+        console.log('只能选择5张')
+      } else {
+        this.cardmaskFlags.push(id)
+      }
+      this.cardmaskFlags = [...new Set(this.cardmaskFlags)]
+      console.log(this.cardmaskFlags)
     }
   }
 }
