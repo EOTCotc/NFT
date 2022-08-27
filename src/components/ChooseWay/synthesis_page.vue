@@ -4,6 +4,7 @@
       <van-nav-bar title="合成"
                    left-arrow
                    fixed
+                   z-index='99'
                    placeholder
                    @click-left="onClickLeft" />
     </div>
@@ -786,7 +787,7 @@ export default {
   }
   //   ?主体内容
   .sythcontent {
-    margin-bottom: 200px;
+    margin-bottom: 120px;
     /deep/ .van-tab__text {
       font-size: 36px;
     }
