@@ -32,6 +32,13 @@
         </div>
       </div>
     </div>
+    <!-- 卡牌售价 -->
+    <div class="price"
+         v-if="toggle">
+      <p class="title">售价</p>
+      <p class="cost"><img src="../../assets/img/logo-removebg-preview.png"
+             alt="">{{price}}</p>
+    </div>
     <!-- 作品简介 -->
     <div class="intro">
       <p class="title">作品简介</p>
@@ -71,7 +78,12 @@
     </div>
     <!-- 页脚 -->
     <div class="footer">
-      <div v-show="toggle1==true"
+      <div v-show="toggle"
+           class="btn"
+           @click="buyHandler">
+        <p>购买</p>
+      </div>
+      <div v-show="toggle1"
            @click="receiveSuccessHandler"
            class="btn">
         <p>领取</p>
@@ -104,9 +116,11 @@ export default {
   data() {
     return {
       // time: Date.now(),
+      price: 2000.52,
       off: false,
       show: false,
-      toggle1: true, //默认领取
+      toggle: false, //购买
+      toggle1: false, //领取
       toggle2: false, //绑定、出售
       toggle3: false, //绑定
       toggle4: false, //解绑
@@ -114,6 +128,9 @@ export default {
     }
   },
   created() {
+    if (sessionStorage.getItem('toggle')) this.toggle = true
+    if (sessionStorage.getItem('toggle1')) this.toggle1 = true
+
     if (sessionStorage.getItem('show') == 'true') {
       this.toggle1 = false
       this.toggle2 = false
@@ -132,8 +149,20 @@ export default {
   beforeDestroy() {
     sessionStorage.removeItem('show')
     sessionStorage.removeItem('off')
+    sessionStorage.removeItem('toggle')
+    sessionStorage.removeItem('toggle1')
   },
   methods: {
+    buyHandler() {
+      console.log('购买该卡牌')
+      // 购买成功后
+      this.toggle = false
+      this.toggle1 = true
+      this.toggle2 = false
+      this.toggle3 = false
+      this.toggle4 = false
+      this.btnShow = false
+    },
     unbindHandler() {
       let _this = this
       Dialog.confirm({
@@ -201,9 +230,10 @@ export default {
       }, 1000)
     },
     onClickLeft() {
-      this.$router.push({
-        name: 'hvae_card'
-      })
+      this.$router.back()
+      // this.$router.push({
+      //   name: 'hvae_card'
+      // })
     }
   }
 }
@@ -287,12 +317,14 @@ html {
       }
     }
   }
-  //作品简介
-  .intro {
+  //作品简介,卡牌售价
+  .intro,
+  .price {
     width: 690px;
-    height: 281px;
+    // height: 281px;
     background: #1b2333;
     margin: 0 auto;
+    margin-bottom: 30px;
     border-radius: 20px;
     padding: 30px;
     box-sizing: border-box;
@@ -301,13 +333,24 @@ html {
       color: #fff;
       margin-bottom: 30px;
     }
+    .cost {
+      font-size: 40px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      img {
+        margin-right: 20px;
+        width: 44px;
+        height: 44px;
+      }
+    }
     .content {
       width: 630px;
       height: 136px;
       font-size: 28px;
       font-family: PingFang SC-Light, PingFang SC;
       font-weight: 300;
-      color: #fff;
+      color: #858992;
       line-height: 44px;
       text-align: justify;
     }

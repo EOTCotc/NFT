@@ -65,10 +65,10 @@
                            :icon="require('../../assets/img/rightMenuIcon/nftCardIcon.png')"
                            name="6">
           <div class="item">
-            <p @click="goUrl('6-1')">
+            <p @click="goUrl(6.1)">
               权益卡牌
             </p>
-            <p @click="goUrl('6-2')">
+            <p @click="goUrl(6.2)">
               等级卡牌
             </p>
           </div>
@@ -153,10 +153,10 @@ export default {
       console.log(i)
       if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
       if (i == 3) this.$router.push({ name: 'buy_blindbox' })
-      if (i == 4) this.$router.push({ name: '' })
+      if (i == 4) this.$router.push({ name: 'marketNFT' })
       if (i == 5) this.$router.push({ name: 'order_all' })
-      if (i == '6 - 1') this.$router.push({ name: 'hvae_card' })
-      if (i == '6 - 2') this.$router.push({ name: 'rank_card' })
+      if (i == 6.1) this.$router.push({ name: 'hvae_card' })
+      if (i == 6.2) this.$router.push({ name: 'rank_card' })
       if (i == 7) this.$router.push({ name: 'synthesis_page' })
       if (i == 8) location.href = 'https://eotc.im/html/guide/guide.html'
     },
