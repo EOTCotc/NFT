@@ -11,23 +11,23 @@
         <span class="sp1">UID:{{UID}}</span>
       </p>
       <div class="main">
-        <p v-show="changeValue">
+        <p>
           <span>USDT</span>
           <span>{{ USDT }}</span>
         </p>
-        <p v-show="changeValue">
+        <p>
           <span>EOTC</span>
           <span>{{ EOTC }}</span>
         </p>
 
-        <p v-show="!changeValue">
+        <!-- <p v-show="!changeValue">
           <span>USDT</span>
           <span>{{ nft_USDT }}</span>
         </p>
         <p v-show="!changeValue">
           <span>EOTC</span>
           <span>{{ nft_EOTC }}</span>
-        </p>
+        </p> -->
       </div>
     </header>
     <div class="main-p">
@@ -36,41 +36,39 @@
         <van-collapse-item title="白名单"
                            :icon="require('../../assets/img/rightMenuIcon/whiteListIcon.png')"
                            name="2">
-          <div @click="whitelistHandler"
-               class="item">
-            <p>白名单</p>
+          <div class="item">
+            <p @click="goUrl(2)">白名单</p>
           </div>
         </van-collapse-item>
         <van-collapse-item title="盲盒"
                            :icon="require('../../assets/img/rightMenuIcon/blindBoxIcon.png')"
                            name="3">
-          <div @click="blindboxHandler"
-               class="item">
-            <p>盲盒</p>
+          <div class="item">
+            <p @click="goUrl(3)">盲盒</p>
           </div>
         </van-collapse-item>
         <van-collapse-item title="市场"
                            :icon="require('../../assets/img/rightMenuIcon/bazaarIcon.png')"
                            name="4">
           <div class="item">
-            <p>市场</p>
+            <p @click="goUrl(4)">市场</p>
           </div>
         </van-collapse-item>
         <van-collapse-item title="订单"
                            :icon="require('../../assets/img/rightMenuIcon/orderIcon.png')"
                            name="5">
           <div class="item">
-            <p>订单</p>
+            <p @click="goUrl(5)">订单</p>
           </div>
         </van-collapse-item>
         <van-collapse-item title="我的NFT"
                            :icon="require('../../assets/img/rightMenuIcon/nftCardIcon.png')"
                            name="6">
           <div class="item">
-            <p @click="myNftLIST()">
+            <p @click="goUrl('6-1')">
               权益卡牌
             </p>
-            <p @click="rankCardHandler">
+            <p @click="goUrl('6-2')">
               等级卡牌
             </p>
           </div>
@@ -79,18 +77,42 @@
                            :icon="require('../../assets/img/rightMenuIcon/guideIcon.png')"
                            name="7">
           <div class="item">
-            <p @click="synthHandler"> 合成</p>
+            <p @click="goUrl(7)"> 合成</p>
           </div>
         </van-collapse-item>
         <van-collapse-item title="新手指引"
                            :icon="require('../../assets/img/rightMenuIcon/orderIcon.png')"
                            name="8">
           <div class="item">
-            <p>新手指引</p>
+            <p @click="goUrl(8)">新手指引</p>
           </div>
         </van-collapse-item>
       </van-collapse>
     </div>
+
+    <van-popup v-model="changeValue"
+               round
+               lock-scroll
+               position="bottom"
+               class="changeWallet">
+      <div class="title">
+        <div class="l"
+             @click="undeWallet">取消</div>
+        <div class="c">选择钱包</div>
+        <div class="r"
+             @click="sureWallet">确定</div>
+      </div>
+      <div class="lists">
+        <div class="list"
+             @click="changeAct=item.id"
+             :class="changeAct==item.id ? 'active' :''"
+             v-for="item in walletList"
+             :key="item.id">
+          <p class="name">{{ item.name }}</p>
+          <p class="num">{{ item.number }}</p>
+        </div>
+      </div>
+    </van-popup>
   </div>
 </template>
 
@@ -103,10 +125,18 @@ export default {
       activeNames: '1',
       USDT: '0.00',
       EOTC: '0.00',
-      nft_USDT: '0.00',
-      nft_EOTC: '0.00',
+      // nft_USDT: '0.00',
+      // nft_EOTC: '0.00',
       UID: '000000',
-      changeValue: true
+      changeValue: false,
+      walletList: [
+        { id: 1, name: 'ETH', number: '0x3929fe0…7cE24424' },
+        { id: 2, name: 'DA', number: '0x389W0…SASDAW45' },
+        { id: 3, name: 'TAW', number: '0x345e0S…7cE24424' },
+        { id: 4, name: 'aw', number: '0x3929fe0…7cE25478' }
+      ],
+      active: 1,
+      changeAct: 0
     }
   },
   async created() {
@@ -116,38 +146,31 @@ export default {
     this.EOTC = result.eotcAmount
     this.nft_USDT = result.wallet_NFTusdt
     this.nft_EOTC = result.wallet_NFTeotc
+    this.changeAct = this.active
   },
   methods: {
-    synthHandler(){
-       this.$router.push({
-        name: 'synthesis_page'
-      })
-    },
-     rankCardHandler() {
-      this.$router.push({
-        name: 'rank_card'
-      })
-    },
-    whitelistHandler() {
-      this.$router.push({
-        name: 'CurrencyTrading'
-      })
-    },
-    blindboxHandler() {
-      this.$router.push({
-        name: 'buy_blindbox'
-      })
+    goUrl(i) {
+      console.log(i)
+      if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
+      if (i == 3) this.$router.push({ name: 'buy_blindbox' })
+      if (i == 4) this.$router.push({ name: '' })
+      if (i == 5) this.$router.push({ name: 'order_all' })
+      if (i == '6 - 1') this.$router.push({ name: 'hvae_card' })
+      if (i == '6 - 2') this.$router.push({ name: 'rank_card' })
+      if (i == 7) this.$router.push({ name: 'synthesis_page' })
+      if (i == 8) location.href = 'https://eotc.im/html/guide/guide.html'
     },
     changeVal() {
-      this.changeValue = !this.changeValue
+      this.changeAct = this.active
+      this.changeValue = true
     },
-    myNftLIST() {
-      // this.$router.push({
-      //   name: 'mynft_list'
-      // })
-      this.$router.push({
-        name: 'hvae_card'
-      })
+    undeWallet() {
+      this.changeValue = false
+      setTimeout(() => (this.changeAct = this.active), 1000)
+    },
+    sureWallet() {
+      this.active = this.changeAct
+      this.changeValue = false
     }
   }
 }
@@ -162,26 +185,27 @@ export default {
     p {
       height: 96px;
       line-height: 96px;
-      font-size: 28px;
-      &:nth-child(1) {
-        font-size: 30px;
-      }
+      font-size: 30px;
     }
   }
   /deep/ .van-collapse-item__content {
     padding: 0;
   }
-  /deep/ .van-collapse-item {
-    // margin: 20px 0;
-    margin-bottom: 30px;
-  }
+  // /deep/ .van-collapse-item {
+  //   // margin: 20px 0;
+  //   margin-bottom: 30px;
+  // }
   /deep/ .van-cell__title {
     font-size: 32px;
+  }
+
+  .van-collapse-item {
+    margin-bottom: 10px;
   }
 }
 
 .content {
-  margin-top: 80px;
+  padding-top: 80px;
   width: 100vw;
   display: flex;
   position: relative;
@@ -289,6 +313,56 @@ export default {
       .close {
         transform: rotate(-45deg);
       }
+    }
+  }
+}
+
+.changeWallet {
+  border: 1px solid #707070;
+  letter-spacing: 2px;
+  box-sizing: border-box;
+  .title {
+    margin: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #333333;
+    font-size: 28px;
+    .l {
+      color: #666666;
+    }
+    .c {
+      font-size: 34px;
+      font-weight: bold;
+    }
+    .r {
+      color: #000;
+    }
+  }
+  .lists {
+    margin: 20px 30px;
+    margin-top: 40px;
+    color: #333333;
+    font-size: 32px;
+    .list {
+      box-sizing: border-box;
+      height: 130px;
+      margin-bottom: 16px;
+      border-radius: 8px 8px 8px 8px;
+      // border: 2px solid #237ff8;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      padding: 16px 30px;
+      background: #f3f4f5;
+      .num {
+        color: #333333;
+        opacity: 0.5;
+        font-size: 26px;
+      }
+    }
+    .active {
+      border: 4px solid #237ff8;
     }
   }
 }

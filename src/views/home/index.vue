@@ -48,7 +48,7 @@ export default {
 }
 
 .top {
-  padding-bottom: 3.5rem;
+  padding-bottom: 1.5rem;
   background-color: rgb(8, 11, 19);
 }
 

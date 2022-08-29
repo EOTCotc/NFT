@@ -237,7 +237,7 @@ export default {
       showFooter: false,
       cardList: [],
       contentFlag: true,
-      toggleActive: '1',
+      toggleActive: '4',
       cardState: [],
       coinFlag: false,
       // activeName:'1'

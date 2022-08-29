@@ -17,10 +17,10 @@
         <div class="king">
           <img src="../../assets/img/cardDetails/king.png"
                alt="国王">
-          <div v-if="!btnShow"
-               class="bingBtn">
-            <van-button icon="plus"
-                        type="primary">绑定</van-button>
+          <div class="bingBtn"
+               v-if="btnShow">
+            <van-button :icon="toggle4?'':'plus'"
+                        type="primary">{{toggle4?'ada454...DDF6':'绑定'}}</van-button>
           </div>
         </div>
         <div class="arena">
@@ -43,6 +43,10 @@
     <div class="msg">
       <p class="msgtitle">作品信息</p>
       <ul class="list">
+        <li v-if="!toggle1">
+          <p>拥有者</p>
+          <p>dsa156…4578</p>
+        </li>
         <li>
           <p>作品编号</p>
           <p>#01</p>
@@ -67,25 +71,25 @@
     </div>
     <!-- 页脚 -->
     <div class="footer">
-      <div v-if="toggle1"
+      <div v-show="toggle1==true"
            @click="receiveSuccessHandler"
            class="btn">
         <p>领取</p>
       </div>
       <!-- 领取后显示 -->
-      <div v-if="!toggle2"
+      <div v-if="toggle2"
            class="togglebtn">
         <div @click="bindHandler"
              class="btn">绑定</div>
         <div @click="sellHandler"
              class="btn">出售</div>
       </div>
-      <div v-if="!toggle3"
+      <div v-if="toggle3"
            @click="unitybindHandler"
            class="boundBtn">
         <p>绑定</p>
       </div>
-      <div v-if="!toggle4"
+      <div v-if="toggle4"
            @click="unbindHandler"
            class="unbindBtn">
         <p>解绑</p>
@@ -99,14 +103,35 @@ import { Toast, Dialog } from 'vant'
 export default {
   data() {
     return {
-      time: Date.now(),
+      // time: Date.now(),
+      off: false,
       show: false,
       toggle1: true, //默认领取
-      toggle2: true, //绑定、出售
-      toggle3: true, //绑定
-      toggle4: true, //解绑
-      btnShow: true //按钮
+      toggle2: false, //绑定、出售
+      toggle3: false, //绑定
+      toggle4: false, //解绑
+      btnShow: false //上方按钮
     }
+  },
+  created() {
+    if (sessionStorage.getItem('show') == 'true') {
+      this.toggle1 = false
+      this.toggle2 = false
+      this.toggle3 = true
+      this.toggle4 = false
+      this.btnShow = true
+    }
+    if (sessionStorage.getItem('off') == 'true') {
+      this.toggle1 = false
+      this.toggle2 = true
+      this.toggle3 = false
+      this.toggle4 = false
+      this.btnShow = true
+    }
+  },
+  beforeDestroy() {
+    sessionStorage.removeItem('show')
+    sessionStorage.removeItem('off')
   },
   methods: {
     unbindHandler() {
@@ -115,8 +140,8 @@ export default {
         message: '解绑后权益卡相关权益将停止确定解绑此权益卡？'
       })
         .then(() => {
-          _this.toggle3 = false
-          _this.toggle4 = true
+          _this.toggle3 = true
+          _this.toggle4 = false
           Toast({ message: '解绑成功', duration: 500 })
         })
         .catch(() => {
@@ -131,8 +156,8 @@ export default {
         message: '绑定之后不可进行出售操作'
       })
         .then(() => {
-          _this.toggle3 = true
-          _this.toggle4 = false
+          _this.toggle3 = false
+          _this.toggle4 = true
           Toast({ message: '绑定成功', duration: 500 })
         })
         .catch(() => {
@@ -142,9 +167,12 @@ export default {
     },
     sellHandler() {
       // console.log('888')
-      this.toggle2 = true
-      this.toggle3 = false
-      Toast('出售成功！')
+      // this.toggle2 = true
+      // this.toggle3 = false
+      // Toast('出售成功！')
+      this.$router.push({
+        name: 'card_sell'
+      })
     },
     bindHandler() {
       Toast('主人，出售之后才能绑定哦~')
@@ -164,8 +192,8 @@ export default {
           toast.message = `领取成功`
         } else {
           _this.toggle1 = false
-          _this.toggle2 = false
-          _this.btnShow = false
+          _this.toggle2 = true
+          _this.btnShow = true
           clearInterval(timer)
           // 手动清除 Toast
           Toast.clear()
@@ -215,7 +243,8 @@ html {
           border: none;
         }
         /deep/ .van-button {
-          width: 178px;
+          padding: 0 20px;
+          // width: 178px;
           height: 60px;
           font-size: 28px;
           border-radius: 30px;
@@ -265,7 +294,6 @@ html {
     background: #1b2333;
     margin: 0 auto;
     border-radius: 20px;
-    opacity: 1;
     padding: 30px;
     box-sizing: border-box;
     .title {
