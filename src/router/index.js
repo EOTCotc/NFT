@@ -20,6 +20,11 @@ const routes = [
 		component: () => import('@/views/home'),
 		children: [
 			{
+				path: '/marketNFT',
+				name: 'marketNFT',
+				component: () => import('@/components/ChooseWay/marketNFT')
+			},
+			{
 				path: '/order_all',
 				name: 'order_all',
 				component: () => import('@/components/order/order_all')

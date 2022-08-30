@@ -20,7 +20,18 @@
           <van-tab name="4"
                    title="已拥有">
             <div class="ownPage">
-              <div class="no_card">
+              <div class="cartList"
+                   v-if="cartItem">
+                <div class="cartItem"
+                     v-for="item in cartItem"
+                     :key="item.id">
+                  <img :src="item.img"
+                       alt="">
+                  <p>{{item.title}}</p>
+                </div>
+              </div>
+              <div class="no_card"
+                   v-else>
                 <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
                 <p>暂无权益卡牌</p> -->
                 <van-empty class="custom-image"
@@ -41,7 +52,32 @@
                            :image="require('../../assets/img/cardPage/cardNull.png')"
                            description="暂无权益卡牌" />
               </div>
-              <div v-else
+              <div class="cart"
+                   v-else>
+                <div class="awaitItem"
+                     v-for="item in cardState"
+                     :key="item.id">
+                  <div @click="cardDetailsHandler"
+                       class="left">
+                    <img :src="item.img"
+                         @click="goCardDetails(item.id)"
+                         alt="" />
+                  </div>
+                  <div class="right">
+                    <div class="titleWarp">
+                      <span>{{item.title}}</span>
+                      <span>
+                        <van-checkbox icon-size="16px"
+                                      v-model="item.ischecked"></van-checkbox>
+                      </span>
+                    </div>
+                    <section class="msg">
+                      {{ item.text}}
+                    </section>
+                  </div>
+                </div>
+              </div>
+              <!-- <div v-else
                    class="awaitItem"
                    v-for="(item, i) in cardState"
                    :key="i">
@@ -95,7 +131,7 @@
                     </section>
                   </div>
                 </template>
-              </div>
+              </div> -->
             </div>
           </van-tab>
           <van-tab name="2"
@@ -165,7 +201,7 @@
            v-if="showFooter">
         <div class="left">
           <p>已选择 {{ selecked }} 个</p>
-          <p>提示:选择同种类NFT</p>
+          <p>提示:只能同时选择一种类型的NFT</p>
         </div>
         <div class="right">
           <van-button round
@@ -238,7 +274,16 @@ export default {
       cardList: [],
       contentFlag: true,
       toggleActive: '4',
-      cardState: [],
+      cartItem: [
+        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
+        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
+        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') }
+      ], //已拥有卡牌
+      // cardState: [],  //待领取卡牌
+      cardState: [
+        { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        { id: Math.random(), title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+      ],
       coinFlag: false,
       // activeName:'1'
       currentIndex: -1,
@@ -248,7 +293,7 @@ export default {
       maskFlag3: false, //遮罩第三次状态
       fontFlag: false, //字体状态
       // 定义卡牌数据
-      // castDataList: [],
+      // castDataList: [], //待铸造卡牌
       castDataList: [
         {
           castid: Math.floor(Math.random() * 100) + '',
@@ -286,6 +331,11 @@ export default {
     this.waitactiveHandle()
   },
   methods: {
+    goCardDetails(id) {
+      console.log(id)
+      sessionStorage.setItem('toggle1', true)
+      this.$router.push({ name: 'card_details' })
+    },
     coincardHandler(item, index) {
       // console.log(item);
       // console.log('dddd');
@@ -503,6 +553,9 @@ export default {
     // /deep/ .van-tabs__wrap {
     // margin-bottom: 39px;
     // }
+    .ownPage {
+      margin-top: 20px;
+    }
     .no_card {
       display: flex;
       flex-direction: column;
@@ -512,6 +565,26 @@ export default {
       color: #e28c0a;
       p {
         margin-top: 25px;
+      }
+    }
+    .cartList {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      .cartItem {
+        padding: 20px;
+        margin-bottom: 24px;
+        box-sizing: border-box;
+        width: 48%;
+        background: #1b2333;
+        border-radius: 16px;
+        img {
+          width: 100%;
+        }
+        p {
+          font-size: 32px;
+        }
       }
     }
     // ?待铸造
@@ -628,6 +701,7 @@ export default {
     .awaitPage {
       width: 100%;
       .awaitItem {
+        letter-spacing: 2px;
         width: 650px;
         background-color: #1b2333;
         margin: 0 auto;
