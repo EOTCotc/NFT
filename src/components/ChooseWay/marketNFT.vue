@@ -33,7 +33,7 @@
     <!-- 弹出层 -->
     <van-popup v-model="show"
                position="right"
-               :style="{ height: '80%',width: '76%',background:'rgb(31, 41, 70)',color:'#fff' }">
+               :style="{ height: '100%',width: '76%',background:'rgb(31, 41, 70)',color:'#fff',paddingTop:'4em' }">
       <div class="options">
         <div class="type">
           <div class="title">类型</div>
@@ -268,7 +268,7 @@ export default {
     .btn {
       width: 90%;
       position: absolute;
-      bottom: 40px;
+      bottom: 4em;
       display: flex;
       justify-content: space-around;
       align-items: center;
