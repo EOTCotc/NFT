@@ -13,117 +13,94 @@
                 background="#121933"
                 title-inactive-color="#666"
                 title-active-color="#fff"
+                sticky
+                :offset-top="46"
                 swipeable>
         <van-tab title="已拥有"
                  name="3">
+          <!-- 无已拥有卡牌 -->
           <div class="nowaitcard"
-               v-if="!rankCardFlag1">
+               v-if="rankCardFlag1.length=== 0">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/cardPage/cardNull.png')"
                        description="暂无权益卡牌" />
           </div>
-          <div v-if="rankCardFlag1"
+          <!-- 已拥有卡牌 -->
+          <div v-else
                class="owncard">
-            <div class="itemcard">
+            <div class="itemcard"
+                 v-for="item in rankCardFlag1"
+                 :key="item.id">
               <div class="img">
-                <img src="../../assets/img/blindbox/card1.png"
+                <img :src="item.image"
+                     @click="cardDetails(item.id)"
                      alt="卡片">
               </div>
-              <p class="title">5级黄金甲犀牛</p>
-              <p class="num">#000005</p>
-            </div>
-            <div class="itemcard">
-              <div class="img">
-                <img src="../../assets/img/blindbox/card1.png"
-                     alt="卡片">
-              </div>
-              <p class="title">5级黄金甲犀牛</p>
-              <p class="num">#000005</p>
-            </div>
-            <div class="itemcard">
-              <div class="img">
-                <img src="../../assets/img/blindbox/card1.png"
-                     alt="卡片">
-              </div>
-              <p class="title">5级黄金甲犀牛</p>
-              <p class="num">#000005</p>
+              <p class="title">{{item.title }}</p>
+              <p class="num">{{item.num }}</p>
             </div>
           </div>
         </van-tab>
         <van-tab title="待领取"
                  name="2">
           <div class="nowaitcard"
-               v-if="!rankCardFlag2">
+               v-if="rankCardFlag2.length=== 0">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/cardPage/cardNull.png')"
                        description="暂无权益卡牌" />
           </div>
-          <div v-if="rankCardFlag2"
+          <div v-else
                class="waitcard">
-            <div class="waitcarditem">
+            <div class="waitcarditem"
+                 v-for="item in rankCardFlag2"
+                 :key="item.id">
               <div class="left">
-                <img src="../../assets/img/blindbox/card1.png"
+                <img :src="item.image"
+                     @click="goCardDetails(item.id)"
                      alt="">
               </div>
               <div class="right">
                 <div>
-                  <span>5级黄金甲犀牛</span>
+                  <span>{{ item.title }}</span>
                   <span>
                     <van-checkbox icon-size="16px"
-                                  v-model="ischecked"></van-checkbox>
+                                  v-model="item.ischecked"></van-checkbox>
                   </span>
                 </div>
-                <div>#000005</div>
-                <div>5级黄金甲犀牛5级黄金甲犀牛5级黄金甲犀牛5级黄金甲犀牛5级…</div>
-              </div>
-            </div>
-            <div class="waitcarditem">
-              <div class="left">
-                <img src="../../assets/img/blindbox/card1.png"
-                     alt="">
-              </div>
-              <div class="right">
-                <div>
-                  <span>5级黄金甲犀牛</span>
-                  <span>
-                    <van-checkbox icon-size="16px"
-                                  v-model="ischecked"></van-checkbox>
-                  </span>
-                </div>
-                <div>#000005</div>
-                <div>5级黄金甲犀牛5级黄金甲犀牛5级黄金甲犀牛5级黄金甲犀牛5级…</div>
+                <div>{{ item.num }}</div>
+                <div>{{ item.text}}</div>
               </div>
             </div>
           </div>
-           <!-- 页脚 -->
-          <div class="waitfooter" v-if="waitfooter">
+          <!-- 页脚 -->
+          <div class="waitfooter"
+               v-if="waitfooter">
             <div class="left">
               <p>已选择 {{ selecked }} 个</p>
-              <p>提示:选择同种类NFT</p>
+              <p>提示:只能同时选择一种类型的NFT</p>
             </div>
             <div class="right">
-              <van-button
-                round
-                :disabled="isselect"
-                block
-                type="info"
-                @click="getCard()"
-                >领取</van-button
-              >
+              <van-button round
+                          :disabled="isselect"
+                          block
+                          type="info"
+                          @click="getCard()">领取</van-button>
             </div>
           </div>
         </van-tab>
         <van-tab name="1"
                  title="待铸造">
           <div class="nowaitcard"
-               v-if="!rankCardFlag3">
+               v-if="castDataList.length===0">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/cardPage/cardNull.png')"
                        description="暂无权益卡牌" />
           </div>
-          <div v-if="rankCardFlag3"
+          <div v-else
                class="coined">
-            <div v-for="(cast,index) in castDataList" :key="cast.castid" class="coineditem">
+            <div v-for="(cast,index) in castDataList"
+                 :key="cast.castid"
+                 class="coineditem">
               <div class="left">
                 <img :src="cast.castimg"
                      alt="卡牌">
@@ -186,7 +163,7 @@
           已成功提交铸造，请等待铸造铸造完成后即可领取至钱包
         </div>
         <div>
-          <p @click="cancelHandler">取消</p>
+          <!-- <p @click="cancelHandler">取消</p> -->
           <p @click="confirmSuccHandler">确定</p>
         </div>
         <img class="img"
@@ -202,101 +179,119 @@
 export default {
   data() {
     return {
-      rankCardFlag1: true, //拥有无卡片状态
-      rankCardFlag2: true, //待领取无卡片状态
-      rankCardFlag3: true, //待铸造无卡片状态
-      RankCardActive: '1',
-      cardState: [],
+      //已拥有卡牌
+      rankCardFlag1: [
+        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png') }
+      ],
+      //待领取卡牌
+      rankCardFlag2: [
+        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png'), text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
+        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png'), text: '一级卡通版犀牛，总发行量60000个', ischecked: false }
+      ],
+      // rankCardFlag3: true, //待铸造无卡片状态
+      RankCardActive: '3',
+      // cardState: [],
       ischecked: false,
       maskFlag1: false, //遮罩第一次状态
       maskFlag2: false, //遮罩第二次状态
       maskFlag3: false, //遮罩第三次状态
       fontFlag: false, //字体状态
-      cardData:[],//接收卡牌数据
-      currentIndex:-1,
-      index:-2,
-      waitfooter:true,
-      // 定义卡牌数据
-      castDataList:[
-        {
-          castid:1+'',
-          castname:"三级青铜甲犀牛",
-          castnum:'1',
-          casticon:require('../../assets/img/coincard/icon3.png'),
-          castimg:require('../../assets/img/coincard/card1.png'),
-        },
-        {
-          castid:2+'',
-          castname:"三级青铜甲犀牛",
-          castnum:'1',
-          casticon:require('../../assets/img/coincard/icon3.png'),
-          castimg:require('../../assets/img/coincard/card1.png'),
-        },
-        {
-          castid:3+'',
-          castname:"三级青铜甲犀牛",
-          castnum:'1',
-          casticon:require('../../assets/img/coincard/icon3.png'),
-          castimg:require('../../assets/img/coincard/card1.png'),
-        },
-        {
-          castid:4+'',
-          castname:"三级青铜甲犀牛",
-          castnum:'1',
-          casticon:require('../../assets/img/coincard/icon3.png'),
-          castimg:require('../../assets/img/coincard/card1.png'),
-        }
+      // cardData: [], //接收卡牌数据
+      currentIndex: -1,
+      index: -2,
+      waitfooter: true,
+      //待铸造卡牌
+      castDataList: [
+        // {
+        //   castid: 1 + '',
+        //   castname: '三级青铜甲犀牛',
+        //   castnum: '1',
+        //   casticon: require('../../assets/img/coincard/icon3.png'),
+        //   castimg: require('../../assets/img/coincard/card1.png')
+        // },
+        // {
+        //   castid: 2 + '',
+        //   castname: '三级青铜甲犀牛',
+        //   castnum: '1',
+        //   casticon: require('../../assets/img/coincard/icon3.png'),
+        //   castimg: require('../../assets/img/coincard/card1.png')
+        // }
       ]
     }
   },
   methods: {
-    getCard(){
-      console.log('88');
+    // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
+    goCardDetails(id) {
+      console.log(id)
+      sessionStorage.setItem('toggle1', true)
+      this.$router.push({ name: 'card_details' })
     },
+    // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
+    cardDetails(id) {
+      console.log(id)
+      sessionStorage.setItem('toggle2', true)
+      this.$router.push({ name: 'card_details' })
+    },
+    // “领取”卡牌
+    getCard() {
+      this.$toast('领取成功')
+      // 领取成功后重新渲染页面
+    },
+    // 返回上一级
     onClickLeft() {
       this.$router.back()
     },
-    coincardHandler(id,index) {
-      this.index=null
-      this.index=index
+    // 点击铸造显示扣除TRX的提示
+    coincardHandler(id, index) {
+      this.index = null
+      this.index = index
       this.maskFlag1 = true
     },
+    // 取消铸造
     cancelHandler() {
       this.maskFlag1 = false
       this.maskFlag3 = false
     },
+    // 确认铸造第一步
     confirmHandler() {
-      console.log('7')
+      console.log('铸造卡牌')
       this.maskFlag2 = true
       this.maskFlag1 = false
     },
+    // 跳过铸造，即取消铸造
     jumpHandler() {
       this.maskFlag2 = false
     },
+    // 确认铸造第二步，开始铸造
     confirmRankHandler() {
-       this.currentIndex=this.index
+      console.log('铸造开始')
+      // 拉起钱包，扣除所需TRX成功后执行以下操作
+      this.currentIndex = this.index
       this.maskFlag2 = false
       this.maskFlag3 = true
     },
+    // 显示开始铸造后的提示
     confirmSuccHandler() {
       this.maskFlag3 = false
     }
   },
-   computed: {
-    Not_activatedList() {
-      return this.cardList.filter((card) => card.Activate === "0");
-    },
-    pd_card() {
-      return this.cardList.filter((card) => card.Activate === "1");
-    },
+  computed: {
+    // Not_activatedList() {
+    //   return this.cardList.filter((card) => card.Activate === '0')
+    // },
+    // pd_card() {
+    //   return this.cardList.filter((card) => card.Activate === '1')
+    // },
+    // 用户选择的领取卡牌数
     selecked() {
-      return this.cardState.filter((card) => card.ischecked === true).length;
+      return this.rankCardFlag2.filter((card) => card.ischecked === true).length
     },
+    // 用户是否可领取卡牌
     isselect() {
-    // return this.selecked > 0 ? false : true;
-      return true;
-    },
-  },
+      return this.selecked > 0 ? false : true
+      // return true
+    }
+  }
 }
 </script>
 <style lang="less" scoped>
@@ -304,7 +299,7 @@ export default {
   // 头部样式
   .top {
     /deep/ .van-nav-bar__content {
-      background-color: #1B2945;
+      background-color: #1b2945;
     }
     /deep/ .van-nav-bar {
       background-color: none;
@@ -415,37 +410,37 @@ export default {
       }
     }
     .waitfooter {
-    width: 100vw;
-    height: 120px;
-    background: #11192b;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 11;
-    .left {
-      margin-left: 40px;
-      p {
-        &:nth-child(1) {
-          color: white;
-          font-size: 28px;
+      width: 100vw;
+      height: 120px;
+      background: #11192b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 11;
+      .left {
+        margin-left: 40px;
+        p {
+          &:nth-child(1) {
+            color: white;
+            font-size: 28px;
+          }
+          &:nth-child(2) {
+            color: #858992;
+            font-size: 22px;
+            margin-top: 10px;
+          }
         }
-        &:nth-child(2) {
-          color: #858992;
-          font-size: 22px;
-          margin-top: 10px;
+      }
+      .right {
+        margin-right: 20px;
+        /deep/ .van-button {
+          width: 260px;
         }
       }
     }
-    .right {
-      margin-right: 20px;
-      /deep/ .van-button {
-        width: 260px;
-      }
-    }
-  }
     .coined {
       width: 100%;
       padding-top: 40px;

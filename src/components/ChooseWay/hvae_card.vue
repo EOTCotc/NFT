@@ -16,24 +16,28 @@
                   background="#121933"
                   title-inactive-color="#666"
                   title-active-color="#fff"
+                  sticky
+                  :offset-top="46"
                   swipeable>
           <van-tab name="4"
                    title="已拥有">
             <div class="ownPage">
               <div class="cartList"
-                   v-if="cartItem">
+                   v-if="cartItem.length">
                 <div class="cartItem"
                      v-for="item in cartItem"
                      :key="item.id">
                   <img :src="item.img"
-                       alt="">
+                       alt=""
+                       @click="cardDetails(item.id)">
                   <p>{{item.title}}</p>
+                  <img src="../../assets/img/link.png"
+                       alt=""
+                       class="image">
                 </div>
               </div>
               <div class="no_card"
                    v-else>
-                <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
-                <p>暂无权益卡牌</p> -->
                 <van-empty class="custom-image"
                            :image="require('../../assets/img/cardPage/cardNull.png')"
                            description="暂无权益卡牌" />
@@ -43,22 +47,20 @@
           <van-tab name="3"
                    title="待领取">
             <div class="awaitPage">
+              <!-- 无待领取卡牌 -->
               <div class="no_card"
                    v-if="cardState.length === 0">
-                <!-- <div class="no_card" v-if="false"> -->
-                <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
-                <p>暂无权益卡牌</p> -->
                 <van-empty class="custom-image"
                            :image="require('../../assets/img/cardPage/cardNull.png')"
                            description="暂无权益卡牌" />
               </div>
+              <!-- 有待领取卡牌 -->
               <div class="cart"
                    v-else>
                 <div class="awaitItem"
                      v-for="item in cardState"
                      :key="item.id">
-                  <div @click="cardDetailsHandler"
-                       class="left">
+                  <div class="left">
                     <img :src="item.img"
                          @click="goCardDetails(item.id)"
                          alt="" />
@@ -77,61 +79,6 @@
                   </div>
                 </div>
               </div>
-              <!-- <div v-else
-                   class="awaitItem"
-                   v-for="(item, i) in cardState"
-                   :key="i">
-                <template v-if="item.Activate === '1' && item.Type === '1'">
-                  <div @click="cardDetailsHandler"
-                       class="left">
-                    <img src="../../assets/img/equityItem1.png"
-                         alt="" />
-                  </div>
-                  <div class="right">
-                    <div class="titleWarp">
-                      <span>创世会权益卡</span>
-                      <span>
-                        <van-checkbox icon-size="16px"
-                                      v-model="item.ischecked"></van-checkbox>
-                      </span>
-                    </div>
-                    <section class="msg"
-                             :class="{ 'van-multi-ellipsis--l2': item.isopen }"
-                             @click="item.isopen = !item.isopen">
-                      创世会，传说级卡牌，全球仅限 66 张,享有全网创世会 EOTC NFT
-                      1% 手续费平均分红，EOTC DAO 治理投票权。
-                      <span v-if="!item.isopen"
-                            @click="item.isopen = false"
-                            :style="{ color: '#fdd16a' }">收起.</span>
-                    </section>
-                  </div>
-                </template>
-                <template v-else-if="item.Activate === '1' && item.Type === '2'">
-                  <div @click="cardDetailsHandler"
-                       class="left">
-                    <img src="../../assets/img/equityItem2.png"
-                         alt="" />
-                  </div>
-                  <div class="right">
-                    <div class="titleWarp">
-                      <span>联合会权益卡</span>
-                      <span>
-                        <van-checkbox icon-size="16px"
-                                      v-model="item.ischecked"></van-checkbox>
-                      </span>
-                    </div>
-                    <section class="msg"
-                             :class="{ 'van-multi-ellipsis--l2': item.isopen }"
-                             @click="item.isopen = !item.isopen">
-                      联合会，史诗级卡牌，全球仅限 666 张，享有全网联合会 EOTC
-                      NFT 1% 手续费平均分红，EOTC DAO 治理投票权。
-                      <span v-if="!item.isopen"
-                            @click="item.isopen = false"
-                            :style="{ color: '#fdd16a' }">收起.</span>
-                    </section>
-                  </div>
-                </template>
-              </div> -->
             </div>
           </van-tab>
           <van-tab name="2"
@@ -174,8 +121,6 @@
             <div class="waitActive">
               <div class="no_card"
                    v-if="Not_activatedList.length === 0">
-                <!-- <img src="@/assets/img/cardPage/cardNull.png" alt="" />
-                <p>暂无权益卡牌</p> -->
                 <van-empty class="custom-image"
                            :image="require('../../assets/img/cardPage/cardNull.png')"
                            description="暂无权益卡牌" />
@@ -252,7 +197,7 @@
           已成功提交铸造，请等待铸造铸造完成后即可领取至钱包
         </div>
         <div>
-          <p @click="cancelHandler">取消</p>
+          <!-- <p @click="cancelHandler">取消</p> -->
           <p @click="confirmSuccHandler">确定</p>
         </div>
         <img class="img"
@@ -274,12 +219,12 @@ export default {
       cardList: [],
       contentFlag: true,
       toggleActive: '4',
+      //已拥有卡牌
       cartItem: [
-        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
-        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
-        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') }
-      ], //已拥有卡牌
-      // cardState: [],  //待领取卡牌
+        // { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(), title: '联合会权益NFT', img: require('../../assets/img/equityItem2.png') }
+      ],
+      //待领取卡牌
       cardState: [
         { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
         { id: Math.random(), title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
@@ -292,23 +237,8 @@ export default {
       maskFlag2: false, //遮罩第二次状态
       maskFlag3: false, //遮罩第三次状态
       fontFlag: false, //字体状态
-      // 定义卡牌数据
-      // castDataList: [], //待铸造卡牌
+      //待铸造卡牌
       castDataList: [
-        {
-          castid: Math.floor(Math.random() * 100) + '',
-          castname: '三级青铜甲犀牛',
-          castnum: '1',
-          casticon: require('../../assets/img/coincard/icon3.png'),
-          castimg: require('../../assets/img/coincard/card1.png')
-        },
-        {
-          castid: Math.floor(Math.random() * 100) + '',
-          castname: '三级青铜甲犀牛',
-          castnum: '1',
-          casticon: require('../../assets/img/coincard/icon3.png'),
-          castimg: require('../../assets/img/coincard/card1.png')
-        },
         {
           castid: Math.floor(Math.random() * 100) + '',
           castname: '三级青铜甲犀牛',
@@ -331,63 +261,62 @@ export default {
     this.waitactiveHandle()
   },
   methods: {
+    // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
     goCardDetails(id) {
       console.log(id)
       sessionStorage.setItem('toggle1', true)
       this.$router.push({ name: 'card_details' })
     },
+    // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
+    cardDetails(id) {
+      console.log(id)
+      sessionStorage.setItem('toggle2', true)
+      this.$router.push({ name: 'card_details' })
+    },
+    // 点击铸造显示扣除TRX的提示
     coincardHandler(item, index) {
-      // console.log(item);
-      // console.log('dddd');
       this.index = null
       // this.cardData.push(item)
       this.index = index
       this.maskFlag1 = true
     },
+    // 取消铸造
     cancelHandler() {
       this.maskFlag1 = false
       this.maskFlag3 = false
     },
+    // 确定铸造第一步，继续显示提示
     confirmHandler() {
-      console.log('7')
       this.maskFlag2 = true
       this.maskFlag1 = false
     },
+    // 跳过铸造，即取消铸造
     jumpHandler() {
       this.maskFlag2 = false
     },
+    // 确认铸造第二步，开始铸造
     confirmRankHandler() {
+      console.log('铸造卡牌')
+      // 拉起钱包，扣除所需TRX成功后执行以下操作
       this.currentIndex = this.index
       this.maskFlag2 = false
       this.maskFlag3 = true
     },
+    // 成功提交铸造后的提示
     confirmSuccHandler() {
       this.maskFlag3 = false
     },
     waitactiveHandle() {
-      // if (this.toggleActive === '1') {
-      //   this.showFooter = false
-      // } else if (this.toggleActive === '2') {
-      //   this.showFooter = false
-      // } else if (this.toggleActive === '3') {
-      //   this.showFooter = true
-      // } else if (this.toggleActive === '4') {
-      //   this.showFooter = false
-      // }
-
       this.toggleActive === '3' ? (this.showFooter = true) : (this.showFooter = false)
     },
+    // 返回上一级
     onClickLeft() {
       this.$router.back()
     },
-    cardDetailsHandler() {
-      // this.$router.push({
-      //   name: "card_details",
-      // });
-    },
+    // “领取”卡牌
     getCard() {
-      // this.$toast.clear();
-      // this.$toast.warning("卡牌暂不可领取!");
+      this.$toast('领取成功')
+      // 领取成功后重新渲染页面
     },
     async getMyNFT() {
       const { data } = await myNft(1)
@@ -400,25 +329,28 @@ export default {
           isopen: true
         })
       })
-    },
-    createCard(item) {
-      this.$toast.clear()
-      this.$toast.warning('卡牌铸造中，敬请期待！')
     }
+    // createCard(item) {
+    //   this.$toast.clear()
+    //   this.$toast.warning('卡牌铸造中，敬请期待！')
+    // }
   },
   computed: {
+    // 待激活卡牌
     Not_activatedList() {
       return this.cardList.filter((card) => card.Activate === '0')
     },
     pd_card() {
       return this.cardList.filter((card) => card.Activate === '1')
     },
+    // 用户选择的领取卡牌数
     selecked() {
       return this.cardState.filter((card) => card.ischecked === true).length
     },
+    // 用户是否可领取卡牌
     isselect() {
-      // return this.selecked > 0 ? false : true;
-      return true
+      return this.selecked > 0 ? false : true
+      // return true
     }
   }
 }
@@ -579,11 +511,20 @@ export default {
         width: 48%;
         background: #1b2333;
         border-radius: 16px;
+        position: relative;
         img {
           width: 100%;
         }
         p {
+          margin-top: 10px;
+          letter-spacing: 2px;
           font-size: 32px;
+        }
+        .image {
+          width: 60px;
+          position: absolute;
+          right: 40px;
+          bottom: 100px;
         }
       }
     }
@@ -700,39 +641,44 @@ export default {
     }
     .awaitPage {
       width: 100%;
-      .awaitItem {
-        letter-spacing: 2px;
-        width: 650px;
-        background-color: #1b2333;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        border-radius: 16px;
-        padding: 30px;
-        margin-bottom: 30px;
-        .left {
-          img {
-            width: 160px;
-            height: 232px;
-          }
-        }
-        .right {
-          padding-left: 30px;
-          box-sizing: border-box;
-
-          .titleWarp {
-            line-height: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            span {
-              color: #fff;
-              font-size: 32px;
+      .cart {
+        margin: 0.6em;
+        box-sizing: border-box;
+        padding-bottom: 3.4em;
+        .awaitItem {
+          letter-spacing: 2px;
+          // width: 650px;
+          background-color: #1b2333;
+          margin: 0 auto;
+          display: flex;
+          justify-content: space-between;
+          border-radius: 16px;
+          padding: 30px;
+          margin-bottom: 30px;
+          .left {
+            img {
+              width: 160px;
+              height: 232px;
             }
           }
-          .msg {
-            margin-top: 30px;
-            color: #858992;
-            font-size: 28px;
+          .right {
+            padding-left: 30px;
+            box-sizing: border-box;
+
+            .titleWarp {
+              line-height: 0.5rem;
+              display: flex;
+              justify-content: space-between;
+              span {
+                color: #fff;
+                font-size: 32px;
+              }
+            }
+            .msg {
+              margin-top: 30px;
+              color: #858992;
+              font-size: 28px;
+            }
           }
         }
       }

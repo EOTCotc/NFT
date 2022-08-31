@@ -2,7 +2,7 @@
   <div class="Nav-container"
        id="nav">
     <van-nav-bar fixed
-                 z-index="10"
+                 z-index="9999"
                  @click-left="onClickLeft"
                  @click-right="onClickRight"
                  :border="false">

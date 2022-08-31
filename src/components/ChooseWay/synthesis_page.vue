@@ -484,11 +484,6 @@
       </div>
     </van-overlay>
     <!-- 选择卡牌遮罩 -->
-    <!-- 没有该卡牌 -->
-    <div class="showTime"
-         v-if="number">
-      <p>暂无{{num}}级卡牌</p>
-    </div>
     <div id="maskwait">
       <!-- 单选 -->
       <van-overlay :lock-scroll="false"
@@ -576,14 +571,10 @@
         合成后无论是否成功卡牌都将销毁
       </Popout> -->
     </van-overlay>
-    <!-- 活动未开始 -->
-    <div class="showTime"
-         v-show="noshow">
-      <p>暂未开始</p>
-    </div>
   </div>
 </template>
 <script>
+import { Toast } from 'vant'
 // import { install } from 'vant'
 // import Popout from "../tool/Scroll/popout/popout_page.vue";
 export default {
@@ -596,7 +587,6 @@ export default {
       cardmaskFlags: [], //多选框
       showcard: false, //卡牌单选遮罩
       showcards: false, //卡牌多选遮罩
-      noshow: false, //活动未开始
       show1: false, //合成遮罩
       show2: false,
       show3: false, //权益卡牌
@@ -695,8 +685,10 @@ export default {
     }
   },
   methods: {
-    // 权益卡遮罩确认处理
-    econfirmHandler() {},
+    // 权益卡合成
+    econfirmHandler() {
+      console.log(123)
+    },
     equityBtnHandler() {
       // console.log("1111");
       this.show3 = true
@@ -733,10 +725,7 @@ export default {
       let count = ['一', '二', '三', '四', '五', '六', '七']
       if (i == 0) {
         // 活动未开始
-        this.noshow = true
-        setTimeout(() => {
-          this.noshow = false
-        }, 500)
+        Toast({ message: '暂未开始', duration: 500 })
       } else {
         this.num = count[i - 1]
         // 有卡牌
@@ -748,13 +737,11 @@ export default {
           this.showcards = true
         } else {
           // 没有该卡牌
-          this.number = true
-          setTimeout(() => {
-            this.number = false
-          }, 500)
+          Toast({ message: '暂无' + this.num + '级卡牌', duration: 500 })
         }
       }
     },
+    // 卡牌多选
     pushCard(id) {
       if (this.cardmaskFlags.length > 4) {
         // 提示只能选择5张
@@ -1233,26 +1220,6 @@ export default {
           margin-left: 8px;
         }
       }
-    }
-  }
-  // ?活动未开始
-  // ?没有该卡牌
-  .showTime {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 260px;
-    height: 88px;
-    border-radius: 20px;
-    background: #3a3a3a;
-    color: #ffffff;
-    font-size: 28px;
-    opacity: 0.8;
-
-    p {
-      line-height: 88px;
-      text-align: center;
     }
   }
 }

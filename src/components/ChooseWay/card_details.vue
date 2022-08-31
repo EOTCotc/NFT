@@ -77,7 +77,8 @@
       </ul>
     </div>
     <!-- 页脚 -->
-    <div class="footer">
+    <div class="footer"
+         v-if="show">
       <div v-show="toggle"
            class="btn"
            @click="buyHandler">
@@ -91,16 +92,16 @@
       <!-- 领取后显示 -->
       <div v-if="toggle2"
            class="togglebtn">
-        <div @click="bindHandler"
+        <div @click="unitybindHandler"
              class="btn">绑定</div>
         <div @click="sellHandler"
              class="btn">出售</div>
       </div>
-      <div v-if="toggle3"
+      <!-- <div v-if="toggle3"
            @click="unitybindHandler"
            class="boundBtn">
         <p>绑定</p>
-      </div>
+      </div> -->
       <div v-if="toggle4"
            @click="unbindHandler"
            class="unbindBtn">
@@ -118,11 +119,11 @@ export default {
       // time: Date.now(),
       price: 2000.52,
       off: false,
-      show: false,
+      show: true,
       toggle: false, //购买
       toggle1: false, //领取
       toggle2: false, //绑定、出售
-      toggle3: false, //绑定
+      // toggle3: false, //绑定
       toggle4: false, //解绑
       btnShow: false //上方按钮
     }
@@ -130,54 +131,46 @@ export default {
   created() {
     if (sessionStorage.getItem('toggle')) this.toggle = true
     if (sessionStorage.getItem('toggle1')) this.toggle1 = true
-
-    if (sessionStorage.getItem('show') == 'true') {
-      this.toggle1 = false
-      this.toggle2 = false
-      this.toggle3 = true
-      this.toggle4 = false
-      this.btnShow = true
-    }
-    if (sessionStorage.getItem('off') == 'true') {
-      this.toggle1 = false
-      this.toggle2 = true
-      this.toggle3 = false
-      this.toggle4 = false
-      this.btnShow = true
-    }
+    if (sessionStorage.getItem('toggle2')) (this.toggle2 = true), (this.btnShow = true)
+    if (sessionStorage.getItem('show')) this.show = false
+    if (sessionStorage.getItem('off')) (this.toggle1 = false), (this.toggle2 = true), (this.toggle4 = false), (this.btnShow = true)
   },
   beforeDestroy() {
     sessionStorage.removeItem('show')
     sessionStorage.removeItem('off')
     sessionStorage.removeItem('toggle')
     sessionStorage.removeItem('toggle1')
+    sessionStorage.removeItem('toggle2')
   },
   methods: {
+    // 点击购买卡牌
     buyHandler() {
       console.log('购买该卡牌')
-      // 购买成功后
+      // 拉起钱包，购买成功后
       this.toggle = false
       this.toggle1 = true
       this.toggle2 = false
-      this.toggle3 = false
+      // this.toggle3 = false
       this.toggle4 = false
       this.btnShow = false
     },
+    // 点击解绑卡牌
     unbindHandler() {
       let _this = this
       Dialog.confirm({
-        message: '解绑后权益卡相关权益将停止确定解绑此权益卡？'
+        message: '解绑后权益卡相关权益将停止' + `</br>` + '确定解绑此权益卡？'
       })
         .then(() => {
-          _this.toggle3 = true
+          _this.toggle2 = true
           _this.toggle4 = false
           Toast({ message: '解绑成功', duration: 500 })
         })
         .catch(() => {
           // on cancel
-          // Toast({ message: '取消绑定', duration: 500 })
+          Toast({ message: '取消解绑', duration: 500 })
         })
     },
+    // 点击绑定卡牌
     unitybindHandler() {
       let _this = this
       Dialog.confirm({
@@ -185,7 +178,7 @@ export default {
         message: '绑定之后不可进行出售操作'
       })
         .then(() => {
-          _this.toggle3 = false
+          _this.toggle2 = false
           _this.toggle4 = true
           Toast({ message: '绑定成功', duration: 500 })
         })
@@ -194,46 +187,53 @@ export default {
           Toast({ message: '取消绑定', duration: 500 })
         })
     },
+    // 点击出售跳转新页面
     sellHandler() {
-      // console.log('888')
-      // this.toggle2 = true
-      // this.toggle3 = false
-      // Toast('出售成功！')
-      this.$router.push({
+      this.$router.replace({
         name: 'card_sell'
       })
     },
-    bindHandler() {
-      Toast('主人，出售之后才能绑定哦~')
-    },
+    // 点击领取卡牌
     receiveSuccessHandler() {
-      const toast = Toast({
-        duration: 0, // 持续展示 toast
-        forbidClick: true,
-        message: '领取成功'
-      })
+      Toast({ message: '领取成功', duration: 500 })
+      setTimeout(() => {
+        this.toggle1 = false
+        this.toggle2 = true
+        this.btnShow = true
+      }, 500)
 
-      let second = 1
-      let _this = this
-      const timer = setInterval(() => {
-        second--
-        if (second) {
-          toast.message = `领取成功`
-        } else {
-          _this.toggle1 = false
-          _this.toggle2 = true
-          _this.btnShow = true
-          clearInterval(timer)
-          // 手动清除 Toast
-          Toast.clear()
-        }
-      }, 1000)
+      // const toast = Toast({
+      //   duration: 0, // 持续展示 toast
+      //   forbidClick: true,
+      //   message: '领取成功'
+      // })
+
+      // let second = 1
+      // let _this = this
+      // const timer = setInterval(() => {
+      //   second--
+      //   if (second) {
+      //     toast.message = `领取成功`
+      //   } else {
+      //     _this.toggle1 = false
+      //     _this.toggle2 = true
+      //     _this.btnShow = true
+      //     clearInterval(timer)
+      //     // 手动清除 Toast
+      //     Toast.clear()
+      //   }
+      // }, 1000)
     },
+    // 返回上一级
     onClickLeft() {
       this.$router.back()
-      // this.$router.push({
-      //   name: 'hvae_card'
-      // })
+      let time = setInterval(() => {
+        if (this.$route.name == 'card_details' || this.$route.name == 'card_sell') {
+          this.$router.back()
+        } else {
+          clearInterval(time)
+        }
+      }, 400)
     }
   }
 }
