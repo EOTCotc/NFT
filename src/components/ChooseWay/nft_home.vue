@@ -236,6 +236,7 @@ export default {
   color: aliceblue;
   margin-top: 1rem;
   padding: 0 25px;
+  padding-bottom: 3em;
   .img-p {
     display: grid;
     grid-template: 1fr / 1fr 1fr;
