@@ -1,23 +1,27 @@
 <template>
   <div class="chooseWay">
     <div class="header">
-      <img src="@/assets/img/nftlogo1.png" alt />
+      <img src="@/assets/img/nftlogo1.png"
+           alt />
     </div>
     <div class="main">
       <div class="img-p">
         <div>
-          <img src="@/assets/img/equityItem1.png" alt />
+          <img src="@/assets/img/equityItem1.png"
+               alt />
           <section class="sec-p">
             <p>创世会权益NFT</p>
             <p :style="{ padding: '5px' }">总量：66</p>
             <p :style="{ color: '#fc7542ff' }">价格：2000 USDT</p>
-            <button :style="{ color: '#000', backgroundColor: 'rgb(51, 60, 78)' }" :disabled="true">
+            <button :style="{ color: '#000', backgroundColor: 'rgb(51, 60, 78)' }"
+                    :disabled="true">
               售罄
             </button>
           </section>
         </div>
         <div>
-          <img src="@/assets/img/equityItem2.png" alt />
+          <img src="@/assets/img/equityItem2.png"
+               alt />
           <section class="sec-p">
             <p>联合会权益NFT</p>
             <p :style="{ padding: '5px' }">总量：666</p>
@@ -28,15 +32,26 @@
             >
               暂未开放
             </button> -->
-            <button :style="{ color: '#000', backgroundColor: 'rgb(51, 60, 78)' }" :disabled="true" v-if="isNoBuy" class="btn2">
+            <button :style="{ color: '#000', backgroundColor: 'rgb(51, 60, 78)' }"
+                    :disabled="true"
+                    v-if="isNoBuy"
+                    class="btn2">
               <div>
                 <span :class="{ activecolor: isshowTime }">{{
                   isshowTime ? "抢购倒计时" : "三期售罄"
                 }}</span>
-                <van-count-down v-if="isshowTime" :class="{ activecolor: isshowTime }" ref="countDown" @finish="finish" :time="time" />
+                <van-count-down v-if="isshowTime"
+                                :class="{ activecolor: isshowTime }"
+                                ref="countDown"
+                                @finish="finish"
+                                :time="time" />
               </div>
             </button>
-            <van-button v-else :loading="loading_buy" @click="buyNft_2()" loading-text="购买中..." :style="{ color: '#fff' }">
+            <van-button v-else
+                        :loading="loading_buy"
+                        @click="buyNft_2()"
+                        loading-text="购买中..."
+                        :style="{ color: '#fff' }">
               {{ "购买" }}
             </van-button>
           </section>
@@ -46,28 +61,36 @@
 
     <!-- 盲盒 -->
     <div class="mysteryBoxItem">
-      <img src="@/assets/img/card/rhinoceros-grade.png" width="50%" alt />
+      <img src="@/assets/img/card/rhinoceros-grade.png"
+           width="50%"
+           alt />
       <div class="equityTitle">盲盒</div>
       <div class="ti1">
         总量：
         <span :style="{ color: '#479dff' }">100000</span>
       </div>
-      <div class="ti1" :style="{ color: '#fc7542ff', marginTop: '15px' }">
+      <div class="ti1"
+           :style="{ color: '#fc7542ff', marginTop: '15px' }">
         价格：
         <span>50 USDT</span> +
         <span>50U（EOTC）</span>
       </div>
 
-      <div class="ti1" :style="{ color: '#fff', marginTop: '15px' }">
+      <div class="ti1"
+           :style="{ color: '#fff', marginTop: '15px' }">
         <span class="sp">-</span>&nbsp;&nbsp;1&nbsp;&nbsp;
         <span class="sp">+</span>
       </div>
-      <van-button v-if="true" :disabled="true" :style="{ marginTop: '20px', width: '150px' }">暂未开放</van-button>
+      <van-button v-if="true"
+                  :disabled="true"
+                  :style="{ marginTop: '20px', width: '150px' }">暂未开放</van-button>
       <!-- <van-button :disabled="true"
                   type="info"
                   :style="{ marginTop: '20px', width: '150px' }">购买</van-button> -->
     </div>
-    <van-dialog v-model="isContractCheckLoading" get-container="body" :showConfirmButton="false" />
+    <van-dialog v-model="isContractCheckLoading"
+                get-container="body"
+                :showConfirmButton="false" />
   </div>
 </template>
 
@@ -90,7 +113,7 @@ export default {
       isNoBuy: false,
       loading_buy: false,
       time: new Date(Dayjs(new Date('2022-08-10 13:14'))).getTime() - Date.now(),
-      isshowTime: true,
+      isshowTime: true
     }
   },
   created() {
@@ -107,7 +130,7 @@ export default {
       this.isshowTime = false
     },
     buyNft_2() {
-      let money = 500//购买金额
+      let money = 500 //购买金额
       this.init_isNoBuy()
       setTimeout(async () => {
         if (this.isNoBuy) {
@@ -118,12 +141,12 @@ export default {
           {
             component: loadingToast,
             props: {
-              title: '等待区块打包确认，<br/>打包期间请不要关闭或刷新该页面',
-            },
+              title: '等待区块打包确认，<br/>打包期间请不要关闭或刷新该页面'
+            }
           },
           {
             icon: false,
-            timeout: false,
+            timeout: false
           }
         )
         this.loading_buy = true
@@ -137,7 +160,7 @@ export default {
           this.$toast.success('购买成功！')
           let num = parseFloat(localStorage.getItem('myamount'))
           localStorage.setItem('myamount', num - money)
-          
+
           this.isContractCheckLoading = false
           this.loading_buy = false
         } catch (err) {
@@ -162,12 +185,12 @@ export default {
       if (this.card1 === '-1' || data.State === '-1') {
         //卡牌数量不足
         this.isNoBuy = true
-        this.isshowTime=false
+        this.isshowTime = false
         return true
       }
       return false
-    },
-  },
+    }
+  }
 }
 </script>
 

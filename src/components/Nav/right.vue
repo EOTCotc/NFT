@@ -5,10 +5,14 @@
         <span>
           钱包资产
           <img src="@/assets/img/walletChangeIcon.png"
-               alt=""
+               v-if="UID"
                @click="changeVal" />
         </span>
-        <span class="sp1">UID:{{UID}}</span>
+        <span class="sp1"
+              v-if="UID">UID:{{UID}}</span>
+        <span class="sp1"
+              v-else
+              @click="goUrl(1)">连接钱包</span>
       </p>
       <div class="main">
         <p>
@@ -150,15 +154,17 @@ export default {
   },
   methods: {
     goUrl(i) {
-      console.log(i)
-      if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
-      if (i == 3) this.$router.push({ name: 'buy_blindbox' })
-      if (i == 4) this.$router.push({ name: 'marketNFT' })
-      if (i == 5) this.$router.push({ name: 'order_all' })
-      if (i == 6.1) this.$router.push({ name: 'hvae_card' })
-      if (i == 6.2) this.$router.push({ name: 'rank_card' })
-      if (i == 7) this.$router.push({ name: 'synthesis_page' })
-      if (i == 8) location.href = 'https://eotc.im/html/guide/guide.html'
+      if (this.UID) {
+        if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
+        if (i == 3) this.$router.push({ name: 'buy_blindbox' })
+        if (i == 4) this.$router.push({ name: 'marketNFT' })
+        if (i == 5) this.$router.push({ name: 'order_all' })
+        if (i == 6.1) this.$router.push({ name: 'hvae_card' })
+        if (i == 6.2) this.$router.push({ name: 'rank_card' })
+        if (i == 7) this.$router.push({ name: 'synthesis_page' })
+      } else {
+        i == 8 ? (location.href = 'https://eotc.im/html/guide/guide.html') : this.$toast('请先登录再进行操作')
+      }
     },
     changeVal() {
       this.changeAct = this.active
@@ -180,6 +186,7 @@ export default {
 .main-p {
   overflow-y: auto;
   margin-top: 30px;
+  margin-bottom: 1em;
   .item {
     margin-left: 90px;
     p {
