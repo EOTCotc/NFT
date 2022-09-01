@@ -20,18 +20,15 @@
               <span>50U（EOTC）</span>
             </div>
 
-            <van-button v-if="true"
-                        :disabled="false"
+            <van-button :disabled="false"
                         @click="jumporderHandler"
                         type="info"
                         :style="{ marginTop: '20px', width: '150px' }">去购买</van-button>
-            <!-- <van-button :disabled="false"
-                        type="info"
-                        :style="{ marginTop: '20px', width: '150px' }">购买</van-button> -->
+
           </div>
         </van-tab>
         <van-tab title="我的盲盒">
-          <div v-if="blinboxFlag"
+          <div v-if="boxList.length"
                class="myblidbox">
             <div class="openbox">
               <img src="../../assets/img/blindbox/box1.png"
@@ -41,19 +38,12 @@
               <p class="title">总数 {{ openBox }}/{{ totalBoxNum }}</p>
               <div class="scorllItem">
                 <ul>
-                  <li v-for="(item, index) in listData"
-                      :class="{
-                      blindboxActive: blindboxUid.indexOf(item.num) != -1,
-                    }"
-                      @click="listHandler(item.num, index)"
+                  <li v-for="item in boxList"
+                      :class="{blindboxActive: blindboxUid.indexOf(item.id) != -1}"
+                      @click="listHandler(item.id)"
                       :key="item.id">
                     #{{ item.num }}
                   </li>
-                  <!-- <li :class="{ blindboxActive: box.ID === '70' }"
-                      v-for="(box, i) in filter_boxList"
-                      :key="i">
-                    #{{ box.ID.padStart(6, 0) }}
-                  </li> -->
                 </ul>
               </div>
             </div>
@@ -61,98 +51,65 @@
                class="all">查看全部&nbsp;></p>
             <div class="footerBttn">
               <div class="openboxBtn">
-                <van-button v-if="true"
-                            :disabled="true"
-                            @click="showHandler"
-                            :style="{ marginTop: '20px', width: '150px' }">暂未开放</van-button>
-                <!-- <button @click="showHandler">开盲盒</button> -->
+                <van-button :disabled="blindboxUid.length?false:true"
+                            @click="showCard(blindboxUid.length)">开盲盒</van-button>
               </div>
               <div class="owncard">
-                <button>拥有卡牌: 0</button>
+                <button>拥有卡牌: {{cardNum}}</button>
               </div>
             </div>
           </div>
           <!-- 空 -->
-          <div v-if="!blinboxFlag"
+          <div v-else
                class="emptyPage">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/blindbox/empty.png')"
                        description="暂无盲盒数据" />
           </div>
-          <!-- 动画 -->
-          <div class="shodw">
-            <van-overlay :show="show"
-                         @click="show = false">
-              <div class="wrapper"
-                   @click.stop>
-                <div v-show="openFlag7"
-                     class="bgbox">
-                  <div v-show="openFlag1"
-                       ref="bgimg"
-                       class="bgimg"></div>
-                  <div v-show="!openFlag2"
-                       ref="bgimg2"
-                       class="bgimg2">
-                    <div class="card"></div>
-                  </div>
-                  <div v-show="!openFlag3"
-                       class="showCard"></div>
-                </div>
-                <div v-show="!openFlag8"
-                     class="getCard">
-                  <div class="getLogo"></div>
-                  <img class="img"
-                       src="../../assets/img/blindbox/openbg.png"
-                       alt="" />
-                  <ul class="lottocard">
-                    <li v-show="!openFlag5"
-                        class="singlecard">
-                      <img class="cards"
-                           src="../../assets/img/blindbox/card1.png"
-                           alt="" />
-                      <p class="msg">5级黄金甲犀牛</p>
-                    </li>
-                    <li class="morecard"
-                        v-show="!openFlag6">
-                      <div class="itemcard">
-                        <img class="moreimg"
-                             src="../../assets/img/blindbox/card1.png"
-                             alt="" />
-                        <p class="moredmsg">5级黄金甲犀牛</p>
-                      </div>
-                      <div class="itemcard">
-                        <img class="moreimg"
-                             src="../../assets/img/blindbox/card1.png"
-                             alt="" />
-                        <p class="moredmsg">5级黄金甲犀牛</p>
-                      </div>
-                      <div class="itemcard">
-                        <img class="moreimg"
-                             src="../../assets/img/blindbox/card1.png"
-                             alt="" />
-                        <p class="moredmsg">5级黄金甲犀牛</p>
-                      </div>
-                      <div class="itemcard">
-                        <img class="moreimg"
-                             src="../../assets/img/blindbox/card1.png"
-                             alt="" />
-                        <p class="moredmsg">5级黄金甲犀牛</p>
-                      </div>
-                      <div class="itemcard">
-                        <img class="moreimg"
-                             src="../../assets/img/blindbox/card1.png"
-                             alt="" />
-                        <p class="moredmsg">5级黄金甲犀牛</p>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </van-overlay>
-          </div>
         </van-tab>
       </van-tabs>
     </div>
+
+    <!-- 动画 -->
+    <van-popup v-model="shows"
+               position="center"
+               @click-overlay="closeAnimation">
+
+      <div class="box">
+        <img src="../../assets/img/blindBox.gif"
+             v-show="show1"
+             class="tupian" />
+
+        <img class="images"
+             v-show="show2"
+             :src="listData[i].url">
+      </div>
+    </van-popup>
+
+    <van-dialog v-model="showTime"
+                width="100%"
+                height="100%"
+                @opened="closeCard"
+                :show-cancel-button=false
+                :showConfirmButton=false>
+      <div class="card">
+        <img src="../../assets/img/getCard.png"
+             class="pic">
+        <div class="wraps">
+          <div class="wrap"
+               v-for="item in listData"
+               :key="item.id"
+               :style="listData.length==1?'width:200px':listData.length==2?'width:40%':listData.length==3?'width:30%':'width:22%'">
+            <img :src="item.url"
+                 class="image">
+            <p :class="listData.length==1?'bigF':listData.length==2?'largeF':listData.length==3?'mediumF':'sF'">{{item.title}}</p>
+          </div>
+        </div>
+
+      </div>
+
+    </van-dialog>
+
   </div>
 </template>
 <script>
@@ -161,86 +118,43 @@ import { Toast } from 'vant'
 export default {
   data() {
     return {
-      listData: [
-        {
-          id: Math.random() * 10 + '',
-          num: '000001'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000002'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000003'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000004'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000005'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000006'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000007'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000008'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000009'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '0000010'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000011'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '000012'
-        },
-        {
-          id: Math.random() * 10 + '',
-          num: '0000013'
-        }
-      ],
       blindboxUid: [], //接收盒子编号
-      boxList: [],
-      allshow: false, //全部展示
-      show: false,
+      //盲盒数据
+      boxList: [
+        { id: Math.random(), num: '00001' },
+        { id: Math.random(), num: '00001' },
+        { id: Math.random(), num: '00001' },
+        { id: Math.random(), num: '00001' },
+        { id: Math.random(), num: '00002' },
+        { id: Math.random(), num: '00002' }
+      ],
       blinboxActive: '1',
-      blinboxFlag: false, //是否有盲盒
-      openFlag1: true, //显示第一个盒子
-      openFlag2: true, //显示第二个盒子
-      openFlag3: true, //显示卡片盒子
-      openFlag4: true, //显示
-      openFlag5: true, // 显示一张卡片
-      openFlag6: true, //显示多张卡片
-      openFlag7: true, //蓝光背景
-      openFlag8: true //金光背景
+      cardNum: 0, //拥有卡牌数
+
+      // 动画
+      show: false,
+      show1: false,
+      show2: false,
+      showTime: false,
+      shows: false,
+      i: 0,
+      // 盲盒开出的卡牌数据
+      listData: [
+        { id: Math.random(), url: require('../../assets/img/equityItem1.png'), title: '5级黄金甲犀牛' },
+        { id: Math.random(), url: require('../../assets/img/equityItem2.png'), title: '2级玄铁甲犀牛' }
+      ]
     }
   },
   created() {
-    this.getBox()
+    // this.getBox()
   },
   methods: {
-    // 选中盲盒编码
-    listHandler(index) {
-      let num = this.blindboxUid.indexOf(index)
+    // 选中开盲盒数
+    listHandler(id) {
+      let num = this.blindboxUid.indexOf(id)
       if (num == -1) {
         if (this.blindboxUid.length < 10) {
-          this.blindboxUid.push(index)
+          this.blindboxUid.push(id)
         } else {
           Toast({ message: '最多连开十个', duration: 800 })
         }
@@ -248,49 +162,66 @@ export default {
         this.blindboxUid.splice(num, 1)
       }
     },
+
+    // 去购买盲盒，跳转至购买页面
     jumporderHandler() {
-      this.$router.push({
-        name: 'order_page'
-      })
+      this.$router.push({ name: 'order_page' })
     },
+
+    // 查看全部盲盒，跳转至另一页面
     getElement() {
-      this.$router.push({
-        name: 'look_all'
-      })
+      this.$router.push({ name: 'look_all' })
     },
-    showHandler() {
-      let _this = this
-      this.show = true
-      let bgimg = this.$refs.bgimg
-      let bgimg2 = this.$refs.bgimg2
-      console.log(bgimg)
-      bgimg.classList.add('animate__animated', 'animate__rotateIn')
-      bgimg.style.setProperty('--animate-duration', '2s')
-      bgimg.addEventListener('animationend', (e) => {
-        console.log(e)
-        let elapsedTime = e.elapsedTime
-        if (elapsedTime == 2) {
-          _this.openFlag1 = false
-          _this.openFlag2 = false
-          bgimg2.classList.add('animate__animated', 'animate__zoomIn')
-          bgimg2.style.setProperty('--animate-duration', '0.5s')
-          bgimg2.addEventListener('animationend', (e) => {
-            let elapsedTime2 = e.elapsedTime
-            if (elapsedTime2 == 0.5) {
-              _this.openFlag7 = false
-              _this.openFlag8 = false
-              _this.openFlag2 = true
-              _this.openFlag6 = false
-            }
-          })
+
+    // 开盲盒动画
+    showCard(i) {
+      this.i = i - 1
+      console.log(i)
+      this.show = false
+      this.shows = true
+      this.show1 = true
+
+      setTimeout(() => {
+        this.show2 = true
+        setTimeout(() => {
+          this.show2 = false
+        }, 1500)
+      }, 1500)
+
+      setTimeout(() => {
+        this.show1 = false
+      }, 1800)
+
+      let timer = setTimeout(() => {
+        if (this.show == true) {
+          clearInterval(timer)
+        } else {
+          if (i == 1) {
+            this.closeAnimation()
+          } else {
+            this.shows = false
+            i--
+            setTimeout(() => {
+              this.showCard(i)
+            }, 500)
+          }
         }
-      })
-      _this.openFlag1 = true
-      _this.openFlag2 = true
-      _this.openFlag6 = true
-      _this.openFlag7 = true
-      _this.openFlag8 = true
+      }, 3000)
     },
+    closeAnimation() {
+      this.show = true
+      this.shows = false
+      this.showTime = true
+    },
+    closeCard() {
+      setTimeout(() => {
+        this.showTime = false
+      }, 2000)
+
+      // 重新请求用户盲盒数
+    },
+
+    // 获取盲盒数据
     async getBox() {
       const { data } = await myNft(2)
       // console.log("开盲盒数据", data);
@@ -298,15 +229,17 @@ export default {
     }
   },
   computed: {
+    // 用户拥有盲盒总数
     totalBoxNum() {
       return this.boxList.length
     },
+    // 用户选择盲盒数（一次开几个盲盒）
     openBox() {
-      return this.boxList.reduce((total, pre) => (pre.Activate === '0' ? (total += 1) : total), 0)
-    },
-    filter_boxList() {
-      return this.boxList.filter((card) => card.Activate === '0')
+      return this.blindboxUid.length
     }
+    // filter_boxList() {
+    //   return this.boxList.filter((card) => card.Activate === '0')
+    // }
   }
 }
 </script>
@@ -423,7 +356,7 @@ export default {
         }
         .scorllItem {
           width: 100%;
-          height: 250px;
+          max-height: 250px;
           // height: 100%;
           overflow-y: auto;
         }
@@ -466,6 +399,7 @@ export default {
         flex-direction: column;
         align-items: center;
         margin-top: 80px;
+        margin-bottom: 80px;
         .openboxBtn,
         .owncard {
           button {
@@ -492,150 +426,119 @@ export default {
         width: 6.26667rem;
       }
     }
-    .shodw {
-      .wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: url('../../assets/img/blindbox/bgbox.png') no-repeat center center;
+  }
+}
 
-        .bgbox {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 560px;
-          height: 560px;
-          background: url('../../assets/img/blindbox/bgbox.png') no-repeat center center;
-          background-size: 560px, 560px;
-          .bgimg {
-            position: absolute;
-            top: 30%;
-            left: 30%;
-            transform: translate(-50%, -50%);
-            width: 236px;
-            height: 215px;
-            background: url('../../assets/img/blindbox/box1.png') no-repeat center center;
-            background-size: 236px, 215px;
-          }
-          .bgimg2 {
-            position: absolute;
-            top: 15%;
-            left: 20%;
-            transform: translate(-50%, -50%);
-            width: 336px;
-            height: 315px;
-            background: url('../../assets/img/blindbox/openbox3.png') no-repeat center center;
-            background-size: 236px, 215px;
-            .card {
-              width: 46px;
-              height: 65px;
-              position: absolute;
-              top: 35%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              background: url('../../assets/img/blindbox/card1.png') no-repeat center center;
-              background-size: 46px, 65px;
-            }
-          }
-          .showCard {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 236px;
-            height: 315px;
-            background: url('../../assets/img/blindbox/card1.png') no-repeat center center;
-            background-size: 236px, 315px;
-          }
+.van-popup {
+  width: 100%;
+  height: 1000px;
+  background-color: transparent !important;
+  top: 0;
+  overflow: hidden;
+  position: relative;
+  top: -600px;
+  .box {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    .tupian {
+      width: 800px;
+      height: 800px;
+      background: url(../../assets/img/light.png) no-repeat 0 0 / 100%;
+    }
+
+    .images {
+      position: absolute;
+      animation: rotate 1.5s linear infinite;
+    }
+  }
+}
+
+@keyframes rotate {
+  0% {
+    top: 26%;
+    left: 50%;
+    width: 0px;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+  }
+
+  4% {
+    top: 26%;
+    left: 50%;
+    width: 20px;
+    transform: translate(50%, 50%);
+    opacity: 0.4;
+  }
+
+  70% {
+    top: 0px;
+    left: 0px;
+    width: 330px;
+    transform: translate(64%, 50%);
+    opacity: 1;
+  }
+
+  100% {
+    top: 0px;
+    left: 0px;
+    width: 330px;
+    transform: translate(64%, 50%);
+  }
+}
+
+.van-dialog {
+  padding-top: 6em;
+  background: transparent !important;
+  .card {
+    padding-top: 3em;
+    padding-bottom: 2em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: url(../../assets/img/background.png) no-repeat 0 0 / 100% 100%;
+    img {
+      width: 400px;
+    }
+    .pic {
+      position: absolute;
+      top: 10%;
+    }
+    .wraps {
+      padding: 0 10px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      .wrap {
+        margin: 4px;
+        p {
+          padding: 8px 0;
+          width: 100%;
+          text-align: center;
+          border-radius: 0px 0px 10px 10px;
+          margin: 0;
+          background: #000;
+          color: #fff;
         }
-        .getCard {
-          width: 750px;
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          .img {
-            width: 100%;
-            height: 100%;
-          }
-          .getLogo {
-            width: 405px;
-            height: 200px;
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: url('../../assets/img/blindbox/logo.png') no-repeat center center;
-            background-size: 405px, 200px;
-          }
-          .lottocard {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-sizing: border-box;
-            display: flex;
-            // justify-content: center;
-            flex-wrap: wrap;
-            .singlecard {
-              width: 330px;
-              height: 545px;
-              margin: 0 auto;
-              .cards {
-                width: 100%;
-                height: 480px;
-                // margin: 0 auto;
-                vertical-align: middle;
-              }
-              .msg {
-                width: 100%;
-                height: 65px;
-                background: #080b13;
-                font-size: 32px;
-                font-family: PingFang SC-Regular, PingFang SC;
-                font-weight: 400;
-                color: #ffffff;
-                text-align: center;
-                line-height: 65px;
-              }
-            }
-            .morecard {
-              width: 100%;
-              display: flex;
-              align-content: flex-start;
-              flex-wrap: wrap;
-              margin: 0 22px;
-              .itemcard {
-                width: 170px;
-                margin-right: 5px;
-                margin-bottom: 30px;
-                // &:nth-child(4) {
-                //   margin-right: none;
-                // }
-                // height: 240px;
-                .moreimg {
-                  width: 100%;
-                  height: 240px;
-                  vertical-align: middle;
-                }
-                .moredmsg {
-                  width: 170px;
-                  height: 50px;
-                  // padding: 0 7px;
-                  background-color: #080b13;
-                  font-size: 20px;
-                  color: #ffffff;
-                  text-align: center;
-                  line-height: 50px;
-                  border-radius: 0px 0px 8px 8px;
-                  box-sizing: border-box;
-                }
-              }
-            }
-          }
+        .image {
+          width: 100%;
+        }
+
+        .bigF {
+          font-size: 36px;
+        }
+        .largeF {
+          font-size: 30px;
+        }
+        .mediumF {
+          font-size: 26px;
+        }
+        .sF {
+          font-size: 14px;
         }
       }
     }
