@@ -14,13 +14,12 @@
         <img src="../../assets/img/blindbox/box1.png"
              alt="" />
       </div>
-      <p class="title">总数 {{ openBox }}/{{ totalBoxNum }}</p>
+      <p class="title">总数 {{ totalBoxNum }}</p>
       <div class="scorllItem">
         <ul>
-          <li :class="{ blindboxActive: box.ID === '70' }"
-              v-for="(box, i) in filter_boxList"
+          <li v-for="(box, i) in boxList"
               :key="i">
-            #{{ box.ID.padStart(6, 0) }}
+            #{{ box.num.padStart(6, 0) }}
           </li>
         </ul>
       </div>
@@ -32,30 +31,29 @@ import { myNft } from '@/api/newReqets'
 export default {
   data() {
     return {
+      // 盲盒数据
       boxList: []
     }
   },
   created() {
+    // 获取盲盒数据
     this.getBox()
   },
   methods: {
+    // 回退
     onClickLeft() {
       this.$router.back()
     },
+    // 获取盲盒数据
     async getBox() {
       const { data } = await myNft(2)
       this.boxList = data
     }
   },
   computed: {
+    // 用户拥有盲盒总数
     totalBoxNum() {
       return this.boxList.length
-    },
-    openBox() {
-      return this.boxList.reduce((total, pre) => (pre.Activate === '0' ? (total += 1) : total), 0)
-    },
-    filter_boxList() {
-      return this.boxList.filter((card) => card.Activate === '0')
     }
   }
 }
@@ -107,10 +105,6 @@ export default {
       width: 100%;
       height: 100%;
       margin-top: 40px;
-      // height: 100vh;
-      // height: 250px;
-      // height: 100%;
-      // overflow-y: auto;
     }
     ul {
       width: 100%;
@@ -131,10 +125,6 @@ export default {
         border-radius: 50px;
         box-sizing: border-box;
       }
-    }
-    .blindboxActive {
-      color: #ffb942;
-      border: 1px solid #ffb942;
     }
   }
 }
