@@ -23,7 +23,7 @@
             <van-button :disabled="false"
                         @click="jumporderHandler"
                         type="info"
-                        :style="{ marginTop: '20px', width: '150px' }">去购买</van-button>
+                        :style="{ marginTop: '20px' }">去购买</van-button>
 
           </div>
         </van-tab>
@@ -42,7 +42,7 @@
                       :class="{blindboxActive: blindboxUid.indexOf(item.id) != -1}"
                       @click="listHandler(item.id)"
                       :key="item.id">
-                    #{{ item.num }}
+                    #{{ item.num.padStart(6, 0)  }}
                   </li>
                 </ul>
               </div>
@@ -118,7 +118,7 @@ import { Toast } from 'vant'
 export default {
   data() {
     return {
-      blindboxUid: [], //接收盒子编号
+      blindboxUid: [], //接收盒子id
       //盲盒数据
       boxList: [
         { id: Math.random(), num: '00001' },
@@ -237,9 +237,6 @@ export default {
     openBox() {
       return this.blindboxUid.length
     }
-    // filter_boxList() {
-    //   return this.boxList.filter((card) => card.Activate === '0')
-    // }
   }
 }
 </script>
@@ -259,30 +256,6 @@ export default {
     }
   }
   .blinboxContent {
-    // 展示全部
-    .look {
-      width: 690px;
-      /deep/ .van-popup {
-        border-radius: 10px;
-      }
-      .lookContent {
-        width: 690px;
-        background-color: #fff;
-        display: flex;
-        flex-wrap: wrap;
-        // justify-content: space-around;
-        align-items: center;
-        padding: 0.2rem 0.3rem;
-        box-sizing: border-box;
-        div {
-          margin: 10px;
-          padding: 10px;
-          border: 1px solid #ccc;
-          border-radius: 30px;
-          font-size: 28px;
-        }
-      }
-    }
     margin-top: 10px;
     /deep/ .van-tabs__line {
       background-color: #237ff8;
@@ -298,29 +271,8 @@ export default {
       align-items: center;
       flex-direction: column;
       margin-bottom: 2rem;
-      .equityBtn {
-        padding: 13px 50px;
-        background-color: #5d6c8a;
-        margin-top: 20px;
-        border-radius: 4px;
-        opacity: 0.5;
-        color: #fff;
-        font-size: 0.3rem;
-      }
-      .equityTitle {
-        margin-top: 16px;
-        font-size: 0.5rem;
-      }
       .ti1 {
         font-size: 0.4rem;
-      }
-      .sp {
-        width: 50px;
-        height: 50px;
-        border: 2px solid #237ff8;
-        text-align: center;
-        color: #fff;
-        display: inline-block;
       }
     }
     .myblidbox {
@@ -387,11 +339,11 @@ export default {
       }
       .all {
         color: #fff;
-        width: 160px;
+        width: 100%;
         height: 40px;
         margin: 40px auto 0;
         font-size: 28px;
-        // border: 1px solid red;
+        text-align: center;
         line-height: 40px;
       }
       .footerBttn {

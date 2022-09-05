@@ -82,6 +82,9 @@
                 <div class="addcard">
                   <div @click="countdownFlag?showCard(0):showCard(1)"
                        class="top">
+                    <!-- <p>
+                      <img :src="num1[0].url">
+                    </p> -->
                     <p>
                       <span class="cardAdd">+</span>
                       <br />
@@ -493,7 +496,7 @@
           <div class="waitTop">
             <div @click="maskCancelHandler">取消</div>
             <div>选择{{num}}级卡牌</div>
-            <div>确定</div>
+            <div @click="sureHandler">确定</div>
           </div>
           <ul class="cardContent">
             <van-radio-group v-model="cardmaskFlag"
@@ -503,7 +506,7 @@
                   @click="cardmaskFlag = item.id">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
-                <p class="text">#{{ item.ucode }}</p>
+                <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
                   <van-radio :name="item.id"
                              icon-size="20px"></van-radio>
@@ -523,7 +526,7 @@
           <div class="waitTop">
             <div @click="maskCancelHandler">取消</div>
             <div>选择{{num}}级卡牌</div>
-            <div>确定</div>
+            <div @click="suresHandler">确定</div>
           </div>
           <ul class="cardContent">
             <van-checkbox-group v-model="cardmaskFlags"
@@ -533,7 +536,7 @@
                   @click="pushCard(item.id)">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
-                <p class="text">#{{ item.ucode }}</p>
+                <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
                   <van-checkbox :name="item.id"
                                 icon-size="20px"></van-checkbox>
@@ -592,7 +595,7 @@ export default {
       show3: false, //权益卡牌
       num: false,
       number: false,
-      numOne: 0, //一级卡牌数量
+      // numOne: 0, //一级卡牌数量
       numTwo: 0, //二级卡牌数量
       numThree: 0, //三级卡牌数量
       numFour: 0, //四级卡牌数量
@@ -602,86 +605,30 @@ export default {
       countdownFlag: true,
       // 定义卡牌数据
       maskcardData: [
-        {
-          id: 1,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 2,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 3,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 4,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 5,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 6,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 7,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 8,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 9,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 10,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 11,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 12,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        },
-        {
-          id: 13,
-          title: '一级黄金甲犀牛',
-          ucode: '000001',
-          url: require('../../assets/img/blindbox/card1.png')
-        }
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '01', url: require('../../assets/img/Compose/1.jpg') }
+      ],
+
+      // 用户一级卡牌
+      numOne: [
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '01', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '05', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '06', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '07', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '09', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '08', url: require('../../assets/img/Compose/1.jpg') }
       ]
-      //maskFlag1: false, //遮罩第一次状态
     }
   },
   methods: {
@@ -690,7 +637,6 @@ export default {
       console.log(123)
     },
     equityBtnHandler() {
-      // console.log("1111");
       this.show3 = true
     },
     maskCancelHandler() {
@@ -705,7 +651,6 @@ export default {
       console.log('动画执行...')
     },
     confirmHandler() {
-      // console.log("666");
       this.show1 = false
       this.show2 = true
     },
@@ -751,7 +696,25 @@ export default {
       }
       this.cardmaskFlags = [...new Set(this.cardmaskFlags)]
       console.log(this.cardmaskFlags)
+    },
+    // 单选确认选择卡牌
+    sureHandler() {
+      this.showcard = false
+      // 将选择的卡牌图片渲染到页面
+    },
+    // 多选确认选择卡牌
+    suresHandler() {
+      this.showcards = false
+      // 将选择的卡牌图片渲染到页面
     }
+  },
+  watch: {
+    // numOne:{
+    //   handler(val){
+    //     console.log(val);
+    //   },
+    //   immediate: true
+    // }
   }
 }
 </script>
@@ -903,6 +866,9 @@ export default {
                 text-align: center;
                 .cardAdd {
                   font-size: 1.5rem;
+                }
+                img {
+                  width: 90%;
                 }
               }
             }
@@ -1160,7 +1126,6 @@ export default {
       // justify-content: center;
       div {
         &:nth-child(1) {
-          width: 56px;
           height: 40px;
           color: #ccc;
           font-size: 28px;
@@ -1173,7 +1138,6 @@ export default {
           text-align: center;
         }
         &:nth-child(3) {
-          width: 56px;
           height: 40px;
           margin-right: 20px;
           color: #237ff8;
@@ -1182,20 +1146,20 @@ export default {
       }
     }
     .cardContent {
-      margin-top: 40px;
+      width: 100vw;
+      max-height: 60vh;
+      margin: 2vw 0;
       display: flex;
       flex-wrap: wrap;
-      height: 825px;
-      overflow-y: auto;
-      // overflow-y: scroll;
+      // overflow-y: auto;
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
       li {
-        width: 165px;
-        margin-left: 18px;
-        margin-bottom: 30px;
+        width: calc(92vw / 4);
+        box-sizing: border-box;
+        margin: 1vw;
         border-radius: 10px;
         background-color: #080b13;
-        padding-bottom: 15px;
         position: relative;
         .cardselect {
           position: absolute;
@@ -1203,7 +1167,7 @@ export default {
           left: 112px;
         }
         img {
-          width: 165px;
+          width: 100%;
           height: 238px;
           vertical-align: middle;
           margin-bottom: 10px;

@@ -56,6 +56,7 @@
           </li>
           <li>
             <input type="number"
+                   oninput="if (value < 0) value = 0;if(value>10000)value=10000"
                    @input="inputChangeHandler"
                    v-model.number="buynum"
                    placeholder="请输入购买数量" />
@@ -70,10 +71,12 @@ export default {
   data() {
     return {
       maskFlag: false, //遮罩
+      costnum: '',
       buynum: '', //遮罩input
       disabledFlag: true,
       inputNum: '',
-      currentIndex: 9, //当前高亮的index
+      activeIndex: '',
+      currentIndex: -1, //当前高亮的index
       money: '0USDT+0U', //显示金额
       Prepaid: '', //未显示金额
       sumMoeny: 0, //接收用户输入的值
@@ -111,11 +114,10 @@ export default {
   methods: {
     // 点击购买
     payHandler() {
-      // console.log('77')
       if (this.inputNum == '') {
         this.$toast('请选择购买数量')
       } else {
-        // 进行支付处理
+        // 拉起钱包，进行支付处理
         this.$toast('可以购买')
       }
     },
@@ -126,33 +128,13 @@ export default {
       this.buynum = item.num
       this.typearr.push(item.id)
     },
-    inputChangeHandler(e) {
-      console.log('事件触发...')
+    inputChangeHandler() {
+      this.currentIndex = -1
       this.typearr = [] //保证是用户输入
-      // let baseval = 50; //基础值
-      // let usernum = e.target.value; //获取用户输入值
-      // let sum;
-      // if (1 < usernum < 3) {
-      //   sum = (usernum - 1) * baseval + 50;
-      //   console.log("1 < usernum < 3", sum);
-      // } else if (3 < usernum < 7) {
-      //   sum = (usernum - 3) * baseval + 100;
-      //   console.log("3 < usernum < 7", sum);
-      // } else if (7 < usernum < 20) {
-      //   sum = (usernum - 7) * baseval + 200;
-      //   console.log("7 < usernum < 20", sum);
-      // } else if (20 < usernum < 50) {
-      //   sum = (usernum - 20) * baseval + 500;
-      //   console.log("20 < usernum < 50", sum);
-      // } else if (usernum > 50) {
-      //   sum = (usernum - 50) * baseval + 1000;
-      //   console.log("usernum > 50", sum);
-      // }
-      // this.sumMoeny = sum + "U" + "+" + sum + "U";
-      // console.log("usernum", this.sumMoeny);
     },
     // 点击确定
     sureHandler() {
+      this.buynum = parseInt(this.buynum)
       this.inputNum = this.buynum
       //判断用户是输入还是点击的
       if (this.typearr.length > 0) {
@@ -161,23 +143,6 @@ export default {
         let baseval = 50 //基础值
         let usernum = this.buynum
         let sum
-        // if (1 < usernum < 3) {
-        //   sum = (usernum - 1) * baseval + 50;
-        //   console.log("1 < usernum < 3", sum);
-        // } else if (3 < usernum < 7) {
-        //   sum = (usernum - 3) * baseval + 100;
-        //   console.log("3 < usernum < 7", sum);
-        // } else if (7 < usernum < 20) {
-        //   sum = (usernum - 7) * baseval + 200;
-        //   console.log("7 < usernum < 20", sum);
-        // } else if (20 < usernum < 50) {
-        //   sum = (usernum - 20) * baseval + 500;
-        //   console.log("20 < usernum < 50", sum);
-        // } else if (usernum > 50) {
-        //   sum = (usernum - 50) * baseval + 1000;
-        //   console.log("usernum > 50", sum);
-        // }
-
         usernum < 3
           ? (sum = (usernum - 1) * baseval + 50)
           : usernum < 7
@@ -191,15 +156,14 @@ export default {
         this.sumMoeny = sum + 'USDT' + '+' + sum + 'U'
         this.money = this.sumMoeny //用户输入
       }
+      this.costnum = this.buynum
+      this.activeIndex = this.currentIndex
       // this.typearr = []
       //this.currentIndex = 9; //取消高亮
       this.maskFlag = false
     },
     onClickLeft() {
       this.$router.back()
-      // this.$router.push({
-      //   name: 'buy_blindbox'
-      // })
     },
     // 显示遮罩
     buynumHandler() {
@@ -207,42 +171,9 @@ export default {
     },
     // 取消处理
     cancelOrderHandler() {
-      //清除缓存
-      if (this.buynum == '') {
-        // this.buynum = ''
-        // this.inputNum = ''
-        this.Prepaid = ''
-        // this.sumMoeny='0U+0U'
-        this.money = '0U+0U'
-      }
-
-      if (this.buynum !== '') {
-        // this.buynum = "";
-        // this.inputNum = "";
-        // this.Prepaid=''
-        // this.sumMoeny = "0U+0U";
-        // this.money = "0U+0U";
-      }
-      // this.buynum = "";
-      // this.inputNum = "";
-      // this.disabledFlag = false
-      // this.typearr = [];
-      // this.currentIndex = null; //取消高亮
       this.maskFlag = false
-    }
-  },
-  computed: {
-    countGoodsPrice() {
-      let baseval = 50 //基础值
-      let sumPrice = null
-      let usernum = this.buynum //用户输入值
-      console.log('computed', usernum)
-      if (1 < usernum < 3) {
-        sumPrice = (usernum - 1) * baseval + 50
-      } else if (3 < usernum < 7) {
-        sumPrice = (usernum - 3) * baseval + 100
-      }
-      return sumPrice
+      this.buynum = this.costnum
+      this.currentIndex = this.activeIndex
     }
   }
 }
