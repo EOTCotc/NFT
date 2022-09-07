@@ -226,8 +226,8 @@ export default {
       ],
       //待领取卡牌
       cardState: [
-        { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        { id: Math.random(), title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+        // { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(), title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
       ],
       coinFlag: false,
       // activeName:'1'
@@ -239,20 +239,20 @@ export default {
       fontFlag: false, //字体状态
       //待铸造卡牌
       castDataList: [
-        {
-          castid: Math.floor(Math.random() * 100) + '',
-          castname: '三级青铜甲犀牛',
-          castnum: '1',
-          casticon: require('../../assets/img/coincard/icon3.png'),
-          castimg: require('../../assets/img/coincard/card1.png')
-        },
-        {
-          castid: Math.floor(Math.random() * 100) + '',
-          castname: '三级青铜甲犀牛',
-          castnum: '1',
-          casticon: require('../../assets/img/coincard/icon3.png'),
-          castimg: require('../../assets/img/coincard/card1.png')
-        }
+        // {
+        //   castid: Math.floor(Math.random() * 100) + '',
+        //   castname: '三级青铜甲犀牛',
+        //   castnum: '1',
+        //   casticon: require('../../assets/img/coincard/icon3.png'),
+        //   castimg: require('../../assets/img/coincard/card1.png')
+        // },
+        // {
+        //   castid: Math.floor(Math.random() * 100) + '',
+        //   castname: '三级青铜甲犀牛',
+        //   castnum: '1',
+        //   casticon: require('../../assets/img/coincard/icon3.png'),
+        //   castimg: require('../../assets/img/coincard/card1.png')
+        // }
       ]
     }
   },
@@ -357,6 +357,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
+/deep/ .van-hairline--bottom::after {
+  border-bottom: none !important;
+}
+
 .empry {
   text-align: center;
   margin-top: 1rem;

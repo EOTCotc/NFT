@@ -35,7 +35,7 @@
       </div>
     </header>
     <div class="main-p">
-      <van-collapse accordion
+      <!-- <van-collapse accordion
                     v-model="activeNames">
         <van-collapse-item title="白名单"
                            :icon="require('../../assets/img/rightMenuIcon/whiteListIcon.png')"
@@ -91,7 +91,113 @@
             <p @click="goUrl(8)">新手指引</p>
           </div>
         </van-collapse-item>
-      </van-collapse>
+      </van-collapse> -->
+
+      <div class="title"
+           @click="goUrl(2)">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/whiteListIcon.png">
+            白名单
+          </div>
+          <div class="r">
+            <van-icon name="arrow" />
+          </div>
+        </div>
+      </div>
+
+      <div class="title"
+           @click="goUrl(3)">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/blindBoxIcon.png">
+            盲盒
+          </div>
+          <div class="r">
+            <van-icon name="arrow" />
+          </div>
+        </div>
+      </div>
+
+      <div class="title"
+           @click="goUrl(4)">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/bazaarIcon.png">
+            市场
+          </div>
+          <div class="r">
+            <van-icon name="arrow" />
+          </div>
+        </div>
+      </div>
+
+      <div class="title"
+           @click="goUrl(5)">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/orderIcon.png">
+            订单
+          </div>
+          <div class="r">
+            <van-icon name="arrow" />
+          </div>
+        </div>
+      </div>
+
+      <div class="title"
+           @click="show=!show">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/nftCardIcon.png">
+            我的NFT
+          </div>
+          <div class="r">
+            <van-icon name="arrow-down"
+                      v-if="show" />
+            <van-icon name="arrow"
+                      v-else />
+          </div>
+        </div>
+        <div class="item"
+             v-show="show">
+          <p @click="goUrl(6.1)">
+            权益卡牌
+            <van-icon name="arrow" />
+          </p>
+          <p @click="goUrl(6.2)">
+            等级卡牌
+            <van-icon name="arrow" />
+          </p>
+        </div>
+      </div>
+
+      <div class="title"
+           @click="goUrl(7)">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/guideIcon.png">
+            合成
+          </div>
+          <div class="r">
+            <van-icon name="arrow" />
+          </div>
+        </div>
+      </div>
+
+      <div class="title"
+           @click="goUrl(8)">
+        <div class="h">
+          <div class="l">
+            <img src="../../assets/img/rightMenuIcon/orderIcon.png">
+            新手指引
+          </div>
+          <div class="r">
+            <van-icon name="arrow" />
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <van-popup v-model="changeValue"
@@ -127,6 +233,7 @@ export default {
   data() {
     return {
       activeNames: '1',
+      show: false,
       USDT: '0.00',
       EOTC: '0.00',
       // nft_USDT: '0.00',
@@ -154,6 +261,7 @@ export default {
   },
   methods: {
     goUrl(i) {
+      console.log(i)
       if (this.UID) {
         if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
         if (i == 3) this.$router.push({ name: 'buy_blindbox' })
@@ -162,8 +270,9 @@ export default {
         if (i == 6.1) this.$router.push({ name: 'hvae_card' })
         if (i == 6.2) this.$router.push({ name: 'rank_card' })
         if (i == 7) this.$router.push({ name: 'synthesis_page' })
+        if (i == 8) location.href = 'https://eotc.im/html/guide/guide.html'
       } else {
-        i == 8 ? (location.href = 'https://eotc.im/html/guide/guide.html') : this.$toast('请先登录再进行操作')
+        this.$toast('请先登录再进行操作')
       }
     },
     changeVal() {
@@ -186,15 +295,15 @@ export default {
 .main-p {
   overflow-y: auto;
   margin-top: 30px;
-  margin-bottom: 1em;
-  .item {
-    margin-left: 90px;
-    p {
-      height: 96px;
-      line-height: 96px;
-      font-size: 30px;
-    }
-  }
+  // margin-bottom: 1em;
+  // .item {
+  //   margin-left: 90px;
+  //   p {
+  //     height: 96px;
+  //     line-height: 96px;
+  //     font-size: 30px;
+  //   }
+  // }
   /deep/ .van-collapse-item__content {
     padding: 0;
   }
@@ -208,6 +317,39 @@ export default {
 
   .van-collapse-item {
     margin-bottom: 10px;
+  }
+
+  .title {
+    margin-bottom: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 20px;
+    font-size: 32px;
+    .h {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .l {
+        display: flex;
+        align-items: center;
+        img {
+          margin-right: 15px;
+          width: 50px;
+          height: 50px;
+        }
+      }
+    }
+    .item {
+      p {
+        // font-size: 30px;
+        margin-left: 66px;
+        margin-top: 60px;
+        overflow: hidden;
+        .van-icon {
+          float: right;
+        }
+      }
+    }
   }
 }
 
@@ -226,7 +368,7 @@ export default {
     overflow-y: auto;
   }
   .header {
-    margin: 25px 25px 0 25px;
+    margin: 50px 25px 0 25px;
     background: linear-gradient(to right, #2a86ff, #54dcff);
     font-size: 0.4rem;
     border-radius: 15px;

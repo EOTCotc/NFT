@@ -6,7 +6,7 @@
       <div class="l">
         <p v-for="item in tabs"
            :key="item.id"
-           @click="active=item.id,col=false"
+           @click="tab(item.id)"
            :class="active==item.id?'active' :''">{{item.name}}</p>
       </div>
       <div class="r">
@@ -155,6 +155,13 @@ export default {
       console.log(id)
       sessionStorage.setItem('toggle', true)
       this.$router.push({ name: 'card_details' })
+    },
+    // 标签栏
+    tab(id) {
+      this.active = id
+      this.col = false
+      this.number = 0
+      this.$nextTick(() => (this.num = 0))
     }
   }
 }
@@ -162,6 +169,7 @@ export default {
 
 <style lang="less" scoped>
 .marketNFT {
+  font-size: 34px;
   margin-top: 1.2em;
   padding: 1em;
   .top {
@@ -240,9 +248,9 @@ export default {
   .options {
     font-size: 32px;
     padding: 20px;
-    height: 100%;
+    // height: 100%;
     .title {
-      margin: 20px 0;
+      margin: 30px 0;
     }
     .content {
       display: flex;

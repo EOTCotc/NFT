@@ -29,25 +29,25 @@
       </article>
 
       <div class="wzBox">
-        <img src="@/assets/img/card/rhinoceros-grade1.png"
+        <img src="@/assets/img/Compose/1.jpg"
              width="146px"
              alt="" />
-        <img src="@/assets/img/card/rhinoceros-grade2.png"
+        <img src="@/assets/img/Compose/2.jpg"
              width="146px"
              alt="" />
-        <img src="@/assets/img/card/rhinoceros-grade3.png"
+        <img src="@/assets/img/Compose/3-before.png"
              width="146px"
              alt="" />
-        <img src="@/assets/img/card/rhinoceros-grade4.png"
+        <img src="@/assets/img/Compose/4-before.png"
              width="146px"
              alt="" />
-        <img src="@/assets/img/card/rhinoceros-grade5.png"
+        <img src="@/assets/img/Compose/5-before.png"
              width="146px"
              alt="" />
       </div>
       <div class="pay">
         <van-button type="info"
-                    @click="toRouter_view">去购买</van-button>
+                    @click="goUrl">去购买</van-button>
       </div>
 
       <article class="content"
@@ -97,6 +97,18 @@
       </div>
     </div>
 
+    <footer class="footer">
+      <p class="img-icons">
+        <img src="@/assets/img/icon-telegram.png"
+             alt />
+        <img src="@/assets/img/icon-twitter.png"
+             alt />
+        <img src="@/assets/img/icon-email.png"
+             alt />
+      </p>
+      <p class="footer-p"> &copy;&nbsp;2022年EOTC版权所有。</p>
+    </footer>
+
     <!-- 交易成功提示 -->
     <div class="success">
       <van-overlay :show="show"
@@ -132,6 +144,11 @@ export default {
     toRouter_view() {
       this.$router.push({
         name: 'CurrencyTrading'
+      })
+    },
+    goUrl() {
+      this.$router.push({
+        name: 'buy_blindbox'
       })
     }
   }
@@ -230,6 +247,9 @@ export default {
   display: flex;
   overflow-x: auto;
   margin: 1rem 0;
+  img {
+    margin-right: 18px;
+  }
 }
 
 .main-2 {
@@ -248,6 +268,27 @@ export default {
     .sec-p {
       font-size: 0.4rem;
       text-align: center;
+    }
+  }
+}
+
+.footer {
+  // background-color: rgb(18, 25, 42);
+  background: #11192b;
+  padding: 30px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  box-sizing: border-box;
+  .footer-p {
+    color: #fff;
+    font-size: 0.4rem;
+    margin-left: 20px;
+  }
+  .img-icons {
+    img {
+      margin: 0 20px;
     }
   }
 }

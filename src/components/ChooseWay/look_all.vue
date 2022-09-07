@@ -19,7 +19,7 @@
         <ul>
           <li v-for="(box, i) in boxList"
               :key="i">
-            #{{ box.num.padStart(6, 0) }}
+            #{{ box.ID.padStart(6, 0) }}
           </li>
         </ul>
       </div>
@@ -104,7 +104,7 @@ export default {
     .scorllItem {
       width: 100%;
       height: 100%;
-      margin-top: 40px;
+      margin-top: 25%;
     }
     ul {
       width: 100%;

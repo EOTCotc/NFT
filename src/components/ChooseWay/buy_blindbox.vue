@@ -17,13 +17,13 @@
             <div class="ti1"
                  :style="{ color: '#fc7542ff', marginTop: '15px' }">
               <span>50 USDT</span> +
-              <span>50U（EOTC）</span>
+              <span>50 EOTC</span>
             </div>
 
             <van-button :disabled="false"
                         @click="jumporderHandler"
                         type="info"
-                        :style="{ marginTop: '20px' }">去购买</van-button>
+                        :style="{ marginTop: '20px',padding:'0 40px' }">去购买</van-button>
 
           </div>
         </van-tab>
@@ -39,10 +39,10 @@
               <div class="scorllItem">
                 <ul>
                   <li v-for="item in boxList"
-                      :class="{blindboxActive: blindboxUid.indexOf(item.id) != -1}"
-                      @click="listHandler(item.id)"
-                      :key="item.id">
-                    #{{ item.num.padStart(6, 0)  }}
+                      :class="{blindboxActive: blindboxUid.indexOf(item.ID) != -1}"
+                      @click="listHandler(item.ID)"
+                      :key="item.ID">
+                    #{{ item.ID.padStart(6, 0)  }}
                   </li>
                 </ul>
               </div>
@@ -50,13 +50,17 @@
             <p @click="getElement"
                class="all">查看全部&nbsp;></p>
             <div class="footerBttn">
-              <div class="openboxBtn">
+              <div class="prompt">
+                开盲盒，请先选择需要开启的盲盒编号<br>最多可同时开十个盲盒
+              </div>
+              <div class="openboxBtn"
+                   @click="stop">
                 <van-button :disabled="blindboxUid.length?false:true"
-                            @click="showCard(blindboxUid.length)">开盲盒</van-button>
+                            @click="getCard(),showCard(blindboxUid.length)">开盲盒</van-button>
               </div>
-              <div class="owncard">
+              <!-- <div class="owncard">
                 <button>拥有卡牌: {{cardNum}}</button>
-              </div>
+              </div> -->
             </div>
           </div>
           <!-- 空 -->
@@ -75,14 +79,15 @@
                position="center"
                @click-overlay="closeAnimation">
 
-      <div class="box">
+      <div class="box"
+           v-if="boxData.length">
         <img src="../../assets/img/blindBox.gif"
              v-show="show1"
              class="tupian" />
 
         <img class="images"
              v-show="show2"
-             :src="listData[i].url">
+             :src="boxData[i].url">
       </div>
     </van-popup>
 
@@ -97,12 +102,12 @@
              class="pic">
         <div class="wraps">
           <div class="wrap"
-               v-for="item in listData"
+               v-for="item in boxData"
                :key="item.id"
-               :style="listData.length==1?'width:200px':listData.length==2?'width:40%':listData.length==3?'width:30%':'width:22%'">
+               :style="boxData.length==1?'width:200px':boxData.length==2?'width:40%':boxData.length==3?'width:30%':'width:22%'">
             <img :src="item.url"
                  class="image">
-            <p :class="listData.length==1?'bigF':listData.length==2?'largeF':listData.length==3?'mediumF':'sF'">{{item.title}}</p>
+            <p :class="boxData.length==1?'bigF':boxData.length==2?'largeF':boxData.length==3?'mediumF':'sF'">{{item.title}}</p>
           </div>
         </div>
 
@@ -113,21 +118,14 @@
   </div>
 </template>
 <script>
-import { myNft } from '@/api/newReqets'
+import { myNft, OpenBlindBox } from '@/api/newReqets'
 import { Toast } from 'vant'
 export default {
   data() {
     return {
       blindboxUid: [], //接收盒子id
       //盲盒数据
-      boxList: [
-        { id: Math.random(), num: '00001' },
-        { id: Math.random(), num: '00001' },
-        { id: Math.random(), num: '00001' },
-        { id: Math.random(), num: '00001' },
-        { id: Math.random(), num: '00002' },
-        { id: Math.random(), num: '00002' }
-      ],
+      boxList: [],
       blinboxActive: '1',
       cardNum: 0, //拥有卡牌数
 
@@ -138,17 +136,28 @@ export default {
       showTime: false,
       shows: false,
       i: 0,
-      // 盲盒开出的卡牌数据
+      // 卡牌数据
       listData: [
-        { id: Math.random(), url: require('../../assets/img/equityItem1.png'), title: '5级黄金甲犀牛' },
-        { id: Math.random(), url: require('../../assets/img/equityItem2.png'), title: '2级玄铁甲犀牛' }
-      ]
+        { id: Math.random(), url: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛' },
+        { id: Math.random(), url: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛' },
+        { id: Math.random(), url: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛' },
+        { id: Math.random(), url: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛' },
+        { id: Math.random(), url: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛' }
+      ],
+      boxData: [] // 盲盒开出的卡牌数据
     }
   },
   created() {
-    // this.getBox()
+    this.getBox()
   },
   methods: {
+    // 用户未选择盲盒编号
+    stop() {
+      if (this.blindboxUid.length == 0) {
+        this.$toast('请先选择盲盒编号')
+        Toast('请先选择盲盒编号')
+      }
+    },
     // 选中开盲盒数
     listHandler(id) {
       let num = this.blindboxUid.indexOf(id)
@@ -161,6 +170,7 @@ export default {
       } else {
         this.blindboxUid.splice(num, 1)
       }
+      console.log(this.blindboxUid)
     },
 
     // 去购买盲盒，跳转至购买页面
@@ -175,8 +185,9 @@ export default {
 
     // 开盲盒动画
     showCard(i) {
+      // this.getCard()
       this.i = i - 1
-      console.log(i)
+      // console.log(i)
       this.show = false
       this.shows = true
       this.show1 = true
@@ -218,7 +229,9 @@ export default {
         this.showTime = false
       }, 2000)
 
-      // 重新请求用户盲盒数
+      // 重新请求用户盲盒数,渲染页面
+      this.blindboxUid = []
+      this.getBox()
     },
 
     // 获取盲盒数据
@@ -226,6 +239,19 @@ export default {
       const { data } = await myNft(2)
       // console.log("开盲盒数据", data);
       this.boxList = data
+    },
+    // 获取卡牌信息
+    async getCard() {
+      this.boxData = []
+      let id = this.blindboxUid
+      id == 1 ? '' : (id = id.join('&'))
+      console.log(id)
+      const { data } = await OpenBlindBox(id)
+      console.log(data)
+      for (let i of data) {
+        this.boxData.push(this.listData[i.Activate - 1])
+      }
+      console.log(this.boxData)
     }
   },
   computed: {
@@ -243,7 +269,7 @@ export default {
 <style lang="less" scoped>
 .blindboxPage {
   margin-top: 80px;
-  background: linear-gradient(174deg, #437fff 0%, #172d5a 0%, #06070a 100%);
+  // background: linear-gradient(174deg, #437fff 0%, #172d5a 0%, #06070a 100%);
   .header {
     width: 100vw;
     height: 460px;
@@ -270,7 +296,7 @@ export default {
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      margin-bottom: 2rem;
+      padding-bottom: 30px;
       .ti1 {
         font-size: 0.4rem;
       }
@@ -351,7 +377,15 @@ export default {
         flex-direction: column;
         align-items: center;
         margin-top: 80px;
-        margin-bottom: 80px;
+        margin-bottom: 30px;
+        .prompt {
+          line-height: 50px;
+          margin-bottom: 30px;
+          letter-spacing: 2px;
+          // text-align: center;
+          font-size: 34px;
+          color: #fc7542;
+        }
         .openboxBtn,
         .owncard {
           button {
@@ -375,7 +409,8 @@ export default {
     }
     .emptyPage {
       /deep/ .van-empty__image {
-        width: 6.26667rem;
+        height: 3.6rem;
+        width: 5rem;
       }
     }
   }
