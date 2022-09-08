@@ -84,13 +84,13 @@
           <van-tab name="2"
                    title="待铸造">
             <div class="waitcoin">
-              <div v-if="coinFlag"
+              <div v-if="castDataList.length==0"
                    class="no_card">
                 <van-empty class="custom-image"
                            :image="require('../../assets/img/cardPage/cardNull.png')"
                            description="暂无权益卡牌" />
               </div>
-              <div v-if="!coinFlag"
+              <div v-else
                    class="coinwarp">
                 <div v-for="(cast, index) in castDataList"
                      :key="cast.castid"
@@ -126,16 +126,14 @@
                            description="暂无权益卡牌" />
               </div>
               <div v-else
-                   class="itemCard isgary"
-                   v-for="(item, i) in Not_activatedList"
-                   :key="i">
-                <template>
-                  <div>
-                    <img src="../../assets/img/equityItem2.png"
-                         alt="" />
-                    <p>联合会权益NFT</p>
-                  </div>
-                </template>
+                   class="cartList">
+                <div class="cartItem"
+                     v-for="item in Not_activatedList"
+                     :key="item.id">
+                  <img :src="item.img"
+                       style="opacity: 0.5;" />
+                  <p>{{item.title}}</p>
+                </div>
               </div>
             </div>
           </van-tab>
@@ -143,7 +141,7 @@
       </div>
       <!-- 页脚 -->
       <div class="footer"
-           v-if="showFooter">
+           v-if="showFooter&&cardState.length">
         <div class="left">
           <p>已选择 {{ selecked }} 个</p>
           <p>提示:只能同时选择一种类型的NFT</p>
@@ -222,10 +220,12 @@ export default {
       //已拥有卡牌
       cartItem: [
         // { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), title: '联合会权益NFT', img: require('../../assets/img/equityItem2.png') }
       ],
       //待领取卡牌
       cardState: [
+        // { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
       ],
@@ -245,20 +245,13 @@ export default {
         //   castnum: '1',
         //   casticon: require('../../assets/img/coincard/icon3.png'),
         //   castimg: require('../../assets/img/coincard/card1.png')
-        // },
-        // {
-        //   castid: Math.floor(Math.random() * 100) + '',
-        //   castname: '三级青铜甲犀牛',
-        //   castnum: '1',
-        //   casticon: require('../../assets/img/coincard/icon3.png'),
-        //   castimg: require('../../assets/img/coincard/card1.png')
         // }
       ]
     }
   },
   created() {
-    this.getMyNFT()
-    this.waitactiveHandle()
+    // this.getMyNFT()
+    // this.waitactiveHandle()
   },
   methods: {
     // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
@@ -496,7 +489,7 @@ export default {
       display: flex;
       flex-direction: column;
       text-align: center;
-      padding-top: 1.5rem;
+      padding-top: 2rem;
       font-size: 0.6rem;
       color: #e28c0a;
       p {
@@ -535,8 +528,8 @@ export default {
     // ?待铸造
     .waitcoin {
       width: 100%;
-      padding-top: 40px;
-      background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
+      margin-top: 20px;
+      // background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
       .coineditem {
         width: 690px;
         margin: 0 auto 30px;
@@ -606,6 +599,7 @@ export default {
       // grid-template: 1fr/1fr 1fr;
       // gap: 0.5rem;
       padding: 0 25px;
+      margin-top: 20px;
       justify-content: space-around;
       align-items: center;
       position: relative;
@@ -644,6 +638,7 @@ export default {
       }
     }
     .awaitPage {
+      margin-top: 20px;
       width: 100%;
       .cart {
         margin: 0.6em;

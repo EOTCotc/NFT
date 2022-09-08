@@ -186,7 +186,7 @@ export default {
   .tab {
     margin-bottom: 30px;
     color: #878d9a;
-    font-size: 28px;
+    font-size: 32px;
     display: flex;
     justify-content: space-between;
     .l {

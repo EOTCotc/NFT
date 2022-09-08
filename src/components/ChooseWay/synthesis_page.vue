@@ -12,7 +12,7 @@
     <div class="sythcontent">
       <van-tabs background="#121933"
                 sticky
-                offset-top="1.4rem"
+                offset-top="1.2rem"
                 title-inactive-color="#666"
                 title-active-color="#fff"
                 v-model="synthActiveName">
@@ -223,9 +223,9 @@
                             type="info">合成</van-button>
               </div>
               <div class="msg">
-                <p>成功概率25%</p>
+                <p>成功概率100%</p>
                 <p>5张三级青铜甲犀牛卡牌可合成一次</p>
-                <p>合成失败后则不可再次参与合成，卡牌不销毁</p>
+                <p>合成后不可再次参与合成</p>
               </div>
             </div>
 
@@ -254,9 +254,9 @@
                             type="info">合成</van-button>
               </div>
               <div class="msg">
-                <p>成功概率25%</p>
+                <p>成功概率100%</p>
                 <p>5张四级白银甲犀牛卡牌可合成一次</p>
-                <p>合成失败后则不可再次参与合成，卡牌不销毁</p>
+                <p>合成后不可再次参与合成</p>
               </div>
             </div>
 
@@ -286,9 +286,9 @@
                             type="info">合成</van-button>
               </div>
               <div class="msg">
-                <p>成功概率25%</p>
+                <p>成功概率100%</p>
                 <p>5张五级黄金甲犀牛卡牌可合成一次</p>
-                <p>合成失败后则不可再次参与合成，卡牌不销毁</p>
+                <p>合成后不可再次参与合成</p>
               </div>
             </div>
           </div>
@@ -341,7 +341,7 @@
               <div class="eiktfooter">
                 <p>成功概率100%</p>
                 <p>100天*3+200天*2+300天*1可合成一张永久</p>
-                <p>合成成功则销毁原卡牌，合成失败不销毁原卡牌</p>
+                <p>合成成功后销毁原卡牌</p>
               </div>
             </div>
 
@@ -390,7 +390,7 @@
               <div class="eiktfooter">
                 <p>成功概率100%</p>
                 <p>100天*3+200天*2+300天*1可合成一张永久</p>
-                <p>合成成功则销毁原卡牌，合成失败不销毁原卡牌</p>
+                <p>合成成功后销毁原卡牌</p>
               </div>
             </div>
 
@@ -439,7 +439,7 @@
               <div class="eiktfooter">
                 <p>成功概率100%</p>
                 <p>100天*3+200天*2+300天*1可合成一张永久</p>
-                <p>合成成功则销毁原卡牌，合成失败不销毁原卡牌</p>
+                <p>合成成功后销毁原卡牌</p>
               </div>
             </div>
           </div>
@@ -690,26 +690,38 @@ export default {
     confirmHandler2() {
       this.show2 = false
       console.log('动画执行...')
-      if (this.synthNum == 2)
-        (this.two = true),
-          setTimeout(() => {
-            this.two = false
-          }, 3000)
-      if (this.synthNum == 3)
-        (this.three = true),
-          setTimeout(() => {
-            this.three = false
-          }, 3000)
-      if (this.synthNum == 5)
-        (this.five = true),
-          setTimeout(() => {
-            this.five = false
-          }, 3000)
-      if (this.synthNum == 6)
-        (this.six = true),
-          setTimeout(() => {
-            this.six = false
-          }, 3000)
+      if (this.synthNum == 2) {
+        setTimeout(() => {
+          this.two = true
+        }, 500)
+        setTimeout(() => {
+          this.two = false
+        }, 3500)
+      }
+      if (this.synthNum == 3) {
+        setTimeout(() => {
+          this.three = true
+        }, 500)
+        setTimeout(() => {
+          this.three = false
+        }, 3500)
+      }
+      if (this.synthNum == 5) {
+        setTimeout(() => {
+          this.five = true
+        }, 500)
+        setTimeout(() => {
+          this.five = false
+        }, 3500)
+      }
+      if (this.synthNum == 6) {
+        setTimeout(() => {
+          this.six = true
+        }, 500)
+        setTimeout(() => {
+          this.six = false
+        }, 3500)
+      }
     },
     confirmHandler() {
       this.show1 = false
@@ -811,6 +823,7 @@ export default {
   }
 
   .top {
+    height: 1.2rem;
     /deep/ .van-nav-bar__content {
       background-color: #1b2945;
     }
