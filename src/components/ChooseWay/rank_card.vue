@@ -23,7 +23,7 @@
                v-if="rankCardFlag1.length=== 0">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/cardPage/cardNull.png')"
-                       description="暂无权益卡牌" />
+                       description="暂无等级卡牌" />
           </div>
           <!-- 已拥有卡牌 -->
           <div v-else
@@ -37,7 +37,7 @@
                      alt="卡片">
               </div>
               <p class="title">{{item.title }}</p>
-              <p class="num">{{item.num }}</p>
+              <p class="num">#{{item.num }}</p>
             </div>
           </div>
         </van-tab>
@@ -47,29 +47,31 @@
                v-if="rankCardFlag2.length=== 0">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/cardPage/cardNull.png')"
-                       description="暂无权益卡牌" />
+                       description="暂无等级卡牌" />
           </div>
           <div v-else
                class="waitcard">
             <div class="waitcarditem"
-                 v-for="item in rankCardFlag2"
-                 :key="item.id">
+                 v-for="(item,index) in rankCardFlag2"
+                 :key="index">
+
               <div class="left">
                 <img :src="item.image"
-                     @click="goCardDetails(item.id)"
+                     @click="goCardDetails(item.num)"
                      alt="">
               </div>
               <div class="right">
                 <div>
                   <span>{{ item.title }}</span>
                   <span>
-                    <van-checkbox icon-size="16px"
-                                  v-model="item.ischecked"></van-checkbox>
+                    <!-- <van-checkbox icon-size="16px"
+                                  v-model="item.ischecked"></van-checkbox> -->
                   </span>
                 </div>
-                <div>{{ item.num }}</div>
+                <div>#{{ item.num }}</div>
                 <div>{{ item.text}}</div>
               </div>
+
             </div>
           </div>
           <!-- 页脚 -->
@@ -81,7 +83,7 @@
             </div>
             <div class="right">
               <van-button round
-                          :disabled="isselect"
+                          :disabled="true"
                           block
                           type="info"
                           @click="getCard()">领取</van-button>
@@ -94,22 +96,22 @@
                v-if="castDataList.length===0">
             <van-empty class="custom-image"
                        :image="require('../../assets/img/cardPage/cardNull.png')"
-                       description="暂无权益卡牌" />
+                       description="暂无等级卡牌" />
           </div>
           <div v-else
                class="coined">
             <div v-for="(cast,index) in castDataList"
-                 :key="cast.castid"
+                 :key="cast.num"
                  class="coineditem">
               <div class="left">
-                <img :src="cast.castimg"
+                <img :src="cast.image"
                      alt="卡牌">
               </div>
               <div class="right">
-                <div>{{cast.castname}}</div>
-                <div>数量：{{cast.castnum}}</div>
+                <div>{{cast.title}}</div>
+                <div>数量：1</div>
                 <div v-if="currentIndex == index ? fontFlag : !fontFlag">
-                  <span @click="coincardHandler(cast,index)"><img :src="cast.casticon"
+                  <span @click="coincardHandler(cast,index)"><img src="../../assets/img/coincard/icon3.png"
                          alt="铸造">铸造</span>
                 </div>
                 <div v-else
@@ -176,6 +178,7 @@
 
 </template>
 <script>
+import { myNft } from '@/api/newReqets'
 export default {
   data() {
     return {
@@ -184,10 +187,7 @@ export default {
         // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png') }
       ],
       //待领取卡牌
-      rankCardFlag2: [
-        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png'), text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
-        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png'), text: '一级卡通版犀牛，总发行量60000个', ischecked: false }
-      ],
+      rankCardFlag2: [],
       // rankCardFlag3: true, //待铸造无卡片状态
       RankCardActive: '3',
       // cardState: [],
@@ -201,25 +201,40 @@ export default {
       index: -2,
       waitfooter: true,
       //待铸造卡牌
-      castDataList: [
-        // {
-        //   castid: 1 + '',
-        //   castname: '三级青铜甲犀牛',
-        //   castnum: '1',
-        //   casticon: require('../../assets/img/coincard/icon3.png'),
-        //   castimg: require('../../assets/img/coincard/card1.png')
-        // },
-        // {
-        //   castid: 2 + '',
-        //   castname: '三级青铜甲犀牛',
-        //   castnum: '1',
-        //   casticon: require('../../assets/img/coincard/icon3.png'),
-        //   castimg: require('../../assets/img/coincard/card1.png')
-        // }
+      castDataList: [],
+      // 全部卡牌
+      allCard: [
+        { num: '', image: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false }
       ]
     }
   },
+  created() {
+    this.getRandTwo()
+  },
   methods: {
+    // 待领取卡牌
+    async getRandTwo() {
+      const { data } = await myNft(3)
+      console.log(data)
+      for (let i of data) {
+        const asd = {}
+        asd.num = i.ID.padStart(6, 0)
+        asd.Activate = i.Activate
+        asd.title = this.allCard[i.Activate - 1].title
+        asd.image = this.allCard[i.Activate - 1].image
+        asd.text = this.allCard[i.Activate - 1].text
+        asd.ischecked = this.allCard[i.Activate - 1].ischecked
+        if (asd.Activate == 1 || asd.Activate == 2) {
+          this.rankCardFlag2.push(asd)
+        } else {
+          this.castDataList.push(asd)
+        }
+      }
+    },
     // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
     goCardDetails(id) {
       console.log(id)
@@ -309,6 +324,9 @@ export default {
     }
     /deep/ .van-nav-bar__title {
       color: #fff;
+    }
+    /deep/ .van-hairline--bottom::after {
+      border-bottom: none !important;
     }
   }
   // 有卡片样式

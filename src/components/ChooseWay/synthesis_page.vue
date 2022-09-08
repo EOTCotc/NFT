@@ -11,6 +11,8 @@
     <!-- 主体内容 -->
     <div class="sythcontent">
       <van-tabs background="#121933"
+                sticky
+                offset-top="1.4rem"
                 title-inactive-color="#666"
                 title-active-color="#fff"
                 v-model="synthActiveName">
@@ -110,6 +112,7 @@
                   <div @click="countdownFlag?showCard(0):show1 = true"
                        class="ftop">
                     <van-button :disabled="false"
+                                @click="synthNum=3"
                                 type="info">100%合成</van-button>
                   </div>
                   <p>成功概率100%</p>
@@ -147,6 +150,7 @@
                   <div @click="show1 = true"
                        class="ftop">
                     <van-button style="padding: 0 50px"
+                                @click="synthNum=3"
                                 :disabled="false"
                                 type="info">合成</van-button>
                   </div>
@@ -178,6 +182,7 @@
                   <div @click="show1 = true"
                        class="ftop">
                     <van-button style="padding: 0 50px"
+                                @click="synthNum=2"
                                 :disabled="false"
                                 type="info">合成</van-button>
                   </div>
@@ -244,6 +249,7 @@
               </div>
               <div class="sythnBtn">
                 <van-button :disabled="true"
+                            @click="synthNum=5"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -254,7 +260,7 @@
               </div>
             </div>
 
-            <div style="padding-bottom: 60px"
+            <div style="padding-bottom: 20px"
                  class="econtentTtem">
               <div class="etop">
                 <p class="title">高级节点分红权益卡</p>
@@ -275,6 +281,7 @@
               </div>
               <div class="sythnBtn">
                 <van-button :disabled="true"
+                            @click="synthNum=5"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -328,6 +335,7 @@
               <div class="eikybtn">
                 <van-button :disabled="true"
                             style="width: 170px"
+                            @click="synthNum=6"
                             type="info">合成</van-button>
               </div>
               <div class="eiktfooter">
@@ -375,6 +383,7 @@
               </div>
               <div class="eikybtn">
                 <van-button :disabled="true"
+                            @click="synthNum=6"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -423,6 +432,7 @@
               </div>
               <div class="eikybtn">
                 <van-button :disabled="true"
+                            @click="synthNum=6"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -437,7 +447,7 @@
       </van-tabs>
     </div>
     <!-- 页脚 -->
-    <div class="synthFooter">
+    <!-- <div class="synthFooter">
       <p class="img-icons">
         <img src="@/assets/img/icon-telegram.png"
              alt />
@@ -447,7 +457,7 @@
              alt />
       </p>
       <p class="footer-p">&copy;&nbsp;2022年EOTC版权所有。</p>
-    </div>
+    </div> -->
     <!-- 合成遮罩 -->
     <van-overlay :show="show1"
                  :key="1.1"
@@ -574,16 +584,28 @@
         合成后无论是否成功卡牌都将销毁
       </Popout> -->
     </van-overlay>
+
+    <!-- 合成动画 -->
+    <Two v-if="two"></Two>
+    <Three v-if="three"></Three>
+    <Five v-if="five"></Five>
+    <Six v-if="six"></Six>
   </div>
 </template>
 <script>
 import { Toast } from 'vant'
-// import { install } from 'vant'
-// import Popout from "../tool/Scroll/popout/popout_page.vue";
+import Two from './layout/two.vue'
+import Three from './layout/three.vue'
+import Five from './layout/five.vue'
+import Six from './layout/six.vue'
 export default {
-  // components: {
-  //   Popout,
-  // },
+  components: {
+    //组件与标签映射
+    Two: Two,
+    Three: Three,
+    Five: Five,
+    Six: Six
+  },
   data() {
     return {
       cardmaskFlag: 0, //单选框
@@ -605,13 +627,25 @@ export default {
       countdownFlag: true,
       // 定义卡牌数据
       maskcardData: [
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
-        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '01', url: require('../../assets/img/Compose/1.jpg') }
@@ -628,7 +662,13 @@ export default {
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '07', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '09', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '08', url: require('../../assets/img/Compose/1.jpg') }
-      ]
+      ],
+      // 点击合成
+      two: false,
+      three: false,
+      five: false,
+      six: false,
+      synthNum: 0
     }
   },
   methods: {
@@ -638,6 +678,7 @@ export default {
     },
     equityBtnHandler() {
       this.show3 = true
+      this.synthNum = 5
     },
     maskCancelHandler() {
       this.showcard = false
@@ -649,12 +690,32 @@ export default {
     confirmHandler2() {
       this.show2 = false
       console.log('动画执行...')
+      if (this.synthNum == 2)
+        (this.two = true),
+          setTimeout(() => {
+            this.two = false
+          }, 3000)
+      if (this.synthNum == 3)
+        (this.three = true),
+          setTimeout(() => {
+            this.three = false
+          }, 3000)
+      if (this.synthNum == 5)
+        (this.five = true),
+          setTimeout(() => {
+            this.five = false
+          }, 3000)
+      if (this.synthNum == 6)
+        (this.six = true),
+          setTimeout(() => {
+            this.six = false
+          }, 3000)
     },
     confirmHandler() {
       this.show1 = false
       this.show2 = true
     },
-    // 点击合成
+    // 点击回退
     onClickLeft() {
       this.$router.back()
     },
@@ -706,6 +767,29 @@ export default {
     suresHandler() {
       this.showcards = false
       // 将选择的卡牌图片渲染到页面
+    },
+    // 合成卡牌
+    goTo(i) {
+      if (i == 2)
+        (this.two = true),
+          setTimeout(() => {
+            this.two = false
+          }, 3000)
+      if (i == 3)
+        (this.three = true),
+          setTimeout(() => {
+            this.three = false
+          }, 3000)
+      if (i == 5)
+        (this.five = true),
+          setTimeout(() => {
+            this.five = false
+          }, 3000)
+      if (i == 6)
+        (this.six = true),
+          setTimeout(() => {
+            this.six = false
+          }, 3000)
     }
   },
   watch: {
@@ -721,6 +805,11 @@ export default {
 <style lang="less" scoped>
 .synthesispage {
   // ?头部样式
+
+  /deep/ .van-hairline--bottom::after {
+    border-bottom: none;
+  }
+
   .top {
     /deep/ .van-nav-bar__content {
       background-color: #1b2945;
@@ -737,7 +826,7 @@ export default {
   }
   //   ?主体内容
   .sythcontent {
-    margin-bottom: 120px;
+    // margin-bottom: 120px;
     /deep/ .van-tab__text {
       font-size: 36px;
     }
@@ -902,7 +991,7 @@ export default {
       width: 100%;
       background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
       .econtentTtem {
-        margin-bottom: 100px;
+        // margin-bottom: 100px;
         .etop {
           width: 430px;
           margin: 0 auto;
@@ -968,7 +1057,7 @@ export default {
     .eikycard {
       width: 100%;
       background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
-      padding-bottom: 60px;
+      padding-bottom: 20px;
       .eikycardItem {
         padding-top: 80px;
         .eikytop {
@@ -1040,25 +1129,25 @@ export default {
     }
   }
   //   ?页脚
-  .synthFooter {
-    background: #11192b;
-    padding: 30px 0;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    box-sizing: border-box;
-    .footer-p {
-      color: #fff;
-      font-size: 0.4rem;
-      margin-left: 20px;
-    }
-    .img-icons {
-      img {
-        margin: 0 20px;
-      }
-    }
-  }
+  // .synthFooter {
+  //   background: #11192b;
+  //   padding: 30px 0;
+  //   position: fixed;
+  //   bottom: 0;
+  //   left: 0;
+  //   right: 0;
+  //   box-sizing: border-box;
+  //   .footer-p {
+  //     color: #fff;
+  //     font-size: 0.4rem;
+  //     margin-left: 20px;
+  //   }
+  //   .img-icons {
+  //     img {
+  //       margin: 0 20px;
+  //     }
+  //   }
+  // }
   //   ?合成遮罩
   .wrapper {
     display: flex;
@@ -1120,7 +1209,7 @@ export default {
     bottom: 0;
     left: 0;
     background: #1b2333;
-    border-radius: 32px;
+    border-radius: 32px 32px 0 0;
     .waitTop {
       display: flex;
       // justify-content: center;

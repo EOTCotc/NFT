@@ -47,7 +47,8 @@
       </p>
     </div>
     <!-- 作品信息 -->
-    <div class="msg">
+    <div class="msg"
+         v-if="false">
       <p class="msgtitle">作品信息</p>
       <ul class="list">
         <li v-if="!toggle1">
@@ -119,7 +120,7 @@ export default {
       // time: Date.now(),
       price: 2000.52,
       off: false,
-      show: true,
+      show: false,
       toggle: false, //购买
       toggle1: false, //领取
       toggle2: false, //绑定、出售

@@ -76,13 +76,12 @@
         <span>50U（EOTC）</span>
       </div>
 
-      <div class="ti1"
+      <!-- <div class="ti1"
            :style="{ color: '#fff', marginTop: '15px' }">
         <span class="sp">-</span>&nbsp;&nbsp;1&nbsp;&nbsp;
         <span class="sp">+</span>
-      </div>
-      <van-button v-if="true"
-                  :disabled="true"
+      </div> -->
+      <van-button :disabled="true"
                   :style="{ marginTop: '20px', width: '150px' }">暂未开放</van-button>
       <!-- <van-button :disabled="true"
                   type="info"
@@ -195,20 +194,20 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.footer {
-  background-color: rgb(18, 25, 42);
-  padding: 30px 0;
-  .footer-p {
-    color: #fff;
-    font-size: 0.4rem;
-    margin-left: 20px;
-  }
-  .img-icons {
-    img {
-      margin: 0 20px;
-    }
-  }
-}
+// .footer {
+//   background-color: rgb(18, 25, 42);
+//   // padding: 30px 0;
+//   .footer-p {
+//     color: #fff;
+//     font-size: 0.4rem;
+//     margin-left: 20px;
+//   }
+//   .img-icons {
+//     img {
+//       margin: 0 20px;
+//     }
+//   }
+// }
 
 .btn2 {
   div {
@@ -243,6 +242,7 @@ export default {
 
 .mysteryBoxItem .equityBtn {
   padding: 13px 50px;
+  padding-bottom: 0;
   background-color: #5d6c8a;
   margin-top: 20px;
   border-radius: 4px;
@@ -266,7 +266,7 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .chooseWay {
@@ -280,6 +280,7 @@ export default {
 }
 
 .header {
+  margin-top: 1em;
   width: 100vw;
   height: 460px;
   display: flex;

@@ -18,7 +18,7 @@
         <div class="right">
           <p>盲盒</p>
           <p>1-5级犀牛卡牌随机开</p>
-          <p>{{ money }}(EOTC)</p>
+          <p>{{moneyU}}USDT+ {{ moneyE }}EOTC</p>
         </div>
       </div>
       <div class="buynum">
@@ -31,9 +31,23 @@
                  placeholder="选择购买数量" />
         </div>
       </div>
+      <div class="property">
+        <div class="title">
+          <span>支付方式</span>
+          <van-icon name="replay"
+                    @click="refresh" />
+        </div>
+        <div class="content">
+          <div class="l"><img src="../../assets/img/cost.png"></div>
+          <div class="r">
+            <p>{{text}}</p>
+            <p><span>{{appU}}USDT</span><span>{{appE}}EOTC</span></p>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="payBtn">
-      <div class="left">{{ money }}(EOTC)</div>
+      <div class="left">{{moneyU}}USDT+ {{ moneyE }}EOTC</div>
       <div @click="payHandler"
            class="right">确定支付</div>
     </div>
@@ -52,24 +66,59 @@
               :class="currentIndex == index ? 'selectActive' : ''"
               :key="item.id">
             <span>{{ item.num }}个</span>
-            <span>{{ item.EOTC }}U+{{ item.EOTC }}U(EOTC)</span>
+            <span>{{ item.EOTC }}USDT+{{ item.EOTC }}EOTC</span>
           </li>
           <li>
-            <input type="number"
+            <!-- <input type="number"
                    oninput="if (value < 0) value = 0;if(value>10000)value=10000"
                    @input="inputChangeHandler"
                    v-model.number="buynum"
-                   placeholder="请输入购买数量" />
+                   placeholder="请输入购买数量" /> -->
           </li>
         </ul>
       </div>
     </div>
+
+    <!-- 购买确认 -->
+    <!-- <van-popup class="shop"
+               round
+               :close-on-click-overlay="false"
+               v-model="show">
+      <div class="title">选择支付方式</div>
+      <div class="content">
+        <div :class="active==1?'active' :''"
+             @click="active=1">
+          <p>APP资产</p>
+          <p><span>{{appU}} USDT</span><span>{{appE}} EOTC</span></p>
+        </div>
+        <div :class="active==2?'active' :''"
+             @click="active=2">
+          <p>钱包资产</p>
+          <p><span>{{walletU}} USDT</span><span>{{walletE}} EOTC</span></p>
+        </div>
+      </div>
+      <div class="btns">
+        <van-button plain
+                    round
+                    @click="cancel"
+                    color="#999999"
+                    hairline
+                    type="primary">取消支付</van-button>
+        <van-button round
+                    @click="sure"
+                    type="info">确定支付</van-button>
+      </div>
+    </van-popup> -->
   </div>
 </template>
 <script>
+import { BuyBlindBox } from '@/api/newReqets'
+import { loadweb3, userBaseMes } from '@/utils/web3'
+import { Toast } from 'vant'
 export default {
   data() {
     return {
+      show: false,
       maskFlag: false, //遮罩
       costnum: '',
       buynum: '', //遮罩input
@@ -77,7 +126,8 @@ export default {
       inputNum: '',
       activeIndex: '',
       currentIndex: -1, //当前高亮的index
-      money: '0USDT+0U', //显示金额
+      moneyE: '0', //EOTC显示金额
+      moneyU: '0', //USDT显示金额
       Prepaid: '', //未显示金额
       sumMoeny: 0, //接收用户输入的值
       typearr: [], //标识
@@ -108,59 +158,96 @@ export default {
           num: '50',
           EOTC: '1000'
         }
-      ]
+      ],
+      active: 0, //选择支付方式
+      appU: 0.0, //APP资产USDT
+      appE: 0.0, //APP资产EOTC
+      // walletU: 0.0, //钱包资产USDT
+      // walletE: 0.0 //钱包资产EOTC
+      text: 'APP资产'
     }
   },
+  created() {
+    // loadweb3(userBaseMes)
+    this.appU = localStorage.getItem('usdt_ye')
+    this.appE = localStorage.getItem('eotc_stake')
+    // this.walletU = localStorage.getItem('myamount')
+    // this.walletE = localStorage.getItem('eotcAmount')
+  },
   methods: {
-    // 点击购买
+    // 确定购买
     payHandler() {
       if (this.inputNum == '') {
         this.$toast('请选择购买数量')
       } else {
-        // 拉起钱包，进行支付处理
-        this.$toast('可以购买')
+        // this.show = true
+        if (this.appU * 1 < this.moneyU * 1 || this.appE * 1 < this.moneyE * 1) {
+          //跳转充值
+          location.href = 'https://trx.eotc.im/#/recharge'
+        } else {
+          // 购买
+          BuyBlindBox(this.moneyU, this.moneyE).then((res) => {
+            console.log(res)
+            // res.data.State > 0 ? this.$toast('支付成功') : this.$toast('支付失败')
+            if (res.data.State > 0) {
+              this.$toast('支付成功')
+              this.inputNum = ''
+              localStorage.setItem('usdt_ye', this.appU * 1 - this.moneyU * 1)
+              localStorage.setItem('eotc_stake', this.appE * 1 - this.moneyE * 1)
+              this.appU = localStorage.getItem('usdt_ye')
+              this.appE = localStorage.getItem('eotc_stake')
+              this.moneyE = 0
+              this.moneyU = 0
+            } else {
+              this.$toast('支付失败')
+            }
+          })
+        }
       }
     },
     // 选择购买数量
     orderitemHandler(item, index) {
       this.currentIndex = index
-      this.Prepaid = item.EOTC + 'USDT' + '+' + item.EOTC + 'U'
+      this.moneyE = item.EOTC
+      this.moneyU = item.EOTC
+      // this.Prepaid = item.EOTC + 'USDT' + '+' + item.EOTC
       this.buynum = item.num
       this.typearr.push(item.id)
     },
-    inputChangeHandler() {
-      this.currentIndex = -1
-      this.typearr = [] //保证是用户输入
-    },
+    // inputChangeHandler() {
+    //   this.currentIndex = -1
+    //   this.typearr = [] //保证是用户输入
+    // },
     // 点击确定
     sureHandler() {
       this.buynum = parseInt(this.buynum)
       this.inputNum = this.buynum
-      //判断用户是输入还是点击的
-      if (this.typearr.length > 0) {
-        this.money = this.Prepaid //用户点击
-      } else {
-        let baseval = 50 //基础值
-        let usernum = this.buynum
-        let sum
-        usernum < 3
-          ? (sum = (usernum - 1) * baseval + 50)
-          : usernum < 7
-          ? (sum = (usernum - 3) * baseval + 100)
-          : usernum < 20
-          ? (sum = (usernum - 7) * (baseval - 10) + 200)
-          : usernum < 50
-          ? (sum = (usernum - 20) * (baseval - 20) + 500)
-          : (sum = (usernum - 50) * (baseval - 30) + 1000)
-
-        this.sumMoeny = sum + 'USDT' + '+' + sum + 'U'
-        this.money = this.sumMoeny //用户输入
-      }
+      // //判断用户是输入还是点击的
+      // if (this.typearr.length > 0) {
+      //   this.money = this.Prepaid //用户点击
+      // } else {
+      // let baseval = 50 //基础值
+      // let usernum = this.buynum
+      // let sum
+      // usernum < 3
+      //   ? (sum = (usernum - 1) * baseval + 50)
+      //   : usernum < 7
+      //   ? (sum = (usernum - 3) * baseval + 100)
+      //   : usernum < 20
+      //   ? (sum = (usernum - 7) * (baseval - 10) + 200)
+      //   : usernum < 50
+      //   ? (sum = (usernum - 20) * (baseval - 20) + 500)
+      //   : (sum = (usernum - 50) * (baseval - 30) + 1000)
+      // this.sumMoeny = sum + 'USDT' + '+' + sum + 'U'
+      // this.money = this.sumMoeny //用户输入
+      // }
       this.costnum = this.buynum
       this.activeIndex = this.currentIndex
-      // this.typearr = []
-      //this.currentIndex = 9; //取消高亮
       this.maskFlag = false
+
+      if (this.appU * 1 < this.moneyU * 1 || this.appE * 1 < this.moneyE * 1) {
+        this.text = 'APP资产(余额不足)'
+      }
     },
     onClickLeft() {
       this.$router.back()
@@ -171,9 +258,27 @@ export default {
     },
     // 取消处理
     cancelOrderHandler() {
+      this.inputNum = ''
+      this.moneyE = 0
+      this.moneyU = 0
       this.maskFlag = false
       this.buynum = this.costnum
-      this.currentIndex = this.activeIndex
+      this.currentIndex = -1
+    },
+    // 取消支付
+    cancel() {
+      this.show = false
+      this.active = 0
+    },
+    // 数据刷新
+    refresh() {
+      loadweb3(userBaseMes)
+      this.appU = localStorage.getItem('usdt_ye')
+      this.appE = localStorage.getItem('eotc_stake')
+      Toast.loading({
+        message: '刷新中...',
+        forbidClick: true
+      })
     }
   }
 }
@@ -258,6 +363,43 @@ export default {
         padding-left: 34px;
         box-sizing: border-box;
         border-radius: 16px;
+      }
+    }
+
+    .property {
+      margin-top: 1em;
+      color: #fff;
+      background: #1b2333;
+      border-radius: 20px;
+      font-size: 32px;
+      padding: 30px;
+      .title {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .content {
+        display: flex;
+        align-items: center;
+        .l {
+          width: 60px;
+          height: 60px;
+          margin-right: 30px;
+          img {
+            width: 100%;
+          }
+        }
+        .r {
+          p:nth-of-type(2) {
+            margin-top: 14px;
+            font-size: 28px;
+            color: #858890;
+            span {
+              padding-right: 60px;
+            }
+          }
+        }
       }
     }
   }
@@ -372,6 +514,51 @@ export default {
           background: url('../../assets/img/coincard/select.png') no-repeat 9rem center;
           background-size: 30px 22px;
         }
+      }
+    }
+  }
+  // 支付弹窗
+  .van-popup {
+    width: 80vw;
+    padding: 1em;
+    .title {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 2px;
+      display: flex;
+    }
+    .content {
+      margin: 0.9em 0;
+      div {
+        padding: 20px 50px;
+        margin: 20px 0;
+        border-radius: 16px;
+        background: #f3f4f5;
+        p:nth-of-type(1) {
+          font-size: 32px;
+          margin-bottom: 20px;
+        }
+        p:nth-of-type(2) {
+          font-size: 28px;
+          color: #999999;
+          overflow: hidden;
+          span {
+            float: left;
+            width: 50%;
+          }
+        }
+      }
+      .active {
+        border: 1px solid #237ff8;
+        background: #e8f2ff;
+      }
+    }
+    .btns {
+      display: flex;
+      justify-content: space-around;
+      .van-button {
+        width: 44%;
       }
     }
   }

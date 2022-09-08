@@ -4,7 +4,7 @@
     <div class="top">
       <van-nav-bar title="订单"
                    left-arrow
-                   z-index='99'
+                   z-index='99999'
                    placeholder
                    fixed
                    :border="false"
@@ -14,7 +14,7 @@
     <div class="content">
       <van-tabs v-model="active"
                 sticky
-                :offset-top="46">
+                :offset-top="53">
         <van-tab :title="item.name"
                  v-for="item in title"
                  :key="item.id">
@@ -111,7 +111,7 @@ html {
   background: linear-gradient(174deg, #437fff 0%, #172d5a 0%, #06070a 100%);
   // 头部
   .top {
-    height: 50px;
+    height: 55px;
     /deep/ .van-nav-bar__content {
       background-color: #1b2945;
     }
