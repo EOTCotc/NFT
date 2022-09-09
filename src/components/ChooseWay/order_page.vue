@@ -23,12 +23,29 @@
       </div>
       <div class="buynum">
         <p>购买数量</p>
-        <div @click="buynumHandler">
-          <input type="number"
+        <div>
+          <!-- <input type="number"
                  class="select"
+                 @input="change"
+                 oninput="if (value < 0) value = 0;if(value>10000)value=10000"
                  v-model="inputNum"
                  :disabled="disabledFlag"
-                 placeholder="选择购买数量" />
+                 :placeholder="disabledFlag?'选择购买数量':'输入购买数量'" /> -->
+
+          <van-field v-model="inputNum"
+                     oninput="if (value < 0) value = 0;if(value>10000)value=10000"
+                     center
+                     class="select"
+                     @input="change"
+                     clearable
+                     placeholder="点击此处输入购买数量">
+            <template #button>
+              <van-button size="small"
+                          @click="buynumHandler"
+                          type="primary">点击此处选择购买数量</van-button>
+            </template>
+          </van-field>
+
         </div>
       </div>
       <div class="property">
@@ -69,6 +86,8 @@
             <span>{{ item.EOTC }}USDT+{{ item.EOTC }}EOTC</span>
           </li>
           <li>
+            <!-- <input @click="inputChangeHandler"
+                   placeholder="点击此处输入购买数量" /> -->
             <!-- <input type="number"
                    oninput="if (value < 0) value = 0;if(value>10000)value=10000"
                    @input="inputChangeHandler"
@@ -164,11 +183,12 @@ export default {
       appE: 0.0, //APP资产EOTC
       // walletU: 0.0, //钱包资产USDT
       // walletE: 0.0 //钱包资产EOTC
-      text: 'APP资产'
+      text: 'APP资产',
+      i: 0
     }
   },
   created() {
-    // loadweb3(userBaseMes)
+    loadweb3(userBaseMes)
     this.appU = localStorage.getItem('usdt_ye')
     this.appE = localStorage.getItem('eotc_stake')
     // this.walletU = localStorage.getItem('myamount')
@@ -179,6 +199,8 @@ export default {
     payHandler() {
       if (this.inputNum == '') {
         this.$toast('请选择购买数量')
+      } else if (this.inputNum == 0) {
+        this.$toast('请输入正确的购买数量')
       } else {
         // this.show = true
         if (this.appU * 1 < this.moneyU * 1 || this.appE * 1 < this.moneyE * 1) {
@@ -208,42 +230,27 @@ export default {
     // 选择购买数量
     orderitemHandler(item, index) {
       this.currentIndex = index
-      this.moneyE = item.EOTC
-      this.moneyU = item.EOTC
+      this.i = item.EOTC
+      // this.moneyE = item.EOTC
+      // this.moneyU = item.EOTC
       // this.Prepaid = item.EOTC + 'USDT' + '+' + item.EOTC
       this.buynum = item.num
       this.typearr.push(item.id)
     },
-    // inputChangeHandler() {
-    //   this.currentIndex = -1
-    //   this.typearr = [] //保证是用户输入
-    // },
+    inputChangeHandler() {
+      this.maskFlag = false
+      this.disabledFlag = false
+    },
     // 点击确定
     sureHandler() {
       this.buynum = parseInt(this.buynum)
+      console.log(this.buynum)
       this.inputNum = this.buynum
-      // //判断用户是输入还是点击的
-      // if (this.typearr.length > 0) {
-      //   this.money = this.Prepaid //用户点击
-      // } else {
-      // let baseval = 50 //基础值
-      // let usernum = this.buynum
-      // let sum
-      // usernum < 3
-      //   ? (sum = (usernum - 1) * baseval + 50)
-      //   : usernum < 7
-      //   ? (sum = (usernum - 3) * baseval + 100)
-      //   : usernum < 20
-      //   ? (sum = (usernum - 7) * (baseval - 10) + 200)
-      //   : usernum < 50
-      //   ? (sum = (usernum - 20) * (baseval - 20) + 500)
-      //   : (sum = (usernum - 50) * (baseval - 30) + 1000)
-      // this.sumMoeny = sum + 'USDT' + '+' + sum + 'U'
-      // this.money = this.sumMoeny //用户输入
-      // }
       this.costnum = this.buynum
       this.activeIndex = this.currentIndex
       this.maskFlag = false
+      this.moneyE = this.i
+      this.moneyU = this.i
 
       if (this.appU * 1 < this.moneyU * 1 || this.appE * 1 < this.moneyE * 1) {
         this.text = 'APP资产(余额不足)'
@@ -252,9 +259,34 @@ export default {
     onClickLeft() {
       this.$router.back()
     },
+    change() {
+      let baseval = 50 //基础值
+      let usernum = this.inputNum
+      let sum
+      usernum < 3
+        ? (sum = (usernum - 1) * baseval + 50)
+        : usernum < 7
+        ? (sum = (usernum - 3) * baseval + 100)
+        : usernum < 20
+        ? (sum = (usernum - 7) * (baseval - 10) + 200)
+        : usernum < 50
+        ? (sum = (usernum - 20) * (baseval - 20) + 500)
+        : (sum = (usernum - 50) * (baseval - 30) + 1000)
+
+      this.moneyE = sum
+      this.moneyU = sum
+
+      if (this.appU * 1 < this.moneyU * 1 || this.appE * 1 < this.moneyE * 1) {
+        this.text = 'APP资产(余额不足)'
+      } else {
+        this.text = 'APP资产'
+      }
+    },
     // 显示遮罩
     buynumHandler() {
-      this.maskFlag = true
+      if (this.disabledFlag) {
+        this.maskFlag = true
+      }
     },
     // 取消处理
     cancelOrderHandler() {
@@ -264,12 +296,13 @@ export default {
       this.maskFlag = false
       this.buynum = this.costnum
       this.currentIndex = -1
+      this.text = 'APP资产'
     },
-    // 取消支付
-    cancel() {
-      this.show = false
-      this.active = 0
-    },
+    // // 取消支付
+    // cancel() {
+    //   this.show = false
+    //   this.active = 0
+    // },
     // 数据刷新
     refresh() {
       loadweb3(userBaseMes)
@@ -351,17 +384,22 @@ export default {
         font-size: 28px;
         margin: 40px 0 30px;
       }
+      // .select {
+      //   outline: none;
+      //   width: 690px;
+      //   height: 96px;
+      //   border: 1px solid #666;
+      //   background-color: #0f142b;
+      //   line-height: 96px;
+      //   color: #b0adb5;
+      //   font-size: 28px;
+      //   padding-left: 34px;
+      //   box-sizing: border-box;
+      //   border-radius: 16px;
+      // }
       .select {
-        outline: none;
-        width: 690px;
-        height: 96px;
-        border: 1px solid #666;
         background-color: #0f142b;
-        line-height: 96px;
-        color: #b0adb5;
-        font-size: 28px;
-        padding-left: 34px;
-        box-sizing: border-box;
+        border: 1px solid #666;
         border-radius: 16px;
       }
     }

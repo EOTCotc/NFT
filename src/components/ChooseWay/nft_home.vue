@@ -188,6 +188,7 @@ export default {
   flex-direction: column;
   overflow-y: auto;
   color: #fff;
+  padding-bottom: 1.6rem;
   .logo {
     width: 100vw;
     height: 10rem;

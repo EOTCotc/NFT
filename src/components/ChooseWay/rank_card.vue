@@ -7,7 +7,6 @@
                    placeholder
                    @click-left="onClickLeft" />
     </div>
-    <!-- 有等级卡牌 -->
     <div class="haveRankCard">
       <van-tabs v-model="RankCardActive"
                 background="#121933"
@@ -76,7 +75,7 @@
           </div>
           <!-- 页脚 -->
           <div class="waitfooter"
-               v-if="waitfooter">
+               v-if="waitfooter&&rankCardFlag2.length">
             <div class="left">
               <p>已选择 {{ selecked }} 个</p>
               <p>提示:只能同时选择一种类型的NFT</p>
@@ -204,11 +203,11 @@ export default {
       castDataList: [],
       // 全部卡牌
       allCard: [
-        { num: '', image: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '一级卡通版犀牛，总发行量60000个', ischecked: false }
+        { num: '', image: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000张', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '二级玄铁甲犀牛，总发行量25000张', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        { num: '', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
       ]
     }
   },
@@ -329,6 +328,7 @@ export default {
       border-bottom: none !important;
     }
   }
+
   // 有卡片样式
   .haveRankCard {
     /deep/ .van-tabs__wrap {
@@ -347,6 +347,7 @@ export default {
       margin-bottom: 39px;
     }
     .owncard {
+      margin-top: 20px;
       width: 100%;
       display: flex;
       justify-content: space-between;
@@ -590,10 +591,13 @@ export default {
   }
   //无卡样式
   .nowaitcard {
-    background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
+    margin-top: 2.8rem;
+    // background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
     .custom-image /deep/ .van-empty__image {
-      width: 400px;
-      height: 300px;
+      // width: 400px;
+      // height: 300px;
+      width: 260px;
+      height: 172px;
     }
     .custom-image /deep/ .van-empty__description {
       font-size: 28px;
