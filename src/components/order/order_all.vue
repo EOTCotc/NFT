@@ -14,7 +14,7 @@
     <div class="content">
       <van-tabs v-model="active"
                 sticky
-                :offset-top="53">
+                :offset-top="46">
         <van-tab :title="item.name"
                  v-for="item in title"
                  :key="item.id">
@@ -111,7 +111,7 @@ html {
   background: linear-gradient(174deg, #437fff 0%, #172d5a 0%, #06070a 100%);
   // 头部
   .top {
-    height: 55px;
+    height: 45px;
     /deep/ .van-nav-bar__content {
       background-color: #1b2945;
     }
@@ -122,6 +122,14 @@ html {
 /deep/ .van-icon:before,
 /deep/ .van-field__control {
   color: #fff;
+}
+
+/deep/ .van-tab {
+  opacity: 0.5;
+}
+
+/deep/ .van-tab--active {
+  opacity: 1;
 }
 
 //   ?主体内容

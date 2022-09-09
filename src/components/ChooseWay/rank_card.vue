@@ -99,7 +99,7 @@
           </div>
           <div v-else
                class="coined">
-            <div v-for="(cast,index) in castDataList"
+            <div v-for="cast in castDataList"
                  :key="cast.num"
                  class="coineditem">
               <div class="left">
@@ -109,8 +109,10 @@
               <div class="right">
                 <div>{{cast.title}}</div>
                 <div>数量：1</div>
-                <div v-if="currentIndex == index ? fontFlag : !fontFlag">
-                  <span @click="coincardHandler(cast,index)"><img src="../../assets/img/coincard/icon3.png"
+                <!-- <div v-if="currentIndex == index ? fontFlag : !fontFlag"> -->
+                <div v-if="cast.status ? fontFlag : !fontFlag">
+                  <span @click="coincardHandler(cast,cast.num)">
+                    <img src="../../assets/img/coincard/icon3.png"
                          alt="铸造">铸造</span>
                 </div>
                 <div v-else
@@ -142,7 +144,7 @@
              alt="警告">
       </div>
     </div>
-    <div v-show="maskFlag2"
+    <!-- <div v-show="maskFlag2"
          class="rankmask">
       <div class="maskbox">
         <div>
@@ -156,7 +158,7 @@
              src="../../assets/img/coincard/icon1.png"
              alt="警告">
       </div>
-    </div>
+    </div> -->
     <div v-show="maskFlag3"
          class="rankmask">
       <div class="maskbox">
@@ -200,14 +202,18 @@ export default {
       index: -2,
       waitfooter: true,
       //待铸造卡牌
-      castDataList: [],
+      castDataList: [
+        // { status: false, num: '1', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        // { status: false, num: '2', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        // { status: false, num: '3', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
+      ],
       // 全部卡牌
       allCard: [
-        { num: '', image: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000张', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '二级玄铁甲犀牛，总发行量25000张', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        { num: '', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
+        { num: '', status: false, image: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000张', ischecked: false },
+        { num: '', status: false, image: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '二级玄铁甲犀牛，总发行量25000张', ischecked: false },
+        { num: '', status: false, image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        { num: '', status: false, image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        { num: '', status: false, image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
       ]
     }
   },
@@ -224,6 +230,7 @@ export default {
         asd.num = i.ID.padStart(6, 0)
         asd.Activate = i.Activate
         asd.title = this.allCard[i.Activate - 1].title
+        asd.status = this.allCard[i.Activate - 1].status
         asd.image = this.allCard[i.Activate - 1].image
         asd.text = this.allCard[i.Activate - 1].text
         asd.ischecked = this.allCard[i.Activate - 1].ischecked
@@ -266,16 +273,21 @@ export default {
       this.maskFlag1 = false
       this.maskFlag3 = false
     },
-    // 确认铸造第一步
+    // 确认铸造
     confirmHandler() {
       console.log('铸造卡牌')
-      this.maskFlag2 = true
+      // 拉起钱包，扣除所需TRX成功后执行以下操作
+      this.currentIndex = this.index
       this.maskFlag1 = false
+      this.maskFlag3 = true
+      let status = this.castDataList.filter((e) => e.num == this.index)
+      status[0].status = true
+      console.log(status)
     },
-    // 跳过铸造，即取消铸造
-    jumpHandler() {
-      this.maskFlag2 = false
-    },
+    // // 跳过铸造，即取消铸造
+    // jumpHandler() {
+    //   this.maskFlag2 = false
+    // },
     // 确认铸造第二步，开始铸造
     confirmRankHandler() {
       console.log('铸造开始')

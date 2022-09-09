@@ -3,16 +3,16 @@
     <van-popup v-model="show">
       <div class="imgs"
            v-if="show1">
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/2.jpg"></div>
+        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
+        <div class="img"><img src="@/assets/img/Compose/2.jpg"></div>
       </div>
 
       <!-- 合成成功 -->
       <div class="pics"
            v-if="show2">
         <p>
-          <img src="../../../assets/img/Compose/3-before.png">
-          <img src="../../../assets/img/synth/success.png">
+          <img src="@/assets/img/Compose/3-before.png">
+          <img src="@/assets/img/synth/success.png">
         </p>
       </div>
 
@@ -20,10 +20,10 @@
       <div class="images"
            v-if="show3">
         <div class="image">
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/2.jpg"></p>
+          <p><img src="@/assets/img/Compose/1.jpg"></p>
+          <p><img src="@/assets/img/Compose/2.jpg"></p>
         </div>
-        <div class="img"><img src="../../../assets/img/synth/failed.png"></div>
+        <div class="img"><img src="@/assets/img/synth/failed.png"></div>
       </div>
     </van-popup>
   </div>

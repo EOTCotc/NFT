@@ -7,19 +7,19 @@
           <div class="img"
                :key="item.id"><img :src="item.url"></div>
         </template>
-        <!-- <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div> -->
+        <!-- <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
+        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
+        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
+        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
+        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div> -->
       </div>
 
       <!-- 合成成功 -->
       <div class="pics"
            v-if="show2">
         <p>
-          <img src="../../../assets/img/Compose/3-before.png">
-          <img src="../../../assets/img/synth/success.png">
+          <img src="@/assets/img/Compose/3-before.png">
+          <img src="@/assets/img/synth/success.png">
         </p>
       </div>
 
@@ -27,13 +27,13 @@
       <!-- <div class="images"
            v-if="show3">
         <div class="image">
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
+          <p><img src="@/assets/img/Compose/1.jpg"></p>
+          <p><img src="@/assets/img/Compose/1.jpg"></p>
+          <p><img src="@/assets/img/Compose/1.jpg"></p>
+          <p><img src="@/assets/img/Compose/1.jpg"></p>
+          <p><img src="@/assets/img/Compose/1.jpg"></p>
         </div>
-        <div class="img"><img src="../../../assets/img/synth/failed.png"></div>
+        <div class="img"><img src="@/assets/img/synth/failed.png"></div>
       </div> -->
     </van-popup>
   </div>
@@ -48,11 +48,11 @@ export default {
       show2: false,
       // show3: false,
       three: [
-        { id: Math.random(), url: "require('../../../assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('../../../assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('../../../assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('../../../assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('../../../assets/img/Compose/3.jpg')" }
+        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" }
       ]
     }
   },

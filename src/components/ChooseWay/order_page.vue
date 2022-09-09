@@ -33,8 +33,9 @@
                  :placeholder="disabledFlag?'选择购买数量':'输入购买数量'" /> -->
 
           <van-field v-model="inputNum"
-                     oninput="if (value < 0) value = 0;if(value>10000)value=10000"
+                     oninput="if (value < 0) value = '';if(value>10000)value=10000;value=parseInt(value)"
                      center
+                     type="number"
                      class="select"
                      @input="change"
                      clearable
@@ -238,6 +239,7 @@ export default {
       this.typearr.push(item.id)
     },
     inputChangeHandler() {
+      this.currentIndex = -1
       this.maskFlag = false
       this.disabledFlag = false
     },
@@ -260,6 +262,7 @@ export default {
       this.$router.back()
     },
     change() {
+      this.currentIndex = -1
       let baseval = 50 //基础值
       let usernum = this.inputNum
       let sum
@@ -401,6 +404,14 @@ export default {
         background-color: #0f142b;
         border: 1px solid #666;
         border-radius: 16px;
+      }
+
+      /deep/ .van-field__control::-webkit-input-placeholder {
+        color: #666666;
+      }
+
+      /deep/ input {
+        color: #fff;
       }
     }
 
