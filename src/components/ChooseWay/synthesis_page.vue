@@ -460,7 +460,6 @@
     </div> -->
     <!-- 合成遮罩 -->
     <van-overlay :show="show1"
-                 :key="1.1"
                  @click="show1 = false">
       <div class="wrapper"
            @click.stop>
@@ -480,7 +479,6 @@
       </div>
     </van-overlay>
     <van-overlay :show="show2"
-                 :key="1.2"
                  @click="show2 = false">
       <div class="wrapper"
            @click.stop>
@@ -539,6 +537,7 @@
             <div @click="suresHandler">确定</div>
           </div>
           <ul class="cardContent">
+
             <van-checkbox-group v-model="cardmaskFlags"
                                 direction="horizontal">
               <li v-for="item in maskcardData"
@@ -548,6 +547,7 @@
                 <p class="title">{{ item.title }}</p>
                 <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
+
                   <van-checkbox :name="item.id"
                                 icon-size="20px"></van-checkbox>
                 </div>
@@ -619,7 +619,7 @@ export default {
       number: false,
       // numOne: 0, //一级卡牌数量
       numTwo: 0, //二级卡牌数量
-      numThree: 0, //三级卡牌数量
+      numThree: 2, //三级卡牌数量
       numFour: 0, //四级卡牌数量
       numFive: 0, //五级卡牌数量
       time: 10 * 60 * 1000,
@@ -627,22 +627,6 @@ export default {
       countdownFlag: true,
       // 定义卡牌数据
       maskcardData: [
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
@@ -653,11 +637,6 @@ export default {
 
       // 用户一级卡牌
       numOne: [
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '01', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '05', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '06', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '07', url: require('../../assets/img/Compose/1.jpg') },
         { id: Math.random(), title: '一级黄金甲犀牛', ucode: '09', url: require('../../assets/img/Compose/1.jpg') },
@@ -689,7 +668,6 @@ export default {
     },
     confirmHandler2() {
       this.show2 = false
-      console.log('动画执行...')
       if (this.synthNum == 2) {
         setTimeout(() => {
           this.two = true
@@ -763,12 +741,25 @@ export default {
     pushCard(id) {
       if (this.cardmaskFlags.length > 4) {
         // 提示只能选择5张
-        console.log('只能选择5张')
+        this.$toast('只能选择5张')
+        console.log(111)
       } else {
-        this.cardmaskFlags.push(id)
+        // this.cardmaskFlags.push(id)
+
+        for (var i = 0; i <= this.cardmaskFlags.length; i++) {
+          if (this.cardmaskFlags.indexOf(id) === -1) {
+            this.cardmaskFlags.push(id)
+            console.log(222)
+          } else {
+            new Set(this.cardmaskFlags).delete(id)
+            console.log(333)
+          }
+        }
       }
       this.cardmaskFlags = [...new Set(this.cardmaskFlags)]
-      console.log(this.cardmaskFlags)
+      console.log(this.cardmaskFlags.length)
+
+      // console.log(this.cardmaskFlags)
     },
     // 单选确认选择卡牌
     sureHandler() {

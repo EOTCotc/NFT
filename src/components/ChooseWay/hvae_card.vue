@@ -92,18 +92,19 @@
               </div>
               <div v-else
                    class="coinwarp">
-                <div v-for="(cast, index) in castDataList"
-                     :key="cast.castid"
+                <div v-for="cast in castDataList"
+                     :key="cast.num"
                      class="coineditem">
                   <div class="left">
-                    <img :src="cast.castimg"
+                    <img :src="cast.image"
                          alt="卡牌" />
                   </div>
                   <div class="right">
-                    <div>{{ cast.castname }}</div>
-                    <div>数量：{{ cast.castnum }}</div>
-                    <div v-if="currentIndex == index ? fontFlag : !fontFlag">
-                      <span @click="coincardHandler(cast, index)"><img :src="cast.casticon"
+                    <div>{{ cast.title }}</div>
+                    <div>数量：1</div>
+                    <div v-if="cast.status ? fontFlag : !fontFlag">
+                      <span @click="coincardHandler(cast, cast.num)">
+                        <img src="../../assets/img/coincard/icon3.png"
                              alt="铸造" />铸造</span>
                     </div>
                     <div v-else
@@ -173,7 +174,7 @@
              alt="警告">
       </div>
     </div>
-    <div v-show="maskFlag2"
+    <!-- <div v-show="maskFlag2"
          class="rankmask">
       <div class="maskbox">
         <div>
@@ -187,7 +188,7 @@
              src="../../assets/img/coincard/icon1.png"
              alt="警告">
       </div>
-    </div>
+    </div> -->
     <div v-show="maskFlag3"
          class="rankmask">
       <div class="maskbox">
@@ -225,9 +226,9 @@ export default {
       ],
       //待领取卡牌
       cardState: [
-        // { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        // { id: Math.random(), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        // { id: Math.random(), title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+        // { id: Math.random(),status:false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(),status:false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(),status:false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
       ],
       coinFlag: false,
       // activeName:'1'
@@ -239,6 +240,7 @@ export default {
       fontFlag: false, //字体状态
       //待铸造卡牌
       castDataList: [
+        // { num: '1', status: false, image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false }
         // {
         //   castid: Math.floor(Math.random() * 100) + '',
         //   castname: '三级青铜甲犀牛',
@@ -278,23 +280,27 @@ export default {
       this.maskFlag1 = false
       this.maskFlag3 = false
     },
-    // 确定铸造第一步，继续显示提示
+    // 确定铸造
     confirmHandler() {
-      this.maskFlag2 = true
-      this.maskFlag1 = false
-    },
-    // 跳过铸造，即取消铸造
-    jumpHandler() {
-      this.maskFlag2 = false
-    },
-    // 确认铸造第二步，开始铸造
-    confirmRankHandler() {
-      console.log('铸造卡牌')
       // 拉起钱包，扣除所需TRX成功后执行以下操作
       this.currentIndex = this.index
-      this.maskFlag2 = false
+      this.maskFlag1 = false
       this.maskFlag3 = true
+      let status = this.castDataList.filter((e) => e.num == this.index)
+      status[0].status = true
     },
+    // // 跳过铸造，即取消铸造
+    // jumpHandler() {
+    //   this.maskFlag2 = false
+    // },
+    // // 确认铸造第二步，开始铸造
+    // confirmRankHandler() {
+    //   console.log('铸造卡牌')
+    //   // 拉起钱包，扣除所需TRX成功后执行以下操作
+    //   this.currentIndex = this.index
+    //   this.maskFlag2 = false
+    //   this.maskFlag3 = true
+    // },
     // 成功提交铸造后的提示
     confirmSuccHandler() {
       this.maskFlag3 = false
