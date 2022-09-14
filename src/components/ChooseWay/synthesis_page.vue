@@ -23,15 +23,15 @@
             <div class="threecardTop">
               <div class="title">铸造合成三级卡牌</div>
               <img class="start1"
-                   src="../../assets/img/synth/start1.png"
+                   src="@/assets/img/synth/start1.png"
                    alt="" />
               <img class="start2"
-                   src="../../assets/img/synth/start2.png"
+                   src="@/assets/img/synth/start2.png"
                    alt="" />
             </div>
             <div class="threecardlog">
               <div class="img">
-                <img src="../../assets/img/synth/synthlog.png"
+                <img src="@/assets/img/synth/synthlog.png"
                      alt="" />
               </div>
             </div>
@@ -82,26 +82,32 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="countdownFlag?showCard(0):showCard(1)"
+                  <div @click="countdownFlag?showCard(0):showCard(1,'L00')"
                        class="top">
-                    <!-- <p>
-                      <img :src="num1[0].url">
-                    </p> -->
-                    <p>
+                    <p v-if="level[0][0]">
+                      <img src="@/assets/img/Compose/1.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="countdownFlag?showCard(0):showCard(1)">
-                    <p>
+                  <div @click="countdownFlag?showCard(0):showCard(1,'L01')">
+                    <p v-if="level[0][1]">
+                      <img src="@/assets/img/Compose/1.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="countdownFlag?showCard(0):showCard(2)">
-                    <p>
+                  <div @click="countdownFlag?showCard(0):showCard(2,'L02')">
+                    <p v-if="level[0][2]">
+                      <img src="@/assets/img/Compose/2.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加二级卡牌
@@ -109,10 +115,9 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="countdownFlag?showCard(0):show1 = true"
-                       class="ftop">
-                    <van-button :disabled="false"
-                                @click="synthNum=3"
+                  <div class="ftop">
+                    <van-button :disabled="level[0][0]&&level[0][1]&&level[0][2]?false : true"
+                                @click="show1 = true,synthNum=3"
                                 type="info">100%合成</van-button>
                   </div>
                   <p>成功概率100%</p>
@@ -124,22 +129,31 @@
               <div class="addcardwarp">
                 <div class="addcard">
                   <div class="top"
-                       @click="showCard(1)">
-                    <p>
+                       @click="showCard(1,'L10')">
+                    <p v-if="level[1][0]">
+                      <img src="@/assets/img/Compose/1.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="showCard(1)">
-                    <p>
+                  <div @click="showCard(1,'L11')">
+                    <p v-if="level[1][1]">
+                      <img src="@/assets/img/Compose/1.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="showCard(2)">
-                    <p>
+                  <div @click="showCard(2,'L12')">
+                    <p v-if="level[1][2]">
+                      <img src="@/assets/img/Compose/2.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加二级卡牌
@@ -147,11 +161,10 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="show1 = true"
-                       class="ftop">
+                  <div class="ftop">
                     <van-button style="padding: 0 50px"
-                                @click="synthNum=3"
-                                :disabled="false"
+                                @click="synthNum=3,show1 = true"
+                                :disabled="level[1][0]&&level[1][1]&&level[1][2]?false : true"
                                 type="info">合成</van-button>
                   </div>
                   <p>成功概率80%</p>
@@ -163,15 +176,21 @@
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
-                  <div @click="showCard(1)">
-                    <p>
+                  <div @click="showCard(1,'L20')">
+                    <p v-if="level[2][0]">
+                      <img src="@/assets/img/Compose/1.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加一级卡牌
                     </p>
                   </div>
-                  <div @click="showCard(2)">
-                    <p>
+                  <div @click="showCard(2,'L21')">
+                    <p v-if="level[2][1]">
+                      <img src="@/assets/img/Compose/2.jpg">
+                    </p>
+                    <p v-else>
                       <span class="cardAdd">+</span>
                       <br />
                       添加二级卡牌
@@ -179,11 +198,10 @@
                   </div>
                 </div>
                 <div class="addcardfooter">
-                  <div @click="show1 = true"
-                       class="ftop">
+                  <div class="ftop">
                     <van-button style="padding: 0 50px"
-                                @click="synthNum=2"
-                                :disabled="false"
+                                @click="synthNum=2,show1 = true"
+                                :disabled="level[2][0]&&level[2][1]?false : true"
                                 type="info">合成</van-button>
                   </div>
                   <p>成功概率40%</p>
@@ -202,15 +220,21 @@
               <div class="etop">
                 <p class="title">实时节点分红权益卡</p>
                 <img class="start1"
-                     src="../../assets/img/synth/start1.png"
+                     src="@/assets/img/synth/start1.png"
                      alt="" />
                 <img class="start2"
-                     src="../../assets/img/synth/start2.png"
+                     src="@/assets/img/synth/start2.png"
                      alt="" />
               </div>
               <div class="addcard"
-                   @click="showCard(3)">
-                <p>
+                   @click="showCard(3,'eq0')">
+                <p class="btn"
+                   v-if="equity[0]">
+                  <img src="@/assets/img/Compose/3-before.png">
+                  <van-badge :content="equity[0]"
+                             color="#FF6343" />
+                </p>
+                <p v-else>
                   <span class="add">+</span>
                   <br />
                   添加三级卡牌
@@ -218,7 +242,7 @@
               </div>
               <div class="sythnBtn">
                 <van-button @click="equityBtnHandler"
-                            :disabled="true"
+                            :disabled="equity[0]==5?false : true"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -233,23 +257,29 @@
               <div class="etop">
                 <p class="title">中级节点分红权益卡</p>
                 <img class="start1"
-                     src="../../assets/img/synth/start1.png"
+                     src="@/assets/img/synth/start1.png"
                      alt="" />
                 <img class="start2"
-                     src="../../assets/img/synth/start2.png"
+                     src="@/assets/img/synth/start2.png"
                      alt="" />
               </div>
               <div class="addcard"
-                   @click="showCard(4)">
-                <p>
+                   @click="showCard(4,'eq1')">
+                <p class="btn"
+                   v-if="equity[1]">
+                  <img src="@/assets/img/Compose/4-before.png">
+                  <van-badge :content="equity[1]"
+                             color="#FF6343" />
+                </p>
+                <p v-else>
                   <span class="add">+</span>
                   <br />
                   添加四级卡牌
                 </p>
               </div>
               <div class="sythnBtn">
-                <van-button :disabled="true"
-                            @click="synthNum=5"
+                <van-button :disabled="equity[1]==5?false : true"
+                            @click="equityBtnHandler"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -265,23 +295,29 @@
               <div class="etop">
                 <p class="title">高级节点分红权益卡</p>
                 <img class="start1"
-                     src="../../assets/img/synth/start1.png"
+                     src="@/assets/img/synth/start1.png"
                      alt="" />
                 <img class="start2"
-                     src="../../assets/img/synth/start2.png"
+                     src="@/assets/img/synth/start2.png"
                      alt="" />
               </div>
               <div class="addcard"
-                   @click="showCard(5)">
-                <p>
+                   @click="showCard(5,'eq2')">
+                <p class="btn"
+                   v-if="equity[2]">
+                  <img src="@/assets/img/Compose/5-before.png">
+                  <van-badge :content="equity[2]"
+                             color="#FF6343" />
+                </p>
+                <p v-else>
                   <span class="add">+</span>
                   <br />
                   添加五级卡牌
                 </p>
               </div>
               <div class="sythnBtn">
-                <van-button :disabled="true"
-                            @click="synthNum=5"
+                <van-button :disabled="equity[2]==5?false : true"
+                            @click="equityBtnHandler"
                             style="width: 170px"
                             type="info">合成</van-button>
               </div>
@@ -300,31 +336,47 @@
               <div class="eikytop">
                 <p class="title">永久实时节点分红权益卡</p>
                 <img class="start1"
-                     src="../../assets/img/synth/start1.png"
+                     src="@/assets/img/synth/start1.png"
                      alt="" />
                 <img class="start2"
-                     src="../../assets/img/synth/start2.png"
+                     src="@/assets/img/synth/start2.png"
                      alt="" />
               </div>
               <div class="eikyaddcard">
-                <div>
-                  <p>
+                <div @click="showCard(6.1,'ei00')">
+                  <p class="btn"
+                     v-if="eiky[0][0]">
+                    <img src="@/assets/img/Compose/actual-100-before.jpg">
+                    <van-badge :content="eiky[0][0]"
+                               color="#FF6343" />
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加100天实时节点
                     <br />
                     分红权益卡
                   </p>
                 </div>
-                <div>
-                  <p>
+                <div @click="showCard(6.2,'ei01')">
+                  <p class="btn"
+                     v-if="eiky[0][1]">
+                    <img src="@/assets/img/Compose/actual-200-before.jpg">
+                    <van-badge :content="eiky[0][1]"
+                               color="#FF6343" />
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加200天实时节点
                     <br />
                     分红权益卡
                   </p>
                 </div>
-                <div>
-                  <p>
+                <div @click="showCard(6.3,'ei02')">
+                  <p class="btn"
+                     v-if="eiky[0][2]">
+                    <img src="@/assets/img/Compose/actual-300-before.jpg">
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加300天实时节点
                     <br />
@@ -333,7 +385,7 @@
                 </div>
               </div>
               <div class="eikybtn">
-                <van-button :disabled="true"
+                <van-button :disabled="eiky[0][0]==3&&eiky[0][1]==2&&eiky[0][2]?false : true"
                             style="width: 170px"
                             @click="synthNum=6"
                             type="info">合成</van-button>
@@ -349,31 +401,47 @@
               <div class="eikytop">
                 <p class="title">永久中级节点分红权益卡</p>
                 <img class="start1"
-                     src="../../assets/img/synth/start1.png"
+                     src="@/assets/img/synth/start1.png"
                      alt="" />
                 <img class="start2"
-                     src="../../assets/img/synth/start2.png"
+                     src="@/assets/img/synth/start2.png"
                      alt="" />
               </div>
               <div class="eikyaddcard">
-                <div>
-                  <p>
+                <div @click="showCard(6.4,'ei10')">
+                  <p class="btn"
+                     v-if="eiky[1][0]">
+                    <img src="@/assets/img/Compose/middle-100-before.jpg">
+                    <van-badge :content="eiky[1][0]"
+                               color="#FF6343" />
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加100天中级节点
                     <br />
                     分红权益卡
                   </p>
                 </div>
-                <div>
-                  <p>
+                <div @click="showCard(6.5,'ei11')">
+                  <p class="btn"
+                     v-if="eiky[1][1]">
+                    <img src="@/assets/img/Compose/middle-200-before.jpg">
+                    <van-badge :content="eiky[1][1]"
+                               color="#FF6343" />
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加200天中级节点
                     <br />
                     分红权益卡
                   </p>
                 </div>
-                <div>
-                  <p>
+                <div @click="showCard(6.6,'ei12')">
+                  <p class="btn"
+                     v-if="eiky[1][2]">
+                    <img src="@/assets/img/Compose/middle-300-before.jpg">
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加300天中级节点
                     <br />
@@ -382,7 +450,7 @@
                 </div>
               </div>
               <div class="eikybtn">
-                <van-button :disabled="true"
+                <van-button :disabled="eiky[1][0]==3&&eiky[1][1]==2&&eiky[1][2]?false : true"
                             @click="synthNum=6"
                             style="width: 170px"
                             type="info">合成</van-button>
@@ -398,31 +466,47 @@
               <div class="eikytop">
                 <p class="title">永久高级节点分红权益卡</p>
                 <img class="start1"
-                     src="../../assets/img/synth/start1.png"
+                     src="@/assets/img/synth/start1.png"
                      alt="" />
                 <img class="start2"
-                     src="../../assets/img/synth/start2.png"
+                     src="@/assets/img/synth/start2.png"
                      alt="" />
               </div>
               <div class="eikyaddcard">
-                <div>
-                  <p>
+                <div @click="showCard(6.7,'ei20')">
+                  <p class="btn"
+                     v-if="eiky[2][0]">
+                    <img src="@/assets/img/Compose/high-100-before.jpg">
+                    <van-badge :content="eiky[2][0]"
+                               color="#FF6343" />
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加100天高级节点
                     <br />
                     分红权益卡
                   </p>
                 </div>
-                <div>
-                  <p>
+                <div @click="showCard(6.8,'ei21')">
+                  <p class="btn"
+                     v-if="eiky[2][1]">
+                    <img src="@/assets/img/Compose/high-200-before.jpg">
+                    <van-badge :content="eiky[2][1]"
+                               color="#FF6343" />
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加200天高级节点
                     <br />
                     分红权益卡
                   </p>
                 </div>
-                <div>
-                  <p>
+                <div @click="showCard(6.9,'ei22')">
+                  <p class="btn"
+                     v-if="eiky[2][2]">
+                    <img src="@/assets/img/Compose/high-300-before.jpg">
+                  </p>
+                  <p v-else>
                     <span class="eikyadd">+</span>
                     添加300天高级节点
                     <br />
@@ -431,7 +515,7 @@
                 </div>
               </div>
               <div class="eikybtn">
-                <van-button :disabled="true"
+                <van-button :disabled="eiky[2][0]==3&&eiky[2][1]==2&&eiky[2][2]?false : true"
                             @click="synthNum=6"
                             style="width: 170px"
                             type="info">合成</van-button>
@@ -473,7 +557,7 @@
             <p @click="confirmHandler">确定</p>
           </div>
           <img class="img"
-               src="../../assets/img/coincard/icon1.png"
+               src="@/assets/img/coincard/icon1.png"
                alt="警告" />
         </div>
       </div>
@@ -489,7 +573,7 @@
             <p @click="confirmHandler2">确定</p>
           </div>
           <img class="img"
-               src="../../assets/img/coincard/icon1.png"
+               src="@/assets/img/coincard/icon1.png"
                alt="警告" />
         </div>
       </div>
@@ -497,8 +581,8 @@
     <!-- 选择卡牌遮罩 -->
     <div id="maskwait">
       <!-- 单选 -->
-      <van-overlay :lock-scroll="false"
-                   :show="showcard">
+      <van-popup v-model="showcard"
+                 position="bottom">
         <div class="waitWrapper"
              @click.stop>
           <div class="waitTop">
@@ -508,27 +592,27 @@
           </div>
           <ul class="cardContent">
             <van-radio-group v-model="cardmaskFlag"
+                             @change="radio"
                              direction="horizontal">
               <li v-for="item in maskcardData"
-                  :key="item.id"
-                  @click="cardmaskFlag = item.id">
+                  :key="item.ucode">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
                 <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
-                  <van-radio :name="item.id"
+                  <van-radio :name="item.ucode"
                              icon-size="20px"></van-radio>
                 </div>
               </li>
             </van-radio-group>
           </ul>
         </div>
-      </van-overlay>
+      </van-popup>
 
       <!-- 多选 -->
 
-      <van-overlay :lock-scroll="false"
-                   :show="showcards">
+      <van-popup position="bottom"
+                 v-model="showcards">
         <div class="waitWrapper"
              @click.stop>
           <div class="waitTop">
@@ -539,16 +623,17 @@
           <ul class="cardContent">
 
             <van-checkbox-group v-model="cardmaskFlags"
+                                :max="5"
+                                @change="pushCard"
                                 direction="horizontal">
               <li v-for="item in maskcardData"
-                  :key="item.id"
-                  @click="pushCard(item.id)">
+                  :key="item.ucode">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
                 <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
 
-                  <van-checkbox :name="item.id"
+                  <van-checkbox :name="item.ucode"
                                 icon-size="20px"></van-checkbox>
                 </div>
               </li>
@@ -556,7 +641,7 @@
           </ul>
 
         </div>
-      </van-overlay>
+      </van-popup>
 
     </div>
     <!-- 权益卡遮罩 -->
@@ -572,10 +657,10 @@
           </div>
           <div>
             <p @click="show3 = false">取消</p>
-            <p @click="econfirmHandler">确定</p>
+            <p @click="confirmHandler2">确定</p>
           </div>
           <img class="img"
-               src="../../assets/img/coincard/icon1.png"
+               src="@/assets/img/coincard/icon1.png"
                alt="警告" />
         </div>
       </div>
@@ -593,6 +678,7 @@
   </div>
 </template>
 <script>
+import { myNft } from '@/api/newReqets'
 import { Toast } from 'vant'
 import Two from './layout/two.vue'
 import Three from './layout/three.vue'
@@ -608,7 +694,20 @@ export default {
   },
   data() {
     return {
-      cardmaskFlag: 0, //单选框
+      //三级卡牌
+      level: [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0]
+      ],
+      equity: [0, 0, 0], //权益卡
+      //永久权益卡
+      eiky: [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0]
+      ],
+      cardmaskFlag: '', //单选框
       cardmaskFlags: [], //多选框
       showcard: false, //卡牌单选遮罩
       showcards: false, //卡牌多选遮罩
@@ -617,57 +716,130 @@ export default {
       show3: false, //权益卡牌
       num: false,
       number: false,
-      // numOne: 0, //一级卡牌数量
-      numTwo: 0, //二级卡牌数量
-      numThree: 2, //三级卡牌数量
-      numFour: 0, //四级卡牌数量
-      numFive: 0, //五级卡牌数量
       time: 10 * 60 * 1000,
       synthActiveName: '1',
       countdownFlag: true,
+      // 卡牌数据
+      allCard: [
+        { title: '一级卡通版犀牛', ucode: '', url: require('@/assets/img/Compose/1.jpg') },
+        { title: '二级玄铁甲犀牛', ucode: '', url: require('@/assets/img/Compose/2.jpg') },
+        { title: '三级青铜甲犀牛', ucode: '', url: require('@/assets/img/Compose/3-before.png') },
+        { title: '四级白银甲犀牛', ucode: '', url: require('@/assets/img/Compose/4-before.png') },
+        { title: '五级黄金甲犀牛', ucode: '', url: require('@/assets/img/Compose/5-before.png') },
+        { title: '100天实时节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/actual-100-before.jpg') },
+        { title: '200天实时节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/actual-200-before.jpg') },
+        { title: '300天实时节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/actual-300-before.jpg') },
+        { title: '100天中级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/middle-100-before.jpg') },
+        { title: '200天中级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/middle-200-before.jpg') },
+        { title: '300天中级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/middle-300-before.jpg') },
+        { title: '100天高级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/high-100-before.jpg') },
+        { title: '200天高级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/high-200-before.jpg') },
+        { title: '300天高级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/high-300-before.jpg') }
+      ],
       // 定义卡牌数据
       maskcardData: [
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '02', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '01', url: require('../../assets/img/Compose/1.jpg') }
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '03', url: require('@/assets/img/Compose/1.jpg') },
+        // { id: Math.random(), title: '一级黄金甲犀牛', ucode: '04', url: require('@/assets/img/Compose/1.jpg') }
       ],
 
       // 用户一级卡牌
-      numOne: [
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '06', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '07', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '09', url: require('../../assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '一级黄金甲犀牛', ucode: '08', url: require('../../assets/img/Compose/1.jpg') }
-      ],
+      numOne: [],
+      //用户二级卡牌
+      numTwo: [],
+      //用户三级卡牌
+      numThree: [],
+      //用户四级卡牌
+      numFour: [],
+      //用户五级卡牌
+      numFive: [],
+      // 100实时节点
+      current100: [],
+      // 200实时节点
+      current200: [],
+      // 300实时节点
+      current300: [],
+      // 100中级节点
+      middle100: [],
+      // 200中级节点
+      middle200: [],
+      // 300中级节点
+      middle300: [],
+      // 100高级节点
+      high100: [],
+      // 200高级节点
+      high200: [],
+      // 300高级节点
+      high300: [],
       // 点击合成
       two: false,
       three: false,
       five: false,
       six: false,
-      synthNum: 0
+      synthNum: 0,
+      string: null
     }
   },
+  created() {
+    this.getCard()
+  },
   methods: {
-    // 权益卡合成
-    econfirmHandler() {
-      console.log(123)
+    // 获取用户所有卡牌数据
+    async getCard() {
+      // 请求接口获取数据
+      const { data } = await myNft(3)
+      console.log(data)
+      for (let i of data) {
+        const asd = {}
+        asd.ucode = i.ID.padStart(6, 0)
+        asd.Activate = i.Activate
+        asd.title = this.allCard[i.Activate - 1].title
+        // asd.status = this.allCard[i.Activate - 1].status
+        asd.url = this.allCard[i.Activate - 1].url
+        // asd.ischecked = this.allCard[i.Activate - 1].ischecked
+        if (asd.Activate == 1) this.numOne.push(asd)
+        if (asd.Activate == 2) this.numTwo.push(asd)
+        if (asd.Activate == 3) this.numThree.push(asd)
+        if (asd.Activate == 4) this.numFour.push(asd)
+        if (asd.Activate == 5) this.numFive.push(asd)
+      }
     },
+    // 权益卡合成确认
     equityBtnHandler() {
       this.show3 = true
       this.synthNum = 5
     },
+    // 取消选择卡牌
     maskCancelHandler() {
       this.showcard = false
       this.showcards = false
     },
-    showCardHandler() {
-      this.showcard = true
-    },
+    // showCardHandler() {
+    //   this.showcard = true
+    // },
+    //合成动画
     confirmHandler2() {
       this.show2 = false
+      this.show3 = false
+
+      setTimeout(() => {
+        this.level = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0]
+        ]
+        this.equity = [0, 0, 0]
+        this.eiky = [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0]
+        ]
+      }, 3400)
       if (this.synthNum == 2) {
         setTimeout(() => {
           this.two = true
@@ -701,6 +873,7 @@ export default {
         }, 3500)
       }
     },
+    // 合成遮罩确认
     confirmHandler() {
       this.show1 = false
       this.show2 = true
@@ -717,83 +890,147 @@ export default {
       this.time = 10 * 60 * 1000
       this.countdownFlag = true
     },
-    showCard(i) {
-      let count = ['一', '二', '三', '四', '五', '六', '七']
+    showCard(i, string) {
+      let count = ['一', '二', '三', '四', '五']
       if (i == 0) {
         // 活动未开始
         Toast({ message: '暂未开始', duration: 500 })
       } else {
+        this.string = string
+        this.cardmaskFlag = ''
+        this.cardmaskFlags = []
         this.num = count[i - 1]
         // 有卡牌
-        if ((i == 1 || i == 2) && (this.numOne || this.numTwo)) {
+        if (i == 1 && this.numOne.length) {
           // 单选
           this.showcard = true
-        } else if ((i == 3 || i == 4 || i == 5) && (this.numThree || this.numFour || this.numFive)) {
+          this.maskcardData = this.numOne
+        } else if (i == 2 && this.numTwo.length) {
+          // 单选
+          this.showcard = true
+          this.maskcardData = this.numTwo
+        } else if (i == 3 && this.numThree.length) {
           // 多选
           this.showcards = true
+          this.maskcardData = this.numThree
+        } else if (i == 4 && this.numFour.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.numFour
+        } else if (i == 5 && this.numFive.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.numFive
+        } else if (i == 6.1 && this.current100.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.current100
+        } else if (i == 6.2 && this.current200.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.current200
+        } else if (i == 6.3 && this.current300.length) {
+          // 单选
+          this.showcard = true
+          this.maskcardData = this.current300
+        } else if (i == 6.4 && this.middle100.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.middle100
+        } else if (i == 6.5 && this.middle200.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.middle200
+        } else if (i == 6.6 && this.middle300.length) {
+          // 单选
+          this.showcard = true
+          this.maskcardData = this.middle300
+        } else if (i == 6.7 && this.high100.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.high100
+        } else if (i == 6.8 && this.high200.length) {
+          // 多选
+          this.showcards = true
+          this.maskcardData = this.high200
+        } else if (i == 6.9 && this.high300.length) {
+          // 单选
+          this.showcard = true
+          this.maskcardData = this.high300
         } else {
-          // 没有该卡牌
-          Toast({ message: '暂无' + this.num + '级卡牌', duration: 500 })
+          this.num ? Toast({ message: '暂无' + this.num + '级卡牌', duration: 500 }) : Toast({ message: '暂无该卡牌' })
         }
       }
     },
+    // 卡牌单选
+    radio() {
+      console.log(this.cardmaskFlag)
+    },
     // 卡牌多选
-    pushCard(id) {
-      if (this.cardmaskFlags.length > 4) {
-        // 提示只能选择5张
-        this.$toast('只能选择5张')
-        console.log(111)
-      } else {
-        // this.cardmaskFlags.push(id)
-
-        for (var i = 0; i <= this.cardmaskFlags.length; i++) {
-          if (this.cardmaskFlags.indexOf(id) === -1) {
-            this.cardmaskFlags.push(id)
-            console.log(222)
-          } else {
-            new Set(this.cardmaskFlags).delete(id)
-            console.log(333)
-          }
-        }
-      }
-      this.cardmaskFlags = [...new Set(this.cardmaskFlags)]
-      console.log(this.cardmaskFlags.length)
-
-      // console.log(this.cardmaskFlags)
+    pushCard() {
+      console.log(this.cardmaskFlags)
     },
     // 单选确认选择卡牌
     sureHandler() {
-      this.showcard = false
-      // 将选择的卡牌图片渲染到页面
+      if (this.cardmaskFlag) {
+        this.showcard = false
+        // 将选择的卡牌图片渲染到页面
+        if (this.string == 'L00') this.level[0][0] = 1
+        if (this.string == 'L01') this.level[0][1] = 1
+        if (this.string == 'L02') this.level[0][2] = 1
+        if (this.string == 'L10') this.level[1][0] = 1
+        if (this.string == 'L11') this.level[1][1] = 1
+        if (this.string == 'L12') this.level[1][2] = 1
+        if (this.string == 'L20') this.level[2][0] = 1
+        if (this.string == 'L21') this.level[2][1] = 1
+        if (this.string == 'ei02') this.eiky[0][2] = 1
+        if (this.string == 'ei12') this.eiky[1][2] = 1
+        if (this.string == 'ei22') this.eiky[2][2] = 1
+      } else {
+        Toast({ message: '请选择卡牌' })
+      }
     },
     // 多选确认选择卡牌
     suresHandler() {
-      this.showcards = false
       // 将选择的卡牌图片渲染到页面
-    },
-    // 合成卡牌
-    goTo(i) {
-      if (i == 2)
-        (this.two = true),
-          setTimeout(() => {
-            this.two = false
-          }, 3000)
-      if (i == 3)
-        (this.three = true),
-          setTimeout(() => {
-            this.three = false
-          }, 3000)
-      if (i == 5)
-        (this.five = true),
-          setTimeout(() => {
-            this.five = false
-          }, 3000)
-      if (i == 6)
-        (this.six = true),
-          setTimeout(() => {
-            this.six = false
-          }, 3000)
+      if (this.cardmaskFlags.length) {
+        this.showcards = false
+        if (this.string == 'eq0') this.equity[0] = this.cardmaskFlags.length
+        if (this.string == 'eq1') this.equity[1] = this.cardmaskFlags.length
+        if (this.string == 'eq2') this.equity[2] = this.cardmaskFlags.length
+        if (this.string == 'ei00') this.eiky[0][0] = this.cardmaskFlags.length
+        if (this.string == 'ei01') this.eiky[0][1] = this.cardmaskFlags.length
+        if (this.string == 'ei10') this.eiky[1][0] = this.cardmaskFlags.length
+        if (this.string == 'ei11') this.eiky[1][1] = this.cardmaskFlags.length
+        if (this.string == 'ei20') this.eiky[2][0] = this.cardmaskFlags.length
+        if (this.string == 'ei21') this.eiky[2][1] = this.cardmaskFlags.length
+      } else {
+        Toast({ message: '请选择卡牌' })
+      }
     }
+    // // 合成卡牌
+    // goTo(i) {
+    //   if (i == 2)
+    //     (this.two = true),
+    //       setTimeout(() => {
+    //         this.two = false
+    //       }, 3000)
+    //   if (i == 3)
+    //     (this.three = true),
+    //       setTimeout(() => {
+    //         this.three = false
+    //       }, 3000)
+    //   if (i == 5)
+    //     (this.five = true),
+    //       setTimeout(() => {
+    //         this.five = false
+    //       }, 3000)
+    //   if (i == 6)
+    //     (this.six = true),
+    //       setTimeout(() => {
+    //         this.six = false
+    //       }, 3000)
+    // }
   },
   watch: {
     // numOne:{
@@ -957,11 +1194,14 @@ export default {
 
               p {
                 text-align: center;
+                display: flex;
+                flex-direction: column;
                 .cardAdd {
                   font-size: 1.5rem;
                 }
                 img {
-                  width: 90%;
+                  margin: auto;
+                  width: 88%;
                 }
               }
             }
@@ -1033,10 +1273,35 @@ export default {
           p {
             color: #fff;
             font-size: 28px;
-            text-align: center;
+            // text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+            align-items: center;
             .add {
               color: #3e4759;
               font-size: 140px;
+            }
+          }
+
+          .btn {
+            position: relative;
+
+            img {
+              margin: auto;
+              width: 88%;
+            }
+            .van-badge {
+              position: absolute;
+              right: 0;
+              top: 0;
+              width: 56px;
+              height: 56px;
+              font-size: 32px;
+              line-height: 56px;
+              text-align: center;
+              border: none;
             }
           }
         }
@@ -1107,12 +1372,36 @@ export default {
             p {
               color: #fff;
               font-size: 28px;
-              line-height: 50px;
+              display: flex;
+              flex-direction: column;
+              align-content: center;
+              justify-content: center;
+              align-items: center;
               .eikyadd {
                 display: block;
                 margin-bottom: 60px;
                 color: #3e4759;
                 font-size: 120px;
+              }
+            }
+            .btn {
+              position: relative;
+
+              img {
+                margin: auto;
+                width: 88%;
+              }
+              .van-badge {
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 56px;
+                height: 56px;
+                font-size: 32px;
+                line-height: 56px;
+                text-align: center;
+                border: none;
+                border-radius: 50%;
               }
             }
           }

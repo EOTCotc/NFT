@@ -3,15 +3,11 @@
     <van-popup v-model="show">
       <div class="imgs"
            v-if="show1">
-        <template v-for="item in three">
-          <div class="img"
-               :key="item.id"><img :src="item.url"></div>
-        </template>
-        <!-- <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="@/assets/img/Compose/1.jpg"></div> -->
+        <div class="img"><img src="@/assets/img/Compose/3-before.png"></div>
+        <div class="img"><img src="@/assets/img/Compose/3-before.png"></div>
+        <div class="img"><img src="@/assets/img/Compose/3-before.png"></div>
+        <div class="img"><img src="@/assets/img/Compose/3-before.png"></div>
+        <div class="img"><img src="@/assets/img/Compose/3-before.png"></div>
       </div>
 
       <!-- 合成成功 -->
@@ -45,15 +41,15 @@ export default {
     return {
       show: true,
       show1: false,
-      show2: false,
+      show2: false
       // show3: false,
-      three: [
-        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
-        { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" }
-      ]
+      // three: [
+      //   { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+      //   { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+      //   { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+      //   { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" },
+      //   { id: Math.random(), url: "require('@/assets/img/Compose/3.jpg')" }
+      // ]
     }
   },
   created() {

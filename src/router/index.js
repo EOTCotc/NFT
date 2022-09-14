@@ -109,14 +109,7 @@ const routes = [
 
 const payWhitelist = ['order-pay', 'CompleteOrderPayment', 'awaitSellerAffirm', 'outflows-currency', 'Payment-details'];
 
-const rightMenu_Whitelist = [
-	// "share",
-	'pledge',
-	'arbitration',
-	'arbitrator'
-	// "focus",
-	// "feedback",
-];
+const rightMenu_Whitelist = ['marketNFT', 'order_all', 'synthesis_page'];
 
 const originalReplace = VueRouter.prototype.replace;
 

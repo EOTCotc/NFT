@@ -56,6 +56,8 @@ export const myNft = (type) => {
 	const data = utils.initFormData({
 		ads: localStorage.getItem('myaddress'),
 		sign: localStorage.getItem('mysign'),
+		// ads: 'TC82gugQF8b5PVVKWhG5bswA4bwKvGaSAZ',
+		// sign: '595dc89481298219475b07d74b6b099b',
 		type
 	});
 	//   const data = utils.initFormData({
