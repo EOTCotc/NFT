@@ -111,7 +111,8 @@
                 <div>数量：1</div>
                 <!-- <div v-if="currentIndex == index ? fontFlag : !fontFlag"> -->
                 <div v-if="cast.status ? fontFlag : !fontFlag">
-                  <span @click="coincardHandler(cast,cast.num)">
+                  <!-- <span @click="coincardHandler(cast,cast.num)"> -->
+                  <span>
                     <img src="../../assets/img/coincard/icon3.png"
                          alt="铸造">铸造</span>
                 </div>
@@ -244,14 +245,14 @@ export default {
     // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
     goCardDetails(id) {
       console.log(id)
-      sessionStorage.setItem('toggle1', true)
-      this.$router.push({ name: 'card_details' })
+      // sessionStorage.setItem('toggle1', true)
+      // this.$router.push({ name: 'card_details' })
     },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
     cardDetails(id) {
       console.log(id)
-      sessionStorage.setItem('toggle2', true)
-      this.$router.push({ name: 'card_details' })
+      // sessionStorage.setItem('toggle2', true)
+      // this.$router.push({ name: 'card_details' })
     },
     // “领取”卡牌
     getCard() {
@@ -400,6 +401,7 @@ export default {
     .waitcard {
       width: 100%;
       padding-top: 40px;
+      padding-bottom: 120px;
       background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
       .waitcarditem {
         width: 690px;

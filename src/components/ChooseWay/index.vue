@@ -43,8 +43,8 @@
                 <van-count-down v-if="isshowTime"
                                 :class="{ activecolor: isshowTime }"
                                 ref="countDown"
-                                @finish="finish"
-                                :time="time" />
+                                @finish="finish" />
+                <!-- :time="time" /> -->
               </div>
             </button>
             <van-button v-else
@@ -81,11 +81,11 @@
         <span class="sp">-</span>&nbsp;&nbsp;1&nbsp;&nbsp;
         <span class="sp">+</span>
       </div> -->
-      <van-button :disabled="true"
-                  :style="{ marginTop: '20px', width: '150px' }">暂未开放</van-button>
       <!-- <van-button :disabled="true"
-                  type="info"
-                  :style="{ marginTop: '20px', width: '150px' }">购买</van-button> -->
+                  :style="{ marginTop: '20px', width: '150px' }">暂未开放</van-button> -->
+      <van-button type="info"
+                  @click="goBuy"
+                  :style="{ marginTop: '20px', width: '150px' }">购买</van-button>
     </div>
     <van-dialog v-model="isContractCheckLoading"
                 get-container="body"
@@ -109,21 +109,25 @@ export default {
     return {
       isContractCheckLoading: false,
       card1: localStorage.getItem('residue_card1'),
-      isNoBuy: false,
+      isNoBuy: true,
       loading_buy: false,
-      time: new Date(Dayjs(new Date('2022-08-10 13:14'))).getTime() - Date.now(),
-      isshowTime: true
+      // time: new Date(Dayjs(new Date('2022-08-10 13:14'))).getTime() - Date.now(),
+      isshowTime: false
     }
   },
   created() {
-    console.log(this.time)
-    if (this.time > 0) {
-      this.isNoBuy = true
-    } else {
-      this.init_isNoBuy()
-    }
+    this.init_isNoBuy()
+    // console.log(this.time)
+    // if (this.time > 0) {
+    //   this.isNoBuy = true
+    // } else {
+    //   this.init_isNoBuy()
+    // }
   },
   methods: {
+    goBuy() {
+      this.$router.push({ name: 'buy_blindbox' })
+    },
     finish() {
       this.isNoBuy = false
       this.isshowTime = false

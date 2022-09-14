@@ -69,8 +69,8 @@
                     <div class="titleWarp">
                       <span>{{item.title}}</span>
                       <span>
-                        <van-checkbox icon-size="16px"
-                                      v-model="item.ischecked"></van-checkbox>
+                        <!-- <van-checkbox icon-size="16px"
+                                      v-model="item.ischecked"></van-checkbox> -->
                       </span>
                     </div>
                     <section class="msg">
@@ -103,7 +103,8 @@
                     <div>{{ cast.title }}</div>
                     <div>数量：1</div>
                     <div v-if="cast.status ? fontFlag : !fontFlag">
-                      <span @click="coincardHandler(cast, cast.num)">
+                      <!-- <span @click="coincardHandler(cast, cast.num)"> -->
+                      <span>
                         <img src="../../assets/img/coincard/icon3.png"
                              alt="铸造" />铸造</span>
                     </div>
@@ -226,9 +227,9 @@ export default {
       ],
       //待领取卡牌
       cardState: [
-        // { id: Math.random(),status:false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        // { id: Math.random(),status:false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        // { id: Math.random(),status:false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+        // { id: Math.random(), status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(), status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        // { id: Math.random(), status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
       ],
       coinFlag: false,
       // activeName:'1'
@@ -253,20 +254,20 @@ export default {
   },
   created() {
     // this.getMyNFT()
-    // this.waitactiveHandle()
+    this.waitactiveHandle()
   },
   methods: {
     // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
     goCardDetails(id) {
       console.log(id)
-      sessionStorage.setItem('toggle1', true)
-      this.$router.push({ name: 'card_details' })
+      // sessionStorage.setItem('toggle1', true)
+      // this.$router.push({ name: 'card_details' })
     },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
     cardDetails(id) {
       console.log(id)
-      sessionStorage.setItem('toggle2', true)
-      this.$router.push({ name: 'card_details' })
+      // sessionStorage.setItem('toggle2', true)
+      // this.$router.push({ name: 'card_details' })
     },
     // 点击铸造显示扣除TRX的提示
     coincardHandler(item, index) {
