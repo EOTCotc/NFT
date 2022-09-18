@@ -3,48 +3,34 @@
     <van-popup v-model="show">
       <div class="imgs"
            v-if="show1">
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
-        <div class="img"><img src="../../../assets/img/Compose/1.jpg"></div>
+        <div class="img"
+             v-for="item in imgs"
+             :key="item.id"><img :src="item.img"></div>
       </div>
 
       <!-- 合成成功 -->
       <div class="pics"
            v-if="show2">
         <p>
-          <img src="../../../assets/img/Compose/3-before.png">
-          <img src="../../../assets/img/synth/success.png">
+          <img :src="img">
+          <img src="@/assets/img/synth/success.png">
         </p>
       </div>
 
-      <!-- 合成失败 -->
-      <div class="images"
-           v-if="show3">
-        <div class="image">
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-          <p><img src="../../../assets/img/Compose/1.jpg"></p>
-        </div>
-        <div class="img"><img src="../../../assets/img/synth/failed.png"></div>
-      </div>
     </van-popup>
   </div>
 </template>
 
 <script>
 export default {
+  props: ['cardNode'],
   data() {
     return {
       show: true,
       show1: false,
       show2: false,
-      show3: false
+      imgs: [],
+      img: null
     }
   },
   created() {
@@ -52,15 +38,44 @@ export default {
   },
   methods: {
     showTime() {
-      let time = Math.random()
-      console.log(time)
-      // this.show = true
+      console.log(this.cardNode)
+      if (this.cardNode == 'actual') {
+        this.imgs = [
+          { id: Math.random(), img: require('@/assets/img/Compose/actual-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/actual-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/actual-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/actual-200-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/actual-200-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/actual-300-before.jpg') }
+        ]
+        this.img = require('@/assets/img/Compose/actual-forever.jpg')
+      } else if (this.cardNode == 'middle') {
+        this.imgs = [
+          { id: Math.random(), img: require('@/assets/img/Compose/middle-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/middle-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/middle-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/middle-200-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/middle-200-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/middle-300-before.jpg') }
+        ]
+        this.img = require('@/assets/img/Compose/middle-forever.jpg')
+      } else if (this.cardNode == 'high') {
+        this.imgs = [
+          { id: Math.random(), img: require('@/assets/img/Compose/high-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/high-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/high-100-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/high-200-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/high-200-before.jpg') },
+          { id: Math.random(), img: require('@/assets/img/Compose/high-300-before.jpg') }
+        ]
+        this.img = require('@/assets/img/Compose/high-eiky.jpg')
+      }
       this.show1 = true
       setTimeout(() => {
         this.show1 = false
       }, 1500)
       setTimeout(() => {
-        time > 0.5 ? (this.show2 = true) : (this.show3 = true)
+        this.show2 = true
       }, 1600)
     }
   }
@@ -129,64 +144,6 @@ export default {
           bottom: -60px;
           right: 14%;
         }
-      }
-    }
-  }
-
-  .images {
-    position: relative;
-
-    .image {
-      width: 100%;
-
-      p {
-        position: absolute;
-        width: 40%;
-
-        &:nth-of-type(1) {
-          left: 2%;
-          top: 24vh;
-        }
-
-        &:nth-of-type(2) {
-          right: 2%;
-          top: 24vh;
-        }
-
-        &:nth-of-type(3) {
-          right: 30%;
-          top: 18vh;
-        }
-
-        &:nth-of-type(4) {
-          right: 9%;
-          top: 30vh;
-        }
-
-        &:nth-of-type(5) {
-          left: 9%;
-          top: 30vh;
-        }
-
-        &:nth-of-type(6) {
-          right: 30%;
-          top: 36vh;
-        }
-
-        img {
-          width: 100%;
-        }
-      }
-    }
-
-    .img {
-      position: absolute;
-      width: 100%;
-      top: 52vh;
-      left: 10%;
-
-      img {
-        width: 80%;
       }
     }
   }

@@ -32,6 +32,7 @@
 
 <script>
 export default {
+  props: ['primaryCard'],
   data() {
     return {
       show: false,
@@ -45,6 +46,7 @@ export default {
   },
   methods: {
     showTime() {
+      console.log(this.primaryCard)
       let time = Math.random()
       console.log(time)
       this.show = true
@@ -53,7 +55,12 @@ export default {
         this.show1 = false
       }, 1500)
       setTimeout(() => {
-        time > 0.5 ? (this.show2 = true) : (this.show3 = true)
+        if (this.primaryCard == 'one') {
+          this.show2 = true
+        }
+        if (this.primaryCard == 'two') {
+          time > 0.5 ? (this.show2 = true) : (this.show3 = true)
+        }
       }, 1600)
     }
   }

@@ -264,13 +264,13 @@ export default {
       console.log(i)
       if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
       if (i == 3) this.$router.push({ name: 'buy_blindbox' })
-      // if (i == 4) this.$router.push({ name: 'marketNFT' })
-      // if (i == 5) this.$router.push({ name: 'order_all' })
+      if (i == 4) this.$router.push({ name: 'marketNFT' })
+      if (i == 5) this.$router.push({ name: 'order_all' })
       if (i == 6.1) this.$router.push({ name: 'hvae_card' })
       if (i == 6.2) this.$router.push({ name: 'rank_card' })
-      // if (i == 7) this.$router.push({ name: 'synthesis_page' })
+      if (i == 7) this.$router.push({ name: 'synthesis_page' })
       if (i == 8) location.href = 'https://eotc.im/html/guide/guide.html'
-      if (i == 7 || i == 5 || i == 4) this.$toast('暂未开放')
+      // if (i == 7 || i == 5 || i == 4) this.$toast('暂未开放')
     },
     changeVal() {
       // this.changeAct = this.active
