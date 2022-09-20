@@ -15,8 +15,7 @@
     <div class="cardShow">
       <div class="cardwarp">
         <div class="king">
-          <img src="../../assets/img/cardDetails/king.png"
-               alt="国王">
+          <img :src="card.img">
           <div class="bingBtn"
                v-if="btnShow">
             <van-button :icon="toggle4?'':'plus'"
@@ -28,7 +27,7 @@
                alt="">
         </div>
         <div class="paddy">
-          <p>创世会权益卡</p>
+          <p>{{card.name}}</p>
         </div>
       </div>
     </div>
@@ -43,7 +42,7 @@
     <div class="intro">
       <p class="title">作品简介</p>
       <p class="content">
-        联合会权益卡，全球仅限666张，享有全网EOTCNFT 1%手续费平均分红，EOTC DAO的治理投票权。
+        {{card.brief}}
       </p>
     </div>
     <!-- 作品信息 -->
@@ -51,7 +50,13 @@
          v-if="false">
       <p class="msgtitle">作品信息</p>
       <ul class="list">
-        <li v-if="!toggle1">
+        <li v-for="(item, index) in details"
+            :key="item.id"
+            v-show="index==0?!toggle1:true">
+          <p>{{item.title}}</p>
+          <p>{{item.text}}</p>
+        </li>
+        <!-- <li v-if="!toggle1">
           <p>拥有者</p>
           <p>dsa156…4578</p>
         </li>
@@ -74,7 +79,7 @@
         <li>
           <p>合约地址</p>
           <p>sa75457esd57657</p>
-        </li>
+        </li> -->
       </ul>
     </div>
     <!-- 页脚 -->
@@ -117,6 +122,15 @@ import { Toast, Dialog } from 'vant'
 export default {
   data() {
     return {
+      details: [
+        { id: Math.random(), title: '拥有者', text: 'dsa156…4578' },
+        { id: Math.random(), title: '作品编号', text: '#01' },
+        { id: Math.random(), title: '铸造平台', text: 'TRON' },
+        { id: Math.random(), title: '铸造时间', text: '2022-07-10 22:10:00' },
+        { id: Math.random(), title: 'TokenID', text: 'sd465saf465464as' },
+        { id: Math.random(), title: '合约地址', text: 'sa75457esd57657' }
+      ],
+      card: { img: require('@/assets/img/cardDetails/king.png'), name: '创世会权益卡', brief: '联合会权益卡，全球仅限666张，享有全网EOTCNFT 1%手续费平均分红，EOTC DAO的治理投票权。' },
       // time: Date.now(),
       price: 2000.52,
       off: false,

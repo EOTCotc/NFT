@@ -167,7 +167,6 @@
           已成功提交铸造，请等待铸造铸造完成后即可领取至钱包
         </div>
         <div>
-          <!-- <p @click="cancelHandler">取消</p> -->
           <p @click="confirmSuccHandler">确定</p>
         </div>
         <img class="img"
@@ -191,7 +190,7 @@ export default {
       //待领取卡牌
       rankCardFlag2: [],
       // rankCardFlag3: true, //待铸造无卡片状态
-      RankCardActive: '3',
+      RankCardActive: '2',
       // cardState: [],
       ischecked: false,
       maskFlag1: false, //遮罩第一次状态

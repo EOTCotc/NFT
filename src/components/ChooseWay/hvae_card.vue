@@ -93,10 +93,10 @@
               <div v-else
                    class="coinwarp">
                 <div v-for="cast in castDataList"
-                     :key="cast.num"
+                     :key="cast.id"
                      class="coineditem">
                   <div class="left">
-                    <img :src="cast.image"
+                    <img :src="cast.img"
                          alt="卡牌" />
                   </div>
                   <div class="right">
@@ -216,18 +216,21 @@ export default {
   data() {
     return {
       showFooter: false,
-      cardList: [],
+      cardList: [
+        { status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
+        { status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+      ],
       contentFlag: true,
-      toggleActive: '4',
+      toggleActive: '2',
+      // 待激活卡牌
+      Not_activatedList: [],
       //已拥有卡牌
       cartItem: [
-        // { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), title: '联合会权益NFT', img: require('../../assets/img/equityItem2.png') }
       ],
       //待领取卡牌
       cardState: [
-        // { id: Math.random(), status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
         // { id: Math.random(), status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
       ],
@@ -253,7 +256,7 @@ export default {
     }
   },
   created() {
-    // this.getMyNFT()
+    this.getMyNFT()
     this.waitactiveHandle()
   },
   methods: {
@@ -321,14 +324,29 @@ export default {
     async getMyNFT() {
       const { data } = await myNft(1)
       console.log(data)
-      this.cardList = data.reverse()
-      this.pd_card.forEach((card) => {
-        this.cardState.push({
-          ...card,
-          ischecked: false,
-          isopen: true
-        })
-      })
+      // type 1是创世会，2是联合会
+      // Activate 0是未激活，1是待铸造
+      // this.cardList = data.reverse()
+      for (let i of data) {
+        const asd = {}
+        asd.Activate = i.Activate
+        asd.id = Math.random()
+        asd.title = this.cardList[i.Type - 1].title
+        asd.text = this.cardList[i.Type - 1].text
+        asd.status = this.cardList[i.Type - 1].status
+        asd.img = this.cardList[i.Type - 1].img
+        asd.ischecked = this.cardList[i.Type - 1].ischecked
+        if (asd.Activate == 0) this.Not_activatedList.push(asd)
+        if (asd.Activate == 1) this.castDataList.push(asd)
+      }
+
+      // this.pd_card.forEach((card) => {
+      //   this.cardState.push({
+      //     ...card,
+      //     ischecked: false,
+      //     isopen: true
+      //   })
+      // })
     }
     // createCard(item) {
     //   this.$toast.clear()
@@ -336,13 +354,13 @@ export default {
     // }
   },
   computed: {
-    // 待激活卡牌
-    Not_activatedList() {
-      return this.cardList.filter((card) => card.Activate === '0')
-    },
-    pd_card() {
-      return this.cardList.filter((card) => card.Activate === '1')
-    },
+    // // 待激活卡牌
+    // Not_activatedList() {
+    //   return this.cardList.filter((card) => card.Activate === '0')
+    // },
+    // pd_card() {
+    //   return this.cardList.filter((card) => card.Activate === '1')
+    // },
     // 用户选择的领取卡牌数
     selecked() {
       return this.cardState.filter((card) => card.ischecked === true).length
