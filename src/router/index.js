@@ -63,6 +63,11 @@ const routes = [
 		component: () => import('@/views/login')
 	},
 	{
+		path: '/admin',
+		name: 'admin',
+		component: () => import('@/components/admin/admin')
+	},
+	{
 		path: '/rank_card',
 		name: 'rank_card',
 		component: () => import('@/components/ChooseWay/rank_card.vue')

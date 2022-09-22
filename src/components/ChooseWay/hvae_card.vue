@@ -57,7 +57,60 @@
               <!-- 有待领取卡牌 -->
               <div class="cart"
                    v-else>
-                <div class="awaitItem"
+
+                <van-dropdown-menu z-index="99999"
+                                   v-if="cardState.length">
+                  <van-dropdown-item v-model="value"
+                                     @change="changeList"
+                                     background="#121933"
+                                     :options="option" />
+                </van-dropdown-menu>
+
+                <div class="no_card"
+                     v-if="!cardState.filter((e) => {return e.Activate==value}).length">
+                  <van-empty class="custom-image "
+                             :image="require('@/assets/img/cardPage/cardNull.png')"
+                             description="暂无该权益卡牌" />
+                </div>
+
+                <div class="waitcarditem"
+                     v-for="item in cardState.filter((e) => {return e.Activate==value})"
+                     :key="item.num">
+                  <div class="left">
+                    <img :src="item.img">
+                  </div>
+                  <div class="right">
+                    <div>
+                      <span>{{ item.title }}</span>
+                      <span>
+                        <van-checkbox icon-size="16px"
+                                      @change="look(item.Activate,item.num,$event)"
+                                      v-model="item.ischecked"></van-checkbox>
+                      </span>
+                    </div>
+                    <div>#{{ item.num }}</div>
+                    <div>{{ item.text}}</div>
+                  </div>
+
+                </div>
+                <!-- 页脚 -->
+                <div class="waitfooter"
+                     v-if="cardState.filter((e) => {return e.Activate==value}).length">
+                  <div class="left">
+                    <p><span class="sl">
+                        <van-checkbox v-model="changeCheck">全选</van-checkbox>
+                      </span>已选择 {{ selecked }} 个</p>
+                    <!-- <p>提示:只能同时选择一种类型的NFT</p> -->
+                  </div>
+                  <div class="right">
+                    <van-button round
+                                :disabled="isselect"
+                                block
+                                type="info"
+                                @click="getCard">领取</van-button>
+                  </div>
+                </div>
+                <!-- <div class="awaitItem"
                      v-for="item in cardState"
                      :key="item.id">
                   <div class="left">
@@ -69,15 +122,15 @@
                     <div class="titleWarp">
                       <span>{{item.title}}</span>
                       <span>
-                        <!-- <van-checkbox icon-size="16px"
-                                      v-model="item.ischecked"></van-checkbox> -->
+                        <van-checkbox icon-size="16px"
+                                      v-model="item.ischecked"></van-checkbox>
                       </span>
                     </div>
                     <section class="msg">
                       {{ item.text}}
                     </section>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </van-tab>
@@ -93,7 +146,7 @@
               <div v-else
                    class="coinwarp">
                 <div v-for="cast in castDataList"
-                     :key="cast.id"
+                     :key="cast.num"
                      class="coineditem">
                   <div class="left">
                     <img :src="cast.img"
@@ -101,12 +154,13 @@
                   </div>
                   <div class="right">
                     <div>{{ cast.title }}</div>
-                    <div>数量：1</div>
+                    <div>编号：{{cast.num}}</div>
                     <div v-if="cast.status ? fontFlag : !fontFlag">
-                      <!-- <span @click="coincardHandler(cast, cast.num)"> -->
-                      <span>
+                      <span @click="coincardHandler(cast, cast.num)">
+                        <!-- <span> -->
                         <img src="../../assets/img/coincard/icon3.png"
-                             alt="铸造" />铸造</span>
+                             alt="铸造" />铸造
+                      </span>
                     </div>
                     <div v-else
                          class="waitrank">
@@ -142,7 +196,7 @@
         </van-tabs>
       </div>
       <!-- 页脚 -->
-      <div class="footer"
+      <!-- <div class="footer"
            v-if="showFooter&&cardState.length">
         <div class="left">
           <p>已选择 {{ selecked }} 个</p>
@@ -155,7 +209,7 @@
                       type="info"
                       @click="getCard()">领取</van-button>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- 遮罩 -->
@@ -210,18 +264,18 @@
 
 <script>
 import { myNft } from '@/api/newReqets'
-
+import { sfeotc1, getTrxBalance } from '@/utils/web3'
 export default {
   name: 'myNFT-list',
   data() {
     return {
       showFooter: false,
       cardList: [
-        { status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        { status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+        { status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('@/assets/img/equityItem1.png') },
+        { status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('@/assets/img/equityItem2.png') }
       ],
       contentFlag: true,
-      toggleActive: '2',
+      toggleActive: '3',
       // 待激活卡牌
       Not_activatedList: [],
       //已拥有卡牌
@@ -231,8 +285,46 @@ export default {
       ],
       //待领取卡牌
       cardState: [
-        // { id: Math.random(), status: false, title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem1.png') },
-        // { id: Math.random(), status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false, img: require('../../assets/img/equityItem2.png') }
+        // {
+        //   Activate: 1,
+        //   num: 2,
+        //   id: Math.random(),
+        //   status: false,
+        //   title: '创世会权益卡',
+        //   text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……',
+        //   ischecked: false,
+        //   img: require('@/assets/img/equityItem1.png')
+        // },
+        // {
+        //   Activate: 1,
+        //   num: 21,
+        //   id: Math.random(),
+        //   status: false,
+        //   title: '创世会权益卡',
+        //   text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……',
+        //   ischecked: false,
+        //   img: require('@/assets/img/equityItem1.png')
+        // },
+        // {
+        //   Activate: 1,
+        //   num: 23,
+        //   id: Math.random(),
+        //   status: false,
+        //   title: '创世会权益卡',
+        //   text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……',
+        //   ischecked: false,
+        //   img: require('@/assets/img/equityItem1.png')
+        // },
+        // {
+        //   Activate: 1,
+        //   num: 3,
+        //   id: Math.random(),
+        //   status: false,
+        //   title: '联合会权益卡',
+        //   text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……',
+        //   ischecked: false,
+        //   img: require('@/assets/img/equityItem2.png')
+        // }
       ],
       coinFlag: false,
       // activeName:'1'
@@ -244,14 +336,31 @@ export default {
       fontFlag: false, //字体状态
       //待铸造卡牌
       castDataList: [
-        // { num: '1', status: false, image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false }
-        // {
-        //   castid: Math.floor(Math.random() * 100) + '',
-        //   castname: '三级青铜甲犀牛',
-        //   castnum: '1',
-        //   casticon: require('../../assets/img/coincard/icon3.png'),
-        //   castimg: require('../../assets/img/coincard/card1.png')
-        // }
+        // { num: '1', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '12', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '11', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '14', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '21', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '121', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '81', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '91', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '10', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
+        // { num: '51', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false }
+      ],
+      value: 1,
+      i: 1,
+      an: null,
+      equity: [],
+      option: [
+        { text: '联合会权益卡', value: 1 },
+        { text: '创世会权益卡', value: 2 },
+        { text: '实时节点分红权益卡', value: 3 },
+        { text: '实时节点永久分红权益卡', value: 4 },
+        { text: '中级节点分红权益卡', value: 5 },
+        { text: '中级节点永久分红权益卡', value: 6 },
+        { text: '高级节点分红权益卡', value: 7 },
+        { text: '高级节点永久分红权益卡', value: 8 },
+        { text: '免手续费权益卡', value: 9 }
       ]
     }
   },
@@ -286,7 +395,11 @@ export default {
     },
     // 确定铸造
     confirmHandler() {
-      // 拉起钱包，扣除所需TRX成功后执行以下操作
+      getTrxBalance(() => {
+        sfeotc1().then((res) => this.res())
+      })
+    },
+    res() {
       this.currentIndex = this.index
       this.maskFlag1 = false
       this.maskFlag3 = true
@@ -316,8 +429,27 @@ export default {
     onClickLeft() {
       this.$router.back()
     },
+    changeList(i) {
+      this.i = i
+      this.equity = []
+      this.cardState.map((e) => (e.ischecked = false))
+    },
+    look(a, b, c) {
+      console.log(a, b, c)
+      this.an = a
+      if (c) {
+        this.equity.push(b)
+      } else {
+        this.equity.splice(
+          this.equity.findIndex((item) => item === b),
+          1
+        )
+      }
+      console.log(this.an, this.equity)
+    },
     // “领取”卡牌
     getCard() {
+      console.log(this.an, this.equity)
       this.$toast('领取成功')
       // 领取成功后重新渲染页面
     },
@@ -330,6 +462,7 @@ export default {
       for (let i of data) {
         const asd = {}
         asd.Activate = i.Activate
+        //  asd.num = i.ID.padStart(6, 0)
         asd.id = Math.random()
         asd.title = this.cardList[i.Type - 1].title
         asd.text = this.cardList[i.Type - 1].text
@@ -348,10 +481,6 @@ export default {
       //   })
       // })
     }
-    // createCard(item) {
-    //   this.$toast.clear()
-    //   this.$toast.warning('卡牌铸造中，敬请期待！')
-    // }
   },
   computed: {
     // // 待激活卡牌
@@ -369,6 +498,18 @@ export default {
     isselect() {
       return this.selecked > 0 ? false : true
       // return true
+    },
+    changeCheck: {
+      get() {
+        return this.selecked == this.cardState.filter((e) => e.Activate == this.i).length
+      },
+      set(v) {
+        if (v) {
+          this.cardState.filter((e) => e.Activate == this.i).map((e) => (e.ischecked = true))
+        } else {
+          this.cardState.filter((e) => e.Activate == this.i).map((e) => (e.ischecked = false))
+        }
+      }
     }
   }
 }
@@ -663,12 +804,12 @@ export default {
       }
     }
     .awaitPage {
-      margin-top: 20px;
+      margin-top: 80px;
       width: 100%;
       .cart {
         margin: 0.6em;
         box-sizing: border-box;
-        padding-bottom: 3.4em;
+        padding-bottom: 1.7em;
         .awaitItem {
           letter-spacing: 2px;
           // width: 650px;
@@ -709,6 +850,7 @@ export default {
     }
   }
   //页脚
+
   .activefooter {
     width: 100vw;
     height: 120px;
@@ -726,6 +868,7 @@ export default {
       line-height: 120px;
     }
   }
+
   .footer {
     width: 100vw;
     height: 120px;
@@ -755,6 +898,127 @@ export default {
       margin-right: 20px;
       /deep/ .van-button {
         width: 260px;
+      }
+    }
+  }
+}
+
+/deep/ .van-dropdown-menu__bar {
+  background: #121933;
+  height: 70px;
+  .van-dropdown-menu__title {
+    color: #fff;
+  }
+  width: 100%;
+  position: fixed;
+  top: 178px;
+  left: 0;
+  box-sizing: border-box;
+  // bottom: 0;
+}
+/deep/ .van-cell {
+  background: #000;
+  color: #fff;
+}
+
+/deep/ .van-dropdown-item__option--active {
+  color: #237ff8;
+}
+
+/deep/ .van-cell.van-cell--clickable.van-dropdown-item__option::after {
+  border: 0.02667rem solid #000;
+  // z-index: 9999;
+}
+
+.waitcarditem {
+  width: 690px;
+  padding: 30px;
+  margin: 0 auto 30px;
+  background: #1b2333;
+  border-radius: 16px;
+  display: flex;
+  // justify-content: space-between;
+  box-sizing: border-box;
+  margin-top: 30px;
+  .left {
+    margin-right: 30px;
+    img {
+      width: 160px;
+      height: 232px;
+    }
+  }
+  .right {
+    width: 100%;
+    div {
+      &:nth-child(1) {
+        display: flex;
+        justify-content: space-between;
+        color: #fff;
+        font-size: 32px;
+        margin-bottom: 20px;
+      }
+      &:nth-child(2) {
+        font-size: 28px;
+        color: #858992;
+        margin-bottom: 20px;
+      }
+      &:nth-child(3) {
+        font-size: 28px;
+        color: #858992;
+        margin-bottom: 20px;
+      }
+    }
+  }
+}
+
+.waitfooter {
+  width: 100vw;
+  height: 120px;
+  background: #11192b;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  bottom: 0px;
+  left: 0;
+  z-index: 11;
+  .left {
+    width: 100%;
+    margin-left: 40px;
+    p {
+      font-size: 28px;
+      &:nth-child(1) {
+        display: flex;
+        .sl {
+          display: flex;
+          margin-right: 20px;
+          /deep/ .van-checkbox__label {
+            color: white;
+          }
+          /deep/ .van-checkbox__icon {
+            font-size: 1em;
+            margin-right: 10px;
+          }
+        }
+        color: white;
+        font-size: 28px;
+      }
+      &:nth-child(2) {
+        color: #858992;
+        font-size: 22px;
+        margin-top: 10px;
+      }
+    }
+  }
+  .right {
+    display: flex;
+    justify-content: center;
+    margin-right: 26px;
+    /deep/ .van-button {
+      width: 260px;
+      text-align: center;
+      .van-button__text {
+        width: 100%;
       }
     }
   }
