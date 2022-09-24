@@ -30,8 +30,6 @@ import './style/index.css';
 import './style/buysell-icons/iconfont.css';
 // 导入组件库
 
-
-
 Vue.use(Vant);
 Vue.use(plugin);
 
