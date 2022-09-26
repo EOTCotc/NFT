@@ -530,18 +530,6 @@
         </van-tab>
       </van-tabs>
     </div>
-    <!-- 页脚 -->
-    <!-- <div class="synthFooter">
-      <p class="img-icons">
-        <img src="@/assets/img/icon-telegram.png"
-             alt />
-        <img src="@/assets/img/icon-twitter.png"
-             alt />
-        <img src="@/assets/img/icon-email.png"
-             alt />
-      </p>
-      <p class="footer-p">&copy;&nbsp;2022年EOTC版权所有。</p>
-    </div> -->
     <!-- 合成遮罩 -->
     <van-overlay :show="show1"
                  @click="show1 = false">
@@ -595,10 +583,12 @@
                              @change="radio"
                              direction="horizontal">
               <li v-for="item in maskcardData"
-                  :key="item.ucode">
+                  :key="item.id">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
-                <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
+                <p class="text"
+                   v-if="num">#{{ item.ucode.padStart(6, 0) }}</p>
+
                 <div class="cardselect">
                   <van-radio :name="item.ucode"
                              icon-size="20px"></van-radio>
@@ -627,10 +617,11 @@
                                 @change="pushCard"
                                 direction="horizontal">
               <li v-for="item in maskcardData"
-                  :key="item.ucode">
+                  :key="item.id">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
-                <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
+                <p class="text"
+                   v-if="num">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
                   <van-checkbox :name="item.ucode"
                                 icon-size="20px"></van-checkbox>
@@ -674,7 +665,8 @@
     <Three v-if="three"
            :primary-card="msg"></Three>
     <Five v-if="five"
-          :node-made="msg"></Five>
+          :node-made="msg"
+          :number="number"></Five>
     <Six v-if="six"
          :card-node="msg"></Six>
   </div>
@@ -730,7 +722,7 @@ export default {
       show2: false,
       show3: false, //权益卡牌
       num: false,
-      number: false,
+      number: null,
       time: '',
       synthActiveName: '1',
       countdownFlag: false,
@@ -817,21 +809,21 @@ export default {
       ],
       // 100实时节点
       current100: [
-        { title: '一级卡通版犀牛', ucode: '1', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '12', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '10', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '13', url: require('@/assets/img/Compose/4-before.png') }
+        { id: Math.random(), title: '一级卡通版犀牛', ucode: '1', url: require('@/assets/img/Compose/1.jpg') },
+        { id: Math.random(), title: '二级玄铁甲犀牛', ucode: '12', url: require('@/assets/img/Compose/2.jpg') },
+        { id: Math.random(), title: '三级青铜甲犀牛', ucode: '10', url: require('@/assets/img/Compose/3-before.png') },
+        { id: Math.random(), title: '四级白银甲犀牛', ucode: '13', url: require('@/assets/img/Compose/4-before.png') }
       ],
       // 200实时节点
       current200: [
-        { title: '200天中级节点分红权益卡', ucode: '5', url: require('@/assets/img/Compose/middle-200-before.jpg') },
-        { title: '200天高级节点分红权益卡', ucode: '8', url: require('@/assets/img/Compose/high-200-before.jpg') },
-        { title: '300天高级节点分红权益卡', ucode: '9', url: require('@/assets/img/Compose/high-300-before.jpg') }
+        { id: Math.random(), title: '200天中级节点分红权益卡', ucode: '5', url: require('@/assets/img/Compose/middle-200-before.jpg') },
+        { id: Math.random(), title: '200天高级节点分红权益卡', ucode: '8', url: require('@/assets/img/Compose/high-200-before.jpg') },
+        { id: Math.random(), title: '300天高级节点分红权益卡', ucode: '9', url: require('@/assets/img/Compose/high-300-before.jpg') }
       ],
       // 300实时节点
       current300: [
-        { title: '五级黄金甲犀牛', ucode: '14', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '11', url: require('@/assets/img/Compose/actual-100-before.jpg') }
+        { id: Math.random(), title: '五级黄金甲犀牛', url: require('@/assets/img/Compose/5-before.png') },
+        { id: Math.random(), title: '100天实时节点分红权益卡', url: require('@/assets/img/Compose/actual-100-before.jpg') }
       ],
       // 100中级节点
       middle100: [],
@@ -856,11 +848,16 @@ export default {
     }
   },
   created() {
-    // this.getCard()
+    this.getCard()
   },
   methods: {
     // 获取用户所有卡牌数据
     async getCard() {
+      this.numOne = []
+      this.numTwo = []
+      this.numThree = []
+      this.numFour = []
+      this.numFive = []
       // 请求接口获取数据
       const { data } = await myNft(3)
       console.log(data)
@@ -951,9 +948,17 @@ export default {
         }, 3500)
       }
       if (this.synthNum == 6) {
-        if (this.msg == 'actual') console.log(this.selectAll[2][0])
-        if (this.msg == 'middle') console.log(this.selectAll[2][1])
-        if (this.msg == 'high') console.log(this.selectAll[2][2])
+        let Array = []
+        if (this.msg == 'actual') {
+          Array = [...[...this.selectAll[2][0][0], ...this.selectAll[2][0][1], ...this.selectAll[2][0][2]]]
+        }
+        if (this.msg == 'middle') {
+          Array = [...[...this.selectAll[2][1][0], ...this.selectAll[2][1][1], ...this.selectAll[2][1][2]]]
+        }
+        if (this.msg == 'high') {
+          Array = [...[...this.selectAll[2][2][0], ...this.selectAll[2][2][1], ...this.selectAll[2][2][2]]]
+        }
+        console.log(Array)
         setTimeout(() => {
           this.six = true
         }, 500)
@@ -1131,14 +1136,6 @@ export default {
         Toast({ message: '请选择卡牌' })
       }
     }
-  },
-  watch: {
-    // numOne:{
-    //   handler(val){
-    //     console.log(val);
-    //   },
-    //   immediate: true
-    // }
   }
 }
 </script>

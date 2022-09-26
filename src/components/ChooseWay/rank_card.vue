@@ -21,7 +21,7 @@
           <div class="nowaitcard"
                v-if="rankCardFlag1.length=== 0">
             <van-empty class="custom-image"
-                       :image="require('../../assets/img/cardPage/cardNull.png')"
+                       :image="require('@/assets/img/cardPage/cardNull.png')"
                        description="暂无等级卡牌" />
           </div>
           <!-- 已拥有卡牌 -->
@@ -36,7 +36,7 @@
                      alt="卡片">
               </div>
               <p class="title">{{item.title }}</p>
-              <p class="num">#{{item.num }}</p>
+              <p class="num">#{{item.num.padStart(6, 0) }}</p>
             </div>
           </div>
         </van-tab>
@@ -45,7 +45,7 @@
           <div class="nowaitcard"
                v-if="rankCardFlag2.length=== 0">
             <van-empty class="custom-image"
-                       :image="require('../../assets/img/cardPage/cardNull.png')"
+                       :image="require('@/assets/img/cardPage/cardNull.png')"
                        description="暂无等级卡牌" />
           </div>
           <div v-else
@@ -55,6 +55,7 @@
                       background="#121933"
                       title-active-color="#fff"
                       sticky
+                      :offset-top="90"
                       @change="changeList"
                       swipe-threshold>
               <van-tab :title="list.title"
@@ -65,9 +66,7 @@
                      v-for="item in rankCardFlag2.filter((e) => {return e.Activate==list.name})"
                      :key="item.num">
                   <div class="left">
-                    <img :src="item.image"
-                         @click="goCardDetails(item.num)"
-                         alt="">
+                    <img :src="item.image">
                   </div>
                   <div class="right">
                     <div>
@@ -78,7 +77,7 @@
                                       v-model="item.ischecked"></van-checkbox>
                       </span>
                     </div>
-                    <div>#{{ item.num }}</div>
+                    <div>#{{ item.num.padStart(6, 0) }}</div>
                     <div>{{ item.text}}</div>
                   </div>
 
@@ -104,8 +103,8 @@
                 <div class="nowaitcard"
                      v-if="!rankCardFlag2.filter((e) => {return e.Activate==list.name}).length">
                   <van-empty class="custom-image "
-                             :image="require('../../assets/img/cardPage/cardNull.png')"
-                             description="暂无该等级卡牌" />
+                             :image="require('@/assets/img/cardPage/cardNull.png')"
+                             description="暂无该等级卡牌，请重新选择等级" />
                 </div>
               </van-tab>
             </van-tabs>
@@ -118,7 +117,7 @@
           <div class="nowaitcard"
                v-if="castDataList.length===0">
             <van-empty class="custom-image"
-                       :image="require('../../assets/img/cardPage/cardNull.png')"
+                       :image="require('@/assets/img/cardPage/cardNull.png')"
                        description="暂无等级卡牌" />
           </div>
           <div v-else
@@ -132,19 +131,19 @@
               </div>
               <div class="right">
                 <div>{{cast.title}}</div>
-                <div>编号：{{cast.num}}</div>
-                <div v-if="cast.status ? fontFlag : !fontFlag">
-                  <span @click="coincardHandler(cast.Activate,cast.num)">
-                    <!-- <span> -->
-                    <img src="../../assets/img/coincard/icon3.png"
-                         alt="铸造">铸造
-                  </span>
-                </div>
-                <div v-else
+                <div>编号：{{cast.num.padStart(6, 0)}}</div>
+                <div v-if="cast.type==4||cast.status"
                      class="waitrank">
                   <p>铸造中…</p>
                   <p>铸造完成后可在待领取中进行领取</p>
                 </div>
+                <div v-else>
+                  <span @click="coincardHandler(cast.Activate,cast.num)">
+                    <img src="@/assets/img/coincard/icon3.png"
+                         alt="铸造">铸造
+                  </span>
+                </div>
+
               </div>
             </div>
           </div>
@@ -167,11 +166,11 @@
              style="color:red">确定</p>
         </div>
         <img class="img"
-             src="../../assets/img/coincard/icon1.png"
+             src="@/assets/img/coincard/icon1.png"
              alt="警告">
       </div>
     </van-popup>
-    <van-popup v-model="maskFlag2"
+    <!-- <van-popup v-model="maskFlag2"
                round
                class="rankmask">
       <div class="maskbox">
@@ -184,10 +183,10 @@
              style="color:red">确定铸造</p>
         </div>
         <img class="img"
-             src="../../assets/img/coincard/icon1.png"
+             src="@/assets/img/coincard/icon1.png"
              alt="警告">
       </div>
-    </van-popup>
+    </van-popup> -->
     <van-popup v-model="maskFlag3"
                round
                class="rankmask">
@@ -199,7 +198,7 @@
           <p @click="confirmSuccHandler">确定</p>
         </div>
         <img class="img"
-             src="../../assets/img/coincard/icon2.png"
+             src="@/assets/img/coincard/icon2.png"
              alt="确认">
       </div>
     </van-popup>
@@ -208,100 +207,98 @@
 
 </template>
 <script>
-import { myNft } from '@/api/newReqets'
-import { sfeotc1, getTrxBalance } from '@/utils/web3'
+import { myNft, PayEotc } from '@/api/newReqets'
+import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards } from '@/utils/web3'
 export default {
   data() {
     return {
       //已拥有卡牌
       rankCardFlag1: [
-        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('../../assets/img/blindbox/card1.png') }
+        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('@/assets/img/blindbox/card1.png') }
       ],
-      //待领取卡牌
+      //待领取卡牌owncard
       rankCardFlag2: [
-        // { Activate: 3, status: false, num: '000001', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '000002', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 4, status: false, num: '000092', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 2, status: false, num: '000031', image: require('../../assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '000102', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 5, status: false, num: '000003', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
+        { Activate: 3, status: false, num: '1', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        { Activate: 4, status: false, num: '2', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        { Activate: 4, status: false, num: '92', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        { Activate: 2, status: false, num: '31', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        { Activate: 4, status: false, num: '102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        { Activate: 5, status: false, num: '3', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
       ],
-      // rankCardFlag3: true, //待铸造无卡片状态
-      RankCardActive: '1',
-      // cardState: [],
-      ischecked: false,
+      RankCardActive: '3',
+      // ischecked: false,
       maskFlag1: false, //遮罩第一次状态
       maskFlag2: false, //遮罩第二次状态
       maskFlag3: false, //遮罩第三次状态
       fontFlag: false, //字体状态
-      // cardData: [], //接收卡牌数据
       currentIndex: -1,
       index: -2,
-      waitfooter: true,
-      //待铸造卡牌
+      //待铸造、铸造中卡牌
       castDataList: [
-        // { Activate: 3, status: false, num: '1', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '2', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 5, status: false, num: '3', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false },
-        // { Activate: 3, status: false, num: '4', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '5', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 5, status: false, num: '6', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false },
-        // { Activate: 3, status: false, num: '7', image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '8', image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 5, status: false, num: '9', image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
+        { Activate: 3, status: false, num: '1', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        { Activate: 4, status: false, num: '2', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false }
+        // { Activate: 5, status: false, num: '3', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false },
+        // { Activate: 3, status: false, num: '4', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        // { Activate: 4, status: false, num: '5', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        // { Activate: 5, status: false, num: '6', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false },
+        // { Activate: 3, status: false, num: '7', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        // { Activate: 4, status: false, num: '8', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        // { Activate: 5, status: false, num: '9', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
       ],
       // 全部卡牌
       allCard: [
-        { num: '', status: false, image: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000张', ischecked: false },
-        { num: '', status: false, image: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '二级玄铁甲犀牛，总发行量25000张', ischecked: false },
-        { num: '', status: false, image: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        { num: '', status: false, image: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        { num: '', status: false, image: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
+        { num: '', status: false, image: require('@/assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000张', ischecked: false },
+        { num: '', status: false, image: require('@/assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '二级玄铁甲犀牛，总发行量25000张', ischecked: false },
+        { num: '', status: false, image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
+        { num: '', status: false, image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
+        { num: '', status: false, image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
       ],
       select: [],
       activate: '',
       activeKey: 0,
       activeNum: 0,
       activeTitle: [
-        { id: Math.random(), name: 1, title: '一级' },
-        { id: Math.random(), name: 2, title: '二级' },
-        { id: Math.random(), name: 3, title: '三级' },
-        { id: Math.random(), name: 4, title: '四级' },
-        { id: Math.random(), name: 5, title: '五级' }
+        // { id: Math.random(), name: 1, title: '一级' },
+        // { id: Math.random(), name: 2, title: '二级' },
+        { id: Math.random(), name: 3, title: '三级卡牌' },
+        { id: Math.random(), name: 4, title: '四级卡牌' },
+        { id: Math.random(), name: 5, title: '五级卡牌' }
       ],
-      i: 1
+      i: 3,
+      apphx: ''
     }
   },
   created() {
-    this.getRandTwo()
+    // this.getRank()
   },
   methods: {
-    // 待领取卡牌
-    async getRandTwo() {
+    // 卡牌
+    async getRank() {
+      this.castDataList = []
+      this.rankCardFlag2 = []
+      this.rankCardFlag1 = []
       const { data } = await myNft(3)
       console.log(data)
       for (let i of data) {
+        // type 0、1待铸造（0是送的卡牌，1是开盲盒出来的） 4铸造中 5待领取
+        // Activate 1、2级卡牌直接已拥有
         const asd = {}
-        asd.num = i.ID.padStart(6, 0)
+        asd.num = i.ID
         asd.Activate = i.Activate
+        asd.type = i.Type
         asd.title = this.allCard[i.Activate - 1].title
         asd.status = this.allCard[i.Activate - 1].status
         asd.image = this.allCard[i.Activate - 1].image
         asd.text = this.allCard[i.Activate - 1].text
         asd.ischecked = this.allCard[i.Activate - 1].ischecked
-        this.castDataList.push(asd)
-        // if (asd.Activate == 1 || asd.Activate == 2) {
-        //   this.rankCardFlag2.push(asd)
-        // } else {
-        //   this.castDataList.push(asd)
-        // }
+
+        if (asd.Activate == 1 || asd.Activate == 2) {
+          this.rankCardFlag1.push(asd)
+        } else {
+          if (asd.type == 0 || asd.type == 1 || asd.type == 4) this.castDataList.push(asd)
+          if (asd.type == 5) this.rankCardFlag2.push(asd)
+        }
       }
-    },
-    // 点击“待领取”卡牌中的图片，跳转至卡牌详情页面
-    goCardDetails(id) {
-      console.log(id)
-      // sessionStorage.setItem('toggle1', true)
-      // this.$router.push({ name: 'card_details' })
     },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
     cardDetails(id) {
@@ -311,8 +308,21 @@ export default {
     },
     // “领取”卡牌
     getCard() {
-      console.log(this.activate, this.select)
-      this.$toast('领取成功')
+      // this.select 选择的编号数组
+
+      if (this.changeCheck) {
+        // 全部领取
+        getAllCards(0, this.activate - 1)
+      } else {
+        if (this.selecked > 1) {
+          // 批量领取
+          getCards(0, this.activate - 1, this.selecked)
+        } else {
+          // 单笔领取
+          getCard(0, this.activate - 1)
+        }
+      }
+
       // 领取成功后重新渲染页面
     },
     // 返回上一级
@@ -324,11 +334,7 @@ export default {
       console.log(i)
       this.index = null
       this.index = index
-      if (i == 1 || i == 2) {
-        this.maskFlag2 = true
-      } else {
-        this.maskFlag1 = true
-      }
+      this.maskFlag1 = true
     },
     // 取消铸造
     cancelHandler() {
@@ -338,10 +344,26 @@ export default {
     },
     // 确认铸造
     confirmHandler() {
-      console.log('铸造卡牌')
-
+      // console.log('铸造卡牌')
+      // console.log(this.index, this.apphx)
       getTrxBalance(() => {
-        sfeotc1().then((res) => this.res())
+        sfeotc1().then(
+          (res) => {
+            this.apphx = localStorage.getItem('apphx')
+            PayEotc(this.index, this.apphx).then((res) => {
+              // console.log(res)
+              if (res.data.State > 0) {
+                this.res()
+              } else {
+                this.$toast.error('铸造失败')
+              }
+            })
+          },
+          (rej) => {
+            this.cancelHandler()
+            this.$toast.warning('取消铸造')
+          }
+        )
       })
     },
     res() {
@@ -352,20 +374,11 @@ export default {
       status[0].status = true
       console.log(status)
     },
-    // 确认铸造第二步，开始铸造
-    confirmRankHandler() {
-      console.log('铸造开始')
-      // 扣除所需TRX成功后执行以下操作
-      this.currentIndex = this.index
-      this.maskFlag2 = false
-      this.maskFlag3 = true
-    },
     // 显示开始铸造后的提示
     confirmSuccHandler() {
       this.maskFlag3 = false
     },
     look(Activate, num, event) {
-      console.log(Activate, num, event)
       this.activate = Activate
       if (event) {
         this.select.push(num)
@@ -375,7 +388,7 @@ export default {
           1
         )
       }
-      console.log(Activate, this.select)
+      console.log(Activate, num, event)
     },
     changeList(i) {
       this.i = i
@@ -452,9 +465,9 @@ export default {
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      padding: 40px 30px;
+      padding: 0 30px;
       box-sizing: border-box;
-      background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
+      // background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
 
       .itemcard {
         width: 330px;
@@ -489,6 +502,32 @@ export default {
       // padding-top: 40px;
       padding-bottom: 120px;
       background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
+
+      /deep/ .van-tabs__nav {
+        align-items: center;
+      }
+
+      /deep/ .van-tab {
+        margin: 0 4px;
+        margin-top: 2px;
+        height: 70px;
+        opacity: 0.8;
+        border-radius: 35px;
+      }
+
+      /deep/ .van-tab--active {
+        background: #237ff8;
+        opacity: 1;
+      }
+
+      /deep/ .van-tabs__line {
+        width: 0;
+        height: 0;
+      }
+
+      /deep/ .van-tab__text {
+        font-size: 34px;
+      }
 
       .waitcarditem {
         width: 690px;
@@ -705,10 +744,7 @@ export default {
   //无卡样式
   .nowaitcard {
     margin-top: 2.8rem;
-    // background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
     .custom-image /deep/ .van-empty__image {
-      // width: 400px;
-      // height: 300px;
       width: 260px;
       height: 172px;
     }

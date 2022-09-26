@@ -182,8 +182,6 @@ export default {
       active: 0, //选择支付方式
       appU: 0.0, //APP资产USDT
       appE: 0.0, //APP资产EOTC
-      // walletU: 0.0, //钱包资产USDT
-      // walletE: 0.0 //钱包资产EOTC
       text: 'APP资产',
       i: 0
     }
@@ -192,8 +190,6 @@ export default {
     loadweb3(userBaseMes)
     this.appU = localStorage.getItem('usdt_ye')
     this.appE = localStorage.getItem('eotc_stake')
-    // this.walletU = localStorage.getItem('myamount')
-    // this.walletE = localStorage.getItem('eotcAmount')
   },
   methods: {
     // 确定购买
@@ -222,7 +218,7 @@ export default {
               this.moneyE = 0
               this.moneyU = 0
             } else {
-              this.$toast('支付失败')
+              this.$toast.warning('支付失败')
             }
           })
         }

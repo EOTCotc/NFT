@@ -2,7 +2,6 @@ import request from '@/utils/request';
 import utils from '@/utils/utils';
 
 // NFT/BuyBlindBox 购买盲盒
-
 export const BuyBlindBox = (usdt, eotc) => {
 	const data = utils.initFormData({
 		ads: localStorage.getItem('myaddress'),
@@ -18,8 +17,7 @@ export const BuyBlindBox = (usdt, eotc) => {
 	});
 };
 
-// NFT/BuyNFT
-
+// NFT/BuyNFT 购买卡牌
 export const BuyNft = (num) => {
 	const data = utils.initFormData({
 		ads: localStorage.getItem('myaddress'),
@@ -35,7 +33,6 @@ export const BuyNft = (num) => {
 };
 
 // NFT/OpenBlindBox 开盲盒
-
 export const OpenBlindBox = (id) => {
 	const data = utils.initFormData({
 		ads: localStorage.getItem('myaddress'),
@@ -51,7 +48,7 @@ export const OpenBlindBox = (id) => {
 };
 
 // 盲盒列表，权益卡牌，等级卡牌
-
+// type=4(铸造中)
 export const myNft = (type) => {
 	const data = utils.initFormData({
 		ads: localStorage.getItem('myaddress'),
@@ -69,6 +66,46 @@ export const myNft = (type) => {
 	return request({
 		url: '/api/NFT/MyNFT',
 		method: 'POST',
+		data
+	});
+};
+
+// NFT/PayEotc 卡牌铸造
+export const PayEotc = (id, hx) => {
+	const data = utils.initFormData({
+		ads: localStorage.getItem('myaddress'),
+		sign: localStorage.getItem('mysign'),
+		id,
+		hx
+	});
+
+	return request({
+		url: '/api/NFT/PayEotc',
+		method: 'POST',
+		data
+	});
+};
+
+// OTC/GetAppStake 管理员刷入合约列表
+
+export const GetAppStake = ({ month = 0, date = `${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}` }) => {
+	const params = {
+		month,
+		date
+	};
+
+	return request({
+		url: '/api/OTC/GetAppStake',
+		method: 'POST',
+		params
+	});
+};
+
+// OTC/UpdateStakeOrder 管理员批量刷入合约
+export const UpdateStakeOrder = (data) => {
+	return request({
+		method: 'POST',
+		url: '/api/OTC/UpdateStakeOrder',
 		data
 	});
 };

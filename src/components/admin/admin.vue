@@ -26,10 +26,11 @@
                        description="暂无需上传的等级卡牌" />
           </div>
           <div v-else
-               class="waitcard">
+               class="waitcard"
+               :class="rankCardFlag.filter((data) => {return data.Activate==i}).length?'act':''">
 
             <div class="waitcarditem"
-                 v-for="item in rankCardFlag.filter((e) => {return e.Activate==value1})"
+                 v-for="item in rankCardFlag"
                  :key="item.num">
               <div class="left">
                 <img :src="item.image">
@@ -37,23 +38,24 @@
               <div class="right">
                 <div>
                   <span>{{ item.title }}</span>
-                  <span>
+                  <span @click="pro(i==0?i:item.Activate==i)">
                     <van-checkbox icon-size="16px"
-                                  @change="look(item.Activate,item.num,$event)"
+                                  :disabled="i==0?false:item.Activate==i?false:true"
+                                  @change="look(item.Activate,item.num,item.casting,$event)"
                                   v-model="item.ischecked"></van-checkbox>
                   </span>
                 </div>
-                <div>#{{ item.num }}</div>
-                <div>钱包地址：{{ item.casting}}</div>
+                <div>#{{ item.num.padStart(6, 0) }}</div>
+                <div>钱包地址：{{ item.casting|ellipsis}}</div>
               </div>
 
               <!-- 页脚 -->
-              <div class="waitfooter">
+              <div class="waitfooter"
+                   v-if="rankCardFlag.filter((data) => {return data.Activate==i}).length">
                 <div class="left">
                   <p><span class="sl">
                       <van-checkbox v-model="changeCheck">全选</van-checkbox>
                     </span>已选择 {{ selecked }} 个</p>
-                  <!-- <p>提示:只能同时选择一种类型的NFT</p> -->
                 </div>
                 <div class="right">
                   <van-button round
@@ -66,22 +68,7 @@
 
             </div>
 
-            <div class="nowaitcard"
-                 v-if="!rankCardFlag.filter((e) => {return e.Activate==value1}).length">
-              <van-empty class="custom-image "
-                         :image="require('@/assets/img/cardPage/cardNull.png')"
-                         description="该等级卡牌暂无需上传" />
-            </div>
-
           </div>
-
-          <van-dropdown-menu z-index="99999"
-                             v-if="rankCardFlag.length">
-            <van-dropdown-item v-model="value1"
-                               @change="changeList"
-                               background="#121933"
-                               :options="option1" />
-          </van-dropdown-menu>
         </van-tab>
 
         <van-tab title="权益卡牌"
@@ -94,34 +81,36 @@
                        description="暂无需上传的权益卡牌" />
           </div>
           <div v-else
-               class="waitcard">
+               class="waitcard"
+               :class="equityCard.filter((data) => {return data.Activate==e}).length?'act':''">
 
             <div class="waitcarditem"
-                 v-for="item in equityCard.filter((e) => {return e.Activate==value2})"
-                 :key="item.num">
+                 v-for="item in equityCard"
+                 :key="item.id">
               <div class="left">
                 <img :src="item.image">
               </div>
               <div class="right">
                 <div>
                   <span>{{ item.title }}</span>
-                  <span>
+                  <span @click="pros(e==0?e:item.Activate==e)">
                     <van-checkbox icon-size="16px"
-                                  @change="looks(item.Activate,item.num,$event)"
+                                  :disabled="e==0?false:item.Activate==e?false:true"
+                                  @change="looks(item.Activate,item.casting,$event)"
                                   v-model="item.ischecked"></van-checkbox>
                   </span>
                 </div>
-                <div>#{{ item.num }}</div>
-                <div>钱包地址：{{ item.casting}}</div>
+                <div>数量：1</div>
+                <div>钱包地址：{{ item.casting|ellipsis}}</div>
               </div>
 
               <!-- 页脚 -->
-              <div class="waitfooter">
+              <div class="waitfooter"
+                   v-if="equityCard.filter((data) => {return data.Activate==e}).length">
                 <div class="left">
                   <p><span class="sl">
                       <van-checkbox v-model="changeChecks">全选</van-checkbox>
                     </span>已选择 {{ seleckeds }} 个</p>
-                  <!-- <p>提示:只能同时选择一种类型的NFT</p> -->
                 </div>
                 <div class="right">
                   <van-button round
@@ -133,23 +122,7 @@
               </div>
 
             </div>
-
-            <div class="nowaitcard"
-                 v-if="!equityCard.filter((e) => {return e.Activate==value2}).length">
-              <van-empty class="custom-image "
-                         :image="require('@/assets/img/cardPage/cardNull.png')"
-                         description="该权益卡牌暂无需上传" />
-            </div>
-
           </div>
-
-          <van-dropdown-menu z-index="99999"
-                             v-if="equityCard.length">
-            <van-dropdown-item v-model="value2"
-                               @change="changeLists"
-                               background="#121933"
-                               :options="option2" />
-          </van-dropdown-menu>
         </van-tab>
       </van-tabs>
     </div>
@@ -157,104 +130,207 @@
 </template>
 
 <script>
+import { AllCards } from '@/utils/web3'
+import { Toast } from 'vant'
+import { myNft, GetAppStake, UpdateStakeOrder } from '@/api/newReqets'
+
 export default {
   data() {
     return {
       synthActiveName: '1',
-      i: 1,
-      e: 1,
-      value1: 1,
+      i: 0,
+      e: 0,
+      value1: 3,
       value2: 1,
-      an: null,
-      bn: null,
+      casting1: [],
+      casting2: [],
       rank: [],
       equity: [],
-      option1: [
-        { text: '一级卡牌', value: 1 },
-        { text: '二级卡牌', value: 2 },
-        { text: '三级卡牌', value: 3 },
-        { text: '四级卡牌', value: 4 },
-        { text: '五级卡牌', value: 5 }
-      ],
-      option2: [
-        { text: '联合会权益卡', value: 1 },
-        { text: '创世会权益卡', value: 2 },
-        { text: '实时节点分红权益卡', value: 3 },
-        { text: '实时节点永久分红权益卡', value: 4 },
-        { text: '中级节点分红权益卡', value: 5 },
-        { text: '中级节点永久分红权益卡', value: 6 },
-        { text: '高级节点分红权益卡', value: 7 },
-        { text: '高级节点永久分红权益卡', value: 8 },
-        { text: '免手续费权益卡', value: 9 }
-      ],
+      // option1: [
+      //   { text: '三级卡牌', value: 3 },
+      //   { text: '四级卡牌', value: 4 },
+      //   { text: '五级卡牌', value: 5 }
+      // ],
+      // option2: [
+      //   { text: '创世会权益卡', value: 1 },
+      //   { text: '联合会权益卡', value: 2 },
+      //   { text: '实时节点分红权益卡', value: 3 },
+      //   { text: '实时节点永久分红权益卡', value: 4 },
+      //   { text: '中级节点分红权益卡', value: 5 },
+      //   { text: '中级节点永久分红权益卡', value: 6 },
+      //   { text: '高级节点分红权益卡', value: 7 },
+      //   { text: '高级节点永久分红权益卡', value: 8 }
+      // ],
       // 等级卡牌
       rankCardFlag: [
-        { Activate: 1, status: false, num: '000001', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 4, status: false, num: '000002', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 4, status: false, num: '000092', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 2, status: false, num: '000031', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 4, status: false, num: '000102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 5, status: false, num: '000003', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', casting: 'asdh44654654sd', ischecked: false }
+        // { Activate: 3, status: false, num: '000001', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 4, status: false, num: '000002', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 4, status: false, num: '000092', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 3, status: false, num: '000031', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 4, status: false, num: '000102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        { Activate: 4, status: false, num: '3', image: require('@/assets/img/Compose/5-before.png'), title: '4级黄金甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false }
       ],
       // 权益卡牌
       equityCard: [
-        { Activate: 1, status: false, num: '000001', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 4, status: false, num: '000002', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 4, status: false, num: '000092', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 2, status: false, num: '000031', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 4, status: false, num: '000102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'asdh44654654sd', ischecked: false },
-        { Activate: 5, status: false, num: '000003', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', casting: 'asdh44654654sd', ischecked: false }
+        // { Activate: 1, status: false, id: '000001', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 4, status: false, id: '000002', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 4, status: false, id: '000092', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 2, status: false, id: '000031', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        // { Activate: 4, status: false, id: '000102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
+        { Activate: 4, status: false, id: '000003', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false }
+      ],
+      // 全部等级卡牌
+      myRank: [
+        { Activate: 1, status: false, image: require('@/assets/img/Compose/1.jpg'), title: '1级青铜甲犀牛', ischecked: false },
+        { Activate: 2, status: false, image: require('@/assets/img/Compose/2.jpg'), title: '2级白银甲犀牛', ischecked: false },
+        { Activate: 3, status: false, image: require('@/assets/img/Compose/3-before.png'), title: '3级白银甲犀牛', ischecked: false },
+        { Activate: 4, status: false, image: require('@/assets/img/Compose/4-before.png'), title: '4级青铜甲犀牛', ischecked: false },
+        { Activate: 5, status: false, image: require('@/assets/img/Compose/5-before.png'), title: '5级白银甲犀牛', ischecked: false }
+      ],
+      myRanks: [],
+      // 全部权益卡片
+      myEquity: [
+        { Activate: 1, status: false, image: require('@/assets/img/equityItem1.png'), title: '创世会权益卡', ischecked: false },
+        { Activate: 2, status: false, image: require('@/assets/img/equityItem2.png'), title: '联合会权益卡', ischecked: false },
+        { Activate: 3, status: false, image: require('@/assets/img/Compose/actual-100-before.jpg'), title: '100实时节点分红权益卡', ischecked: false },
+        { Activate: 3, status: false, image: require('@/assets/img/Compose/actual-200-before.jpg'), title: '200实时节点分红权益卡', ischecked: false },
+        { Activate: 3, status: false, image: require('@/assets/img/Compose/actual-300-before.jpg'), title: '300实时节点分红权益卡', ischecked: false },
+        { Activate: 4, status: false, image: require('@/assets/img/Compose/actual-forever.jpg'), title: '实时节点永久分红权益卡', ischecked: false },
+        { Activate: 5, status: false, image: require('@/assets/img/Compose/middle-100-before.jpg'), title: '100中级节点分红权益卡', ischecked: false },
+        { Activate: 5, status: false, image: require('@/assets/img/Compose/middle-200-before.jpg'), title: '200中级节点分红权益卡', ischecked: false },
+        { Activate: 5, status: false, image: require('@/assets/img/Compose/middle-300-before.jpg'), title: '300中级节点分红权益卡', ischecked: false },
+        { Activate: 6, status: false, image: require('@/assets/img/Compose/middle-forever.jpg'), title: '中级节点永久分红权益卡', ischecked: false },
+        { Activate: 7, status: false, image: require('@/assets/img/Compose/high-100-before.jpg'), title: '100高级节点分红权益卡', ischecked: false },
+        { Activate: 7, status: false, image: require('@/assets/img/Compose/high-200-before.jpg'), title: '200高级节点分红权益卡', ischecked: false },
+        { Activate: 7, status: false, image: require('@/assets/img/Compose/high-300-before.jpg'), title: '300高级节点分红权益卡', ischecked: false },
+        { Activate: 8, status: false, image: require('@/assets/img/Compose/high-eiky.jpg'), title: '高级节点永久分红权益卡', ischecked: false }
       ]
     }
   },
+  created() {
+    // GetAppStake({})
+    //   .then((res) => {
+    //     this.myRanks = res.data
+    //     console.log(res)
+    //     console.log(this.myRanks)
+    //     this.rankCard()
+    //   })
+    //   .catch(() => {
+    //     this.$toast('请刷新页面')
+    //   })
+    // console.log(`${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}`)
+  },
   methods: {
-    look(a, b, c) {
-      console.log(a, b, c)
-      this.an = a
-      if (c) {
-        this.rank.push(b)
+    // 等级卡牌
+    rankCard() {
+      this.rankCardFlag = []
+      console.log(this.myRanks)
+      for (let i of this.myRanks) {
+        const com = {}
+        com.num = i.id
+        com.casting = i.ads.trim()
+        com.type = i.num
+        com.Activate = this.myRank[i.num - 1].Activate
+        com.title = this.myRank[i.num - 1].title
+        com.status = this.myRank[i.num - 1].status
+        com.image = this.myRank[i.num - 1].image
+        com.ischecked = this.myRank[i.num - 1].ischecked
+        if (com.type == 3 || com.type == 4 || com.type == 5) this.rankCardFlag.push(com)
+      }
+    },
+    look(Activate, num, casting, event) {
+      this.i = Activate
+      if (event) {
+        this.rank.push(num)
+        this.casting1.push(casting)
       } else {
         this.rank.splice(
-          this.rank.findIndex((item) => item === b),
+          this.rank.findIndex((item) => item === num),
+          1
+        )
+        this.casting1.splice(
+          this.casting1.findIndex((item) => item === casting),
           1
         )
       }
-      console.log(this.an, this.rank)
+      if (this.rank.length == 0) this.i = 0
+      console.log(this.rank, this.casting1)
     },
-    looks(a, b, c) {
-      console.log(a, b, c)
-      this.bn = a
-      if (c) {
-        this.equity.push(b)
+    looks(Activate, casting, event) {
+      console.log(Activate, casting, event)
+      this.e = Activate
+      if (event) {
+        this.equity.push(1)
+        this.casting2.push(casting)
       } else {
         this.equity.splice(
-          this.equity.findIndex((item) => item === b),
+          this.equity.findIndex((item) => item === 1),
+          1
+        )
+        this.casting2.splice(
+          this.casting2.findIndex((item) => item === casting),
           1
         )
       }
-      console.log(this.bn, this.equity)
+      if (this.equity.length == 0) this.e = 0
+      console.log(this.equity, this.casting2)
+    },
+    pro(i) {
+      console.log(i)
+      if (i === false) this.$toast('只能同时选择一种类型的NFT')
+    },
+    pros(e) {
+      console.log(e)
+      if (e === false) this.$toast('只能同时选择一种类型的NFT')
     },
     changeList(i) {
       this.i = i
       this.rank = []
-      // this.changeCheck = false
       this.rankCardFlag.map((e) => (e.ischecked = false))
     },
     changeLists(e) {
       this.e = e
       this.equity = []
-      // this.changeChecks = false
       this.equityCard.map((e) => (e.ischecked = false))
     },
     // 上传等级卡牌
     getRank() {
-      console.log(this.an, this.rank)
-      this.$toast('上传成功')
+      Toast.loading({
+        message: '加载中...',
+        forbidClick: true,
+        duration: 0
+      })
+      console.log(this.rank)
+      // AllCards(this.casting1, this.rank, 0, this.i - 1)
+      AllCards(this.casting1, this.rank, 0, this.i - 1).then((res) => {
+        this.rank.unshift(localStorage.getItem('Token'))
+        UpdateStakeOrder(this.rank)
+          .then(
+            (res) => {
+              console.log(res)
+            },
+            (rej) => {
+              console.log(rej)
+            }
+          )
+          .catch((err) => {
+            console.log(err)
+          })
+      })
+      console.log(this.casting1, this.rank, 0, this.i - 1)
+      // this.$toast('上传成功')
     },
     // 上传权益卡牌
     getEquity() {
-      console.log(this.bn, this.equity)
-      this.$toast('上传成功')
+      Toast.loading({
+        message: '加载中...',
+        forbidClick: true,
+        duration: 0
+      })
+      // AllCards(this.casting2, this.equity, 1, this.e - 1)
+      AllCards(this.casting2, ...this.equity, 1, this.e - 1)
+      // console.log(this.casting2, this.equity, 1, this.e - 1)
+      // this.$toast('上传成功')
     }
   },
   computed: {
@@ -295,6 +371,16 @@ export default {
           this.equityCard.filter((e) => e.Activate == this.e).map((e) => (e.ischecked = false))
         }
       }
+    }
+  },
+  filters: {
+    ellipsis(value) {
+      let len = value.length
+      if (!value) return ''
+      if (value.length > 20) {
+        return value.substring(0, 10) + '...' + value.substring(len - 3, len)
+      }
+      return value
     }
   }
 }
@@ -359,8 +445,8 @@ export default {
 
   .waitcard {
     width: 100%;
-    padding-top: 70px;
-    padding-bottom: 100px;
+    // padding-top: 70px;
+    // padding-bottom: 100px;
     background: linear-gradient(174deg, #121933 0%, #121933 0%, #06070a 100%);
 
     .waitcarditem {
@@ -389,6 +475,11 @@ export default {
             color: #fff;
             font-size: 32px;
             margin-bottom: 20px;
+            /deep/ .van-checkbox__icon--disabled .van-icon {
+              color: #000;
+              background: #000;
+              border: none;
+            }
           }
           &:nth-child(2) {
             font-size: 28px;
@@ -398,11 +489,19 @@ export default {
           &:nth-child(3) {
             font-size: 28px;
             color: #858992;
-            margin-bottom: 20px;
+            // margin-bottom: 20px;
+            span {
+              display: inline-block;
+              margin-top: 10px;
+            }
           }
         }
       }
     }
+  }
+
+  .act {
+    padding-bottom: 118px;
   }
 
   .waitfooter {
@@ -438,13 +537,17 @@ export default {
           font-size: 28px;
         }
         &:nth-child(2) {
+          display: flex;
           color: #858992;
           font-size: 22px;
           margin-top: 10px;
+          word-break: break-all;
         }
       }
     }
     .right {
+      width: 300px;
+      margin-right: 20px;
       display: flex;
       justify-content: center;
       /deep/ .van-button {
@@ -456,5 +559,9 @@ export default {
       }
     }
   }
+}
+
+/deep/.van-toast {
+  background: rgba(58, 58, 58, 0.7);
 }
 </style>

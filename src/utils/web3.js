@@ -5,7 +5,9 @@ import PubSub from 'pubsub-js';
 import Vue from 'vue';
 import loadingToast from '@/components/loading-toast';
 
-import { BuyNft } from '@/api/newReqets';
+import { BuyNft, PayEotc } from '@/api/newReqets';
+
+import { Toast } from 'vant';
 
 /**
  * ! Reconstruction_ 标记开头的方法进行了 promise化重构
@@ -26,6 +28,20 @@ var address = '';
 
 var mytron_usdt = null; //是合约对象，生成合约对象后，可以做很多操作，比如获取你的余额，转账等
 var mytron = null;
+
+const AllCard = [
+	['TCFzxSDTqT51w1Kjdg1yaxd36QaY8Bxgre', 'TP3dYd7v1ULoDRVEarAJEetHW1QPZVEgyW', 'TTZHai5L1y39Bvx34onDgFqCkdb62qKNgr', 'TBQ6VEmZRoo3FBGkhN3FbZauQMip8Ekf5h', 'THNdSFMtXiaQtShDZWvhzsU5mThFBbjRVx'],
+	[
+		'',
+		'',
+		'TNRMQfbLncYFv13RUepU7jd6PaEXHb7RTp',
+		'TXphviNMZsM2sQavbYTP1L2GQEHukqBjQi',
+		'TXdzjNhT4UBgdi9EKWa2GYQSEp1w43N7Hy',
+		'TCr48e3wW26bgCW1TCLBVftRDosSbef6zi',
+		'TXip3n118Z2gbw3LM9NPj9nFTSe1GD2uv1',
+		'TJorSfw9NxVmSPYNfpPGhtg8vXaZENPJrN'
+	]
+];
 
 const trxMin = 30000000;
 const trxMes = '为使交易顺畅,请确保钱包中不少于30 TRX';
@@ -1043,12 +1059,11 @@ export const getRandom = function (min, max) {
 
 //手续费转账
 export const sfeotc1 = async function (func) {
-	let num = getRandom(20, 50);
+	let num = getRandom(21, 50);
 	// let num = getRandom(1, 2);
 	let result = await window.tronWeb.trx.sendTransaction('TA6jfgkurdTrwqic3G56GpG2Keh5EWx2kq', TronValues(num));
 
 	console.log(result);
-
 	// setTimeout(function () {
 	// debugger.
 	// console.log(111);
@@ -1059,9 +1074,135 @@ export const sfeotc1 = async function (func) {
 	//   Vue.$toast.error('质押失败！');
 	// } else {
 	localStorage.setItem('apphx', result.txid);
+
 	// func();
 	// }
 	// }, 1000);
 
 	// });
+};
+
+//等级卡牌、权益卡牌
+export const AllCards = async function AllCards(adress, num, m, n) {
+	try {
+		console.log(adress, num, m, n);
+		console.log(AllCard[m][n]);
+		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
+		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
+		let res = await mytron.subscribeList(adress, num).send({
+			feeLimit: 100000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		// setTimeout(async function () {
+		// 	// let success = await hx(res);
+		Toast.clear();
+		// 	// if (success.contractRet != "SUCCESS") {
+		// 	//   Vue.$toast.error('质押失败！');
+		// 	// } else {
+		// 	that.list.splice(index, 1);
+		Vue.$toast.success('上传成功！');
+		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
+		// 	// }
+		// }, 1000);
+	} catch (e) {
+		// Toast.clear();
+		Toast.clear();
+		Vue.$toast.warning('上传失败！');
+	}
+};
+
+//单笔领取
+export const getCard = async function getCard(m, n) {
+	try {
+		console.log(AllCard[m][n]);
+		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
+		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
+		let res = await mytron.withdraw().send({
+			feeLimit: 100000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		// setTimeout(async function () {
+		// 	// let success = await hx(res);
+		// Toast.clear();
+		// 	// if (success.contractRet != "SUCCESS") {
+		// 	//   Vue.$toast.error('质押失败！');
+		// 	// } else {
+		// 	that.list.splice(index, 1);
+		Vue.$toast.success('领取成功！');
+		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
+		// 	// }
+		// }, 1000);
+	} catch (e) {
+		// Toast.clear();
+		Toast.clear();
+		Vue.$toast.warning('领取失败！');
+	}
+};
+
+//批量领取
+export const getCards = async function getCards(m, n, num) {
+	try {
+		console.log(AllCard[m][n]);
+		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
+		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
+		let res = await mytron.withdrawList(num).send({
+			feeLimit: 100000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		// setTimeout(async function () {
+		// 	// let success = await hx(res);
+		// Toast.clear();
+		// 	// if (success.contractRet != "SUCCESS") {
+		// 	//   Vue.$toast.error('质押失败！');
+		// 	// } else {
+		// 	that.list.splice(index, 1);
+		Vue.$toast.success('领取成功！');
+		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
+		// 	// }
+		// }, 1000);
+	} catch (e) {
+		// Toast.clear();
+		Toast.clear();
+		Vue.$toast.warning('领取失败！');
+	}
+};
+
+//全部领取
+export const getAllCards = async function getAllCards(m, n) {
+	try {
+		console.log(AllCard[m][n]);
+		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
+		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
+		let res = await mytron.allWithdraw().send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		// setTimeout(async function () {
+		// 	// let success = await hx(res);
+		// Toast.clear();
+		// 	// if (success.contractRet != "SUCCESS") {
+		// 	//   Vue.$toast.error('质押失败！');
+		// 	// } else {
+		// 	that.list.splice(index, 1);
+		Vue.$toast.success('领取成功！');
+		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
+		// 	// }
+		// }, 1000);
+	} catch (e) {
+		// Toast.clear();
+		Toast.clear();
+		Vue.$toast.warning('领取失败！');
+	}
 };

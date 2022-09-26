@@ -22,7 +22,7 @@
 
 <script>
 export default {
-  props: ['nodeMade'],
+  props: ['nodeMade', 'number'],
   data() {
     return {
       show: true,
@@ -47,7 +47,7 @@ export default {
           { id: Math.random(), img: require('@/assets/img/Compose/3-before.png') }
         ]
         //按概率
-        this.img = require('@/assets/img/Compose/actual-100-before.jpg')
+        if (this.number == 'xx') this.img = require('@/assets/img/Compose/actual-100-before.jpg')
         // this.img = require('@/assets/img/Compose/actual-200-before.jpg')
         // this.img = require('@/assets/img/Compose/actual-300-before.jpg')
       } else if (this.nodeMade == 'four') {
