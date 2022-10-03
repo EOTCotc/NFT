@@ -16,10 +16,10 @@
         </p>
       </div>
     </div>
-    <div class="cardList">
+    <div class="manyCard">
       <div class="item"
            @click="goCardDetails(item.id)"
-           v-for="item in cardList"
+           v-for="item in manyCard"
            :key="item.id">
         <p class="img"><img src="../../assets/img/equityItem1.png"
                alt=""></p>
@@ -59,7 +59,7 @@
           <div class="title">状态</div>
           <div class="content">
             <p @click="numbers=list.id"
-               v-for="list in menu.status"
+               v-for="list in menu.form"
                :key="list.id"
                :class="numbers==list.id?'active' :''">{{list.title}}</p>
           </div>
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import options from './options'
+import { options, allCard, allCards, cardList } from '@/utils/options'
 export default {
   data() {
     return {
@@ -94,12 +94,12 @@ export default {
       options,
       option: [],
       menu: [],
-      cardList: [],
-      cardLists: [
-        { id: Math.random(), title: '创世会权益NFT', text: 'dsad88…4558', price: '25000.52', status: 2 },
-        { id: Math.random(), title: '五级黄金甲犀牛', text: 'dsad88…4558', price: '5000.52', status: 1 },
-        { id: Math.random(), title: '三级青铜甲犀牛', text: 'dsad88…4558', price: '2000.52', status: 1 },
-        { id: Math.random(), title: '四级玄铁甲犀牛', text: 'dsad88…4558', price: '1500.52', status: 1 }
+      manyCard: [],
+      manyCards: [
+        { id: Math.random(), title: '创世会权益NFT', text: 'dsad88…4558', price: '25000.52', form: 2 },
+        { id: Math.random(), title: '五级黄金甲犀牛', text: 'dsad88…4558', price: '5000.52', form: 1 },
+        { id: Math.random(), title: '三级青铜甲犀牛', text: 'dsad88…4558', price: '2000.52', form: 1 },
+        { id: Math.random(), title: '四级玄铁甲犀牛', text: 'dsad88…4558', price: '1500.52', form: 1 }
       ],
       tabs: [
         { id: 0, name: '全部' },
@@ -114,7 +114,7 @@ export default {
   watch: {
     active: {
       handler(i) {
-        i == 0 ? (this.cardList = this.cardLists) : (this.cardList = this.cardLists.filter((e) => e.status == i))
+        i == 0 ? (this.manyCard = this.manyCards) : (this.manyCard = this.manyCards.filter((e) => e.form == i))
       },
       immediate: true
     },
@@ -153,8 +153,7 @@ export default {
     // 查看卡牌详情
     goCardDetails(id) {
       console.log(id)
-      sessionStorage.setItem('toggle', true)
-      this.$router.push({ name: 'card_details' })
+      // this.$router.push({ name: 'card_details' })
     },
     // 标签栏
     tab(id) {
@@ -204,7 +203,7 @@ export default {
       color: #227aee;
     }
   }
-  .cardList {
+  .manyCard {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;

@@ -24,16 +24,8 @@
       <div class="buynum">
         <p>购买数量</p>
         <div>
-          <!-- <input type="number"
-                 class="select"
-                 @input="change"
-                 oninput="if (value < 0) value = 0;if(value>10000)value=10000"
-                 v-model="inputNum"
-                 :disabled="disabledFlag"
-                 :placeholder="disabledFlag?'选择购买数量':'输入购买数量'" /> -->
-
           <van-field v-model="inputNum"
-                     oninput="if (value < 0) value = '';if(value>10000)value=10000;value=parseInt(value)"
+                     oninput="if (value < 0) value = '';if(value>10000)value=10000;value=parseInt(value);if(isNaN(value)) value=''"
                      center
                      type="number"
                      class="select"
@@ -82,7 +74,7 @@
           <li v-for="(item, index) in orderlistData"
               @click="orderitemHandler(item, index)"
               :class="currentIndex == index ? 'selectActive' : ''"
-              :key="item.id">
+              :key="index">
             <span>{{ item.num }}个</span>
             <span>{{ item.EOTC }}USDT+{{ item.EOTC }}EOTC</span>
           </li>

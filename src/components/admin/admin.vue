@@ -95,8 +95,8 @@
                   <span>{{ item.title }}</span>
                   <span @click="pros(e==0?e:item.Activate==e)">
                     <van-checkbox icon-size="16px"
-                                  :disabled="e==0?false:item.Activate==e?false:true"
-                                  @change="looks(item.Activate,item.casting,$event)"
+                                  :disabled="e==0?false:item.Activate!=e?true:item.time!=time?true:false"
+                                  @change="looks(item.time,item.Activate,item.num,item.casting,$event)"
                                   v-model="item.ischecked"></van-checkbox>
                   </span>
                 </div>
@@ -130,9 +130,10 @@
 </template>
 
 <script>
-import { AllCards } from '@/utils/web3'
+import { AllCards, AllCardTime } from '@/utils/web3'
 import { Toast } from 'vant'
-import { myNft, GetAppStake, UpdateStakeOrder } from '@/api/newReqets'
+import { GetAppStake, UpdateStakeOrder } from '@/api/newReqets'
+import { allCard, cardList } from '@/utils/options'
 
 export default {
   data() {
@@ -155,72 +156,55 @@ export default {
       //   { text: '创世会权益卡', value: 1 },
       //   { text: '联合会权益卡', value: 2 },
       //   { text: '实时节点分红权益卡', value: 3 },
-      //   { text: '实时节点永久分红权益卡', value: 4 },
-      //   { text: '中级节点分红权益卡', value: 5 },
-      //   { text: '中级节点永久分红权益卡', value: 6 },
-      //   { text: '高级节点分红权益卡', value: 7 },
+      //   { text: '中级节点分红权益卡', value: 4 },
+      //   { text: '高级节点分红权益卡', value: 5 },
+      //   { text: '实时节点永久分红权益卡', value: 6 },
+      //   { text: '中级节点永久分红权益卡', value: 7 },
       //   { text: '高级节点永久分红权益卡', value: 8 }
       // ],
       // 等级卡牌
-      rankCardFlag: [
-        // { Activate: 3, status: false, num: '000001', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 4, status: false, num: '000002', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 4, status: false, num: '000092', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 3, status: false, num: '000031', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 4, status: false, num: '000102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        { Activate: 4, status: false, num: '3', image: require('@/assets/img/Compose/5-before.png'), title: '4级黄金甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false }
-      ],
+      rankCardFlag: [],
       // 权益卡牌
-      equityCard: [
-        // { Activate: 1, status: false, id: '000001', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 4, status: false, id: '000002', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 4, status: false, id: '000092', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 2, status: false, id: '000031', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        // { Activate: 4, status: false, id: '000102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false },
-        { Activate: 4, status: false, id: '000003', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL', ischecked: false }
-      ],
+      equityCard: [],
       // 全部等级卡牌
-      myRank: [
-        { Activate: 1, status: false, image: require('@/assets/img/Compose/1.jpg'), title: '1级青铜甲犀牛', ischecked: false },
-        { Activate: 2, status: false, image: require('@/assets/img/Compose/2.jpg'), title: '2级白银甲犀牛', ischecked: false },
-        { Activate: 3, status: false, image: require('@/assets/img/Compose/3-before.png'), title: '3级白银甲犀牛', ischecked: false },
-        { Activate: 4, status: false, image: require('@/assets/img/Compose/4-before.png'), title: '4级青铜甲犀牛', ischecked: false },
-        { Activate: 5, status: false, image: require('@/assets/img/Compose/5-before.png'), title: '5级白银甲犀牛', ischecked: false }
-      ],
+      allCard,
       myRanks: [],
       // 全部权益卡片
-      myEquity: [
-        { Activate: 1, status: false, image: require('@/assets/img/equityItem1.png'), title: '创世会权益卡', ischecked: false },
-        { Activate: 2, status: false, image: require('@/assets/img/equityItem2.png'), title: '联合会权益卡', ischecked: false },
-        { Activate: 3, status: false, image: require('@/assets/img/Compose/actual-100-before.jpg'), title: '100实时节点分红权益卡', ischecked: false },
-        { Activate: 3, status: false, image: require('@/assets/img/Compose/actual-200-before.jpg'), title: '200实时节点分红权益卡', ischecked: false },
-        { Activate: 3, status: false, image: require('@/assets/img/Compose/actual-300-before.jpg'), title: '300实时节点分红权益卡', ischecked: false },
-        { Activate: 4, status: false, image: require('@/assets/img/Compose/actual-forever.jpg'), title: '实时节点永久分红权益卡', ischecked: false },
-        { Activate: 5, status: false, image: require('@/assets/img/Compose/middle-100-before.jpg'), title: '100中级节点分红权益卡', ischecked: false },
-        { Activate: 5, status: false, image: require('@/assets/img/Compose/middle-200-before.jpg'), title: '200中级节点分红权益卡', ischecked: false },
-        { Activate: 5, status: false, image: require('@/assets/img/Compose/middle-300-before.jpg'), title: '300中级节点分红权益卡', ischecked: false },
-        { Activate: 6, status: false, image: require('@/assets/img/Compose/middle-forever.jpg'), title: '中级节点永久分红权益卡', ischecked: false },
-        { Activate: 7, status: false, image: require('@/assets/img/Compose/high-100-before.jpg'), title: '100高级节点分红权益卡', ischecked: false },
-        { Activate: 7, status: false, image: require('@/assets/img/Compose/high-200-before.jpg'), title: '200高级节点分红权益卡', ischecked: false },
-        { Activate: 7, status: false, image: require('@/assets/img/Compose/high-300-before.jpg'), title: '300高级节点分红权益卡', ischecked: false },
-        { Activate: 8, status: false, image: require('@/assets/img/Compose/high-eiky.jpg'), title: '高级节点永久分红权益卡', ischecked: false }
-      ]
+      cardList,
+      myEquity: [],
+      equitys: [],
+      time: 0
     }
   },
   created() {
-    // GetAppStake({})
-    //   .then((res) => {
-    //     this.myRanks = res.data
-    //     console.log(res)
-    //     console.log(this.myRanks)
-    //     this.rankCard()
+    // for (let i = 1; i <= 20; i++) {
+    //   this.rankCardFlag.push({
+    //     Activate: 3,
+    //     status: false,
+    //     num: i + 1200 + '',
+    //     image: require('@/assets/img/Compose/3-before.png'),
+    //     title: '3级青铜甲犀牛',
+    //     casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL',
+    //     ischecked: false
     //   })
-    //   .catch(() => {
-    //     this.$toast('请刷新页面')
-    //   })
-    // console.log(`${new Date().getFullYear()}/${new Date().getMonth() + 1}/${new Date().getDate()}`)
+    // }
+    this.hallmark()
   },
   methods: {
+    // 卡牌
+    hallmark() {
+      GetAppStake({})
+        .then((res) => {
+          console.log(res.data)
+          this.myRanks = res.data.filter((val) => val.type == 0)
+          this.myEquity = res.data.filter((val) => val.type == 1)
+          this.rankCard()
+          this.equityCards()
+        })
+        .catch(() => {
+          this.$toast('请刷新页面')
+        })
+    },
     // 等级卡牌
     rankCard() {
       this.rankCardFlag = []
@@ -230,12 +214,58 @@ export default {
         com.num = i.id
         com.casting = i.ads.trim()
         com.type = i.num
-        com.Activate = this.myRank[i.num - 1].Activate
-        com.title = this.myRank[i.num - 1].title
-        com.status = this.myRank[i.num - 1].status
-        com.image = this.myRank[i.num - 1].image
-        com.ischecked = this.myRank[i.num - 1].ischecked
-        if (com.type == 3 || com.type == 4 || com.type == 5) this.rankCardFlag.push(com)
+        com.Activate = this.allCard[i.num - 1].Activate
+        com.title = this.allCard[i.num - 1].title
+        com.status = false
+        com.image = this.allCard[i.num - 1].image
+        com.ischecked = false
+        if (['3', '4', '5'].includes(com.type)) this.rankCardFlag.push(com)
+      }
+    },
+    // 权益卡牌
+    equityCards() {
+      this.equityCard = []
+      console.log(this.myEquity)
+      for (let i of this.myEquity) {
+        const com = {}
+        com.id = Math.random()
+        com.num = i.id
+        com.status = false
+        com.ischecked = false
+        com.casting = i.ads.trim()
+        if (['1', '2'].includes(i.num)) {
+          com.time = 0
+          com.type = i.num - 1
+          com.Activate = i.num
+          com.image = this.cardList[0][com.type].image
+          com.title = this.cardList[0][com.type].title
+        } else if (['6', '7', '8'].includes(i.num)) {
+          com.time = 0
+          com.type = i.num - 6
+          com.Activate = i.num
+          com.image = this.cardList[4][com.type].image
+          com.title = this.cardList[4][com.type].title
+        } else if (['31', '32', '33'].includes(i.num)) {
+          com.time = (i.num - 30) * 100
+          com.type = i.num - 31
+          com.Activate = 3
+          com.image = this.cardList[1][com.type].image
+          com.title = this.cardList[1][com.type].title
+        } else if (['41', '42', '43'].includes(i.num)) {
+          com.time = (i.num - 40) * 100
+          com.type = i.num - 41
+          com.Activate = 4
+          com.image = this.cardList[2][com.type].image
+          com.title = this.cardList[2][com.type].title
+        } else if (['51', '52', '53'].includes(i.num)) {
+          com.time = (i.num - 50) * 100
+          com.type = i.num - 51
+          com.Activate = 5
+          com.image = this.cardList[3][com.type].image
+          com.title = this.cardList[3][com.type].title
+        }
+
+        this.equityCard.push(com)
       }
     },
     look(Activate, num, casting, event) {
@@ -256,15 +286,23 @@ export default {
       if (this.rank.length == 0) this.i = 0
       console.log(this.rank, this.casting1)
     },
-    looks(Activate, casting, event) {
+    looks(time, Activate, num, casting, event) {
       console.log(Activate, casting, event)
       this.e = Activate
       if (event) {
-        this.equity.push(1)
+        if (time && this.time == 0) this.time = time
+
+        this.equity.push(num)
+        this.equitys.push(1)
         this.casting2.push(casting)
+        console.log(time)
       } else {
         this.equity.splice(
-          this.equity.findIndex((item) => item === 1),
+          this.equity.findIndex((item) => item === num),
+          1
+        )
+        this.equitys.splice(
+          this.equitys.findIndex((item) => item === 1),
           1
         )
         this.casting2.splice(
@@ -272,8 +310,8 @@ export default {
           1
         )
       }
-      if (this.equity.length == 0) this.e = 0
-      console.log(this.equity, this.casting2)
+      if (this.equity.length == 0) (this.e = 0), (this.time = 0)
+      console.log(this.equity, this.casting2, this.time)
     },
     pro(i) {
       console.log(i)
@@ -293,6 +331,24 @@ export default {
       this.equity = []
       this.equityCard.map((e) => (e.ischecked = false))
     },
+
+    reqRank() {
+      this.rank.unshift(localStorage.getItem('Token') + '_0')
+      UpdateStakeOrder(this.rank)
+        .then(
+          (res) => {
+            Toast.clear()
+            console.log(res)
+            this.hallmark()
+          },
+          (rej) => {
+            console.log(rej)
+          }
+        )
+        .catch((err) => {
+          console.log(err)
+        })
+    },
     // 上传等级卡牌
     getRank() {
       Toast.loading({
@@ -300,25 +356,25 @@ export default {
         forbidClick: true,
         duration: 0
       })
-      console.log(this.rank)
-      // AllCards(this.casting1, this.rank, 0, this.i - 1)
-      AllCards(this.casting1, this.rank, 0, this.i - 1).then((res) => {
-        this.rank.unshift(localStorage.getItem('Token'))
-        UpdateStakeOrder(this.rank)
-          .then(
-            (res) => {
-              console.log(res)
-            },
-            (rej) => {
-              console.log(rej)
-            }
-          )
-          .catch((err) => {
-            console.log(err)
-          })
-      })
-      console.log(this.casting1, this.rank, 0, this.i - 1)
-      // this.$toast('上传成功')
+      // console.log(this.casting1, this.rank, 0, this.i - 1)
+      AllCards(this.casting1, this.rank, 0, this.i - 1, this.reqRank)
+    },
+    reqEquity() {
+      this.equity.unshift(localStorage.getItem('Token') + '_1')
+      UpdateStakeOrder(this.equity)
+        .then(
+          (res) => {
+            Toast.clear()
+            console.log(res)
+            this.hallmark()
+          },
+          (rej) => {
+            console.log(rej)
+          }
+        )
+        .catch((err) => {
+          console.log(err)
+        })
     },
     // 上传权益卡牌
     getEquity() {
@@ -327,12 +383,14 @@ export default {
         forbidClick: true,
         duration: 0
       })
-      // AllCards(this.casting2, this.equity, 1, this.e - 1)
-      AllCards(this.casting2, ...this.equity, 1, this.e - 1)
-      // console.log(this.casting2, this.equity, 1, this.e - 1)
-      // this.$toast('上传成功')
+      // console.log(this.equity.length)
+      // console.log(this.casting2, [this.seleckeds], 1, this.e - 1)
+
+      // 有限权益卡牌   :   // 非有限权益卡牌
+      this.time ? AllCardTime(this.casting2, this.equitys, this.time, this.e - 1, this.reqEquity) : AllCards(this.casting2, this.equitys, 1, this.e - 1, this.reqEquity)
     }
   },
+
   computed: {
     // 用户选择的上传卡牌数
     selecked() {
@@ -362,13 +420,13 @@ export default {
     },
     changeChecks: {
       get() {
-        return this.seleckeds == this.equityCard.filter((e) => e.Activate == this.e).length
+        return this.seleckeds == this.equityCard.filter((e) => e.Activate == this.e && e.time == this.time).length
       },
       set(v) {
         if (v) {
-          this.equityCard.filter((e) => e.Activate == this.e).map((e) => (e.ischecked = true))
+          this.equityCard.filter((e) => e.Activate == this.e && e.time == this.time).map((e) => (e.ischecked = true))
         } else {
-          this.equityCard.filter((e) => e.Activate == this.e).map((e) => (e.ischecked = false))
+          this.equityCard.filter((e) => e.Activate == this.e && e.time == this.time).map((e) => (e.ischecked = false))
         }
       }
     }

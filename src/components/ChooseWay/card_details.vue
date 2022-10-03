@@ -15,7 +15,7 @@
     <div class="cardShow">
       <div class="cardwarp">
         <div class="king">
-          <img :src="card.img">
+          <img :src="img">
           <div class="bingBtn"
                v-if="btnShow">
             <van-button :icon="toggle4?'':'plus'"
@@ -23,63 +23,49 @@
           </div>
         </div>
         <div class="arena">
-          <img src="../../assets/img/cardDetails/aureole.png"
+          <img src="@/assets/img/cardDetails/aureole.png"
                alt="">
         </div>
         <div class="paddy">
-          <p>{{card.name}}</p>
+          <p>{{query.title}}</p>
         </div>
       </div>
     </div>
     <!-- 卡牌售价 -->
     <div class="price"
-         v-if="toggle">
+         v-if="price">
       <p class="title">售价</p>
-      <p class="cost"><img src="../../assets/img/logo-removebg-preview.png"
+      <p class="cost"><img src="@/assets/img/logo-removebg-preview.png"
              alt="">{{price}}</p>
     </div>
     <!-- 作品简介 -->
     <div class="intro">
       <p class="title">作品简介</p>
       <p class="content">
-        {{card.brief}}
+        {{brief}}
       </p>
     </div>
     <!-- 作品信息 -->
     <div class="msg"
-         v-if="false">
+         :class="show?'reveal':''">
       <p class="msgtitle">作品信息</p>
       <ul class="list">
-        <li v-for="(item, index) in details"
-            :key="item.id"
-            v-show="index==0?!toggle1:true">
-          <p>{{item.title}}</p>
-          <p>{{item.text}}</p>
-        </li>
-        <!-- <li v-if="!toggle1">
-          <p>拥有者</p>
-          <p>dsa156…4578</p>
-        </li>
         <li>
-          <p>作品编号</p>
-          <p>#01</p>
+          <p>拥有者</p>
+          <p>{{owner|ellipsis}}</p>
         </li>
         <li>
           <p>铸造平台</p>
           <p>TRON</p>
         </li>
         <li>
-          <p>铸造时间</p>
-          <p>2022-07-10 22:10:00</p>
-        </li>
-        <li>
           <p>TokenID</p>
-          <p>sd465saf465464as</p>
+          <p>#{{query.id.padStart(6, 0)}}</p>
         </li>
         <li>
           <p>合约地址</p>
-          <p>sa75457esd57657</p>
-        </li> -->
+          <p>{{address|ellipsis}}</p>
+        </li>
       </ul>
     </div>
     <!-- 页脚 -->
@@ -103,11 +89,6 @@
         <div @click="sellHandler"
              class="btn">出售</div>
       </div>
-      <!-- <div v-if="toggle3"
-           @click="unitybindHandler"
-           class="boundBtn">
-        <p>绑定</p>
-      </div> -->
       <div v-if="toggle4"
            @click="unbindHandler"
            class="unbindBtn">
@@ -119,20 +100,20 @@
 </template>
 <script>
 import { Toast, Dialog } from 'vant'
+import { contract, cardList, allCard, allCards } from '@/utils/options'
 export default {
   data() {
     return {
-      details: [
-        { id: Math.random(), title: '拥有者', text: 'dsa156…4578' },
-        { id: Math.random(), title: '作品编号', text: '#01' },
-        { id: Math.random(), title: '铸造平台', text: 'TRON' },
-        { id: Math.random(), title: '铸造时间', text: '2022-07-10 22:10:00' },
-        { id: Math.random(), title: 'TokenID', text: 'sd465saf465464as' },
-        { id: Math.random(), title: '合约地址', text: 'sa75457esd57657' }
-      ],
-      card: { img: require('@/assets/img/cardDetails/king.png'), name: '创世会权益卡', brief: '联合会权益卡，全球仅限666张，享有全网EOTCNFT 1%手续费平均分红，EOTC DAO的治理投票权。' },
-      // time: Date.now(),
-      price: 2000.52,
+      contract,
+      cardList,
+      allCard,
+      allCards,
+      query: '',
+      owner: '',
+      address: '',
+      img: '',
+      brief: '',
+      price: '',
       off: false,
       show: false,
       toggle: false, //购买
@@ -144,18 +125,45 @@ export default {
     }
   },
   created() {
-    if (sessionStorage.getItem('toggle')) this.toggle = true
-    if (sessionStorage.getItem('toggle1')) this.toggle1 = true
-    if (sessionStorage.getItem('toggle2')) (this.toggle2 = true), (this.btnShow = true)
-    if (sessionStorage.getItem('show')) this.show = false
-    if (sessionStorage.getItem('off')) (this.toggle1 = false), (this.toggle2 = true), (this.toggle4 = false), (this.btnShow = true)
-  },
-  beforeDestroy() {
-    sessionStorage.removeItem('show')
-    sessionStorage.removeItem('off')
-    sessionStorage.removeItem('toggle')
-    sessionStorage.removeItem('toggle1')
-    sessionStorage.removeItem('toggle2')
+    this.query = this.$route.query
+    console.log(this.query)
+    if (this.query.url == 'hvae_card') {
+      this.toggle2 = true
+      this.btnShow = true
+      // 权益卡牌
+      let Activate = this.query.Activate
+      this.address = this.contract[1][Activate - 1]
+      this.owner = localStorage.getItem('myaddress')
+      if (['1', '2'].includes(this.query.Activate)) {
+        this.img = this.cardList[0][Activate - 1].image
+        this.brief = this.cardList[0][Activate - 1].text
+      } else if (['6', '7', '8'].includes(Activate)) {
+        this.img = this.cardList[4][Activate - 6].image
+        this.brief = this.cardList[4][Activate - 6].text
+      } else {
+        if (this.query.time == 100) {
+          this.img = this.cardList[Activate - 2][0].image
+          this.brief = this.cardList[Activate - 2][0].text
+        } else if (this.query.time == 200) {
+          this.img = this.cardList[Activate - 2][1].image
+          this.brief = this.cardList[Activate - 2][1].text
+        } else if (this.query.time == 300) {
+          this.img = this.cardList[Activate - 2][2].image
+          this.brief = this.cardList[Activate - 2][2].text
+        }
+      }
+    } else if (this.query.url == 'rank_card') {
+      this.toggle2 = true
+      this.btnShow = true
+      // 等级卡牌
+      let Activate = this.query.Activate
+      this.address = this.contract[0][Activate - 1]
+      this.owner = localStorage.getItem('myaddress')
+      this.brief = this.allCard[Activate - 1].text
+      this.query.state ? (this.img = this.allCards[Activate - 1].image) : (this.img = this.allCard[Activate - 1].image)
+    }
+
+    this.query.order ? (this.show = false) : (this.show = true)
   },
   methods: {
     // 点击购买卡牌
@@ -205,7 +213,8 @@ export default {
     // 点击出售跳转新页面
     sellHandler() {
       this.$router.replace({
-        name: 'card_sell'
+        name: 'card_sell',
+        query: this.query
       })
     },
     // 点击领取卡牌
@@ -216,39 +225,22 @@ export default {
         this.toggle2 = true
         this.btnShow = true
       }, 500)
-
-      // const toast = Toast({
-      //   duration: 0, // 持续展示 toast
-      //   forbidClick: true,
-      //   message: '领取成功'
-      // })
-
-      // let second = 1
-      // let _this = this
-      // const timer = setInterval(() => {
-      //   second--
-      //   if (second) {
-      //     toast.message = `领取成功`
-      //   } else {
-      //     _this.toggle1 = false
-      //     _this.toggle2 = true
-      //     _this.btnShow = true
-      //     clearInterval(timer)
-      //     // 手动清除 Toast
-      //     Toast.clear()
-      //   }
-      // }, 1000)
     },
     // 返回上一级
     onClickLeft() {
-      this.$router.back()
-      let time = setInterval(() => {
-        if (this.$route.name == 'card_details' || this.$route.name == 'card_sell') {
-          this.$router.back()
-        } else {
-          clearInterval(time)
-        }
-      }, 400)
+      this.$router.push({
+        name: this.query.url
+      })
+    }
+  },
+  filters: {
+    ellipsis(value) {
+      let len = value.length
+      if (!value) return ''
+      if (value.length > 20) {
+        return value.substring(0, 10) + '...' + value.substring(len - 10, len)
+      }
+      return value
     }
   }
 }
@@ -317,12 +309,12 @@ html {
         }
       }
       .paddy {
-        width: 402px;
+        width: 452px;
         height: 59px;
         margin: 0 auto;
         line-height: 59px;
-        background: url('../../assets/img/cardDetails/paddy.png') no-repeat;
-        background-size: 403px, 58px;
+        background: url('@/assets/img/cardDetails/paddy.png') no-repeat;
+        background-size: 453px, 58px;
         text-align: center;
         transform: translate(-0px, -80px);
         p {
@@ -361,7 +353,7 @@ html {
     }
     .content {
       width: 630px;
-      height: 136px;
+      // height: 136px;
       font-size: 28px;
       font-family: PingFang SC-Light, PingFang SC;
       font-weight: 300;
@@ -373,11 +365,10 @@ html {
   // 作品信息
   .msg {
     width: 690px;
-    // height: 545px;
-    // border: 1px solid red;
     background: #1b2333;
-    margin: 30px auto 120px;
+    margin: 30px auto;
     padding: 30px;
+    padding-bottom: 0px;
     box-sizing: border-box;
     border-radius: 20px;
     overflow: hidden;
@@ -389,10 +380,10 @@ html {
       font-family: PingFang SC-Regular, PingFang SC;
       font-weight: 400;
       color: #ffffff;
-      line-height: 22px;
+      line-height: 45px;
     }
     .list {
-      // margin-bottom: 50px;
+      margin-top: 30px;
       overflow: hidden;
       li {
         display: flex;
@@ -418,6 +409,9 @@ html {
         }
       }
     }
+  }
+  .reveal {
+    margin-bottom: 2rem;
   }
   // 页脚
   .footer {

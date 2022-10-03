@@ -143,7 +143,7 @@ const router = new VueRouter({
 // }
 
 router.beforeEach((to, form, next) => {
-	if (to.name === 'nft_home' || to.name === 'CurrencyTrading') {
+	if (to.name == 'nft_home' || to.name == 'CurrencyTrading') {
 		loadweb3(userBaseMes);
 		next();
 	}

@@ -14,11 +14,11 @@
     <div class="content">
       <!-- 卡片展示 -->
       <div class="cardShow">
-        <div class="img"><img src="../../assets/img/cardDetails/king.png"
+        <div class="img"><img :src="img"
                alt=""></div>
         <div class="text">
-          <p class="title">创世会权益卡</p>
-          <p class="txt">联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续费平均分红，EOTC DAO的治理投票权。</p>
+          <p class="title">{{query.title}}</p>
+          <p class="txt">{{brief}}</p>
         </div>
       </div>
       <!-- 设置价格 -->
@@ -58,29 +58,66 @@
 </template>
 
 <script>
+import { cardList, allCard, allCards } from '@/utils/options'
 export default {
   data() {
     return {
-      price: ''
+      price: '',
+      query: '',
+      brief: '',
+      img: '',
+      cardList,
+      allCard,
+      allCards
+    }
+  },
+  created() {
+    this.query = this.$route.query
+    if (this.query.url == 'hvae_card') {
+      // 权益卡牌
+      let Activate = this.query.Activate
+      if (['1', '2'].includes(Activate)) {
+        this.img = this.cardList[0][Activate - 1].image
+        this.brief = this.cardList[0][Activate - 1].text
+      } else if (['6', '7', '8'].includes(Activate)) {
+        this.img = this.cardList[4][Activate - 6].image
+        this.brief = this.cardList[4][Activate - 6].text
+      } else {
+        if (this.query.time == 100) {
+          this.img = this.cardList[Activate - 2][0].image
+          this.brief = this.cardList[Activate - 2][0].text
+        } else if (this.query.time == 200) {
+          this.img = this.cardList[Activate - 2][1].image
+          this.brief = this.cardList[Activate - 2][1].text
+        } else if (this.query.time == 300) {
+          this.img = this.cardList[Activate - 2][2].image
+          this.brief = this.cardList[Activate - 2][2].text
+        }
+      }
+    } else if (this.query.url == 'rank_card') {
+      // 等级卡牌
+      let Activate = this.query.Activate
+      this.brief = this.allCard[Activate - 1].text
+      this.query.state ? (this.img = this.allCards[Activate - 1].image) : (this.img = this.allCard[Activate - 1].image)
     }
   },
   methods: {
     onClickLeft() {
-      sessionStorage.setItem('off', true)
       this.$nextTick(() => {
         this.$router.push({
-          name: 'card_details'
+          name: 'card_details',
+          query: this.query
         })
       })
     },
     sureHandler() {
       if (this.price > 0) {
-        sessionStorage.setItem('show', true)
         this.$toast('发布成功')
         this.price = ''
         this.$nextTick(() => {
           this.$router.push({
-            name: 'card_details'
+            name: 'card_details',
+            query: { ...this.query, order: true }
           })
         })
       }
