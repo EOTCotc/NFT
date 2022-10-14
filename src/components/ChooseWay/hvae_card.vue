@@ -242,12 +242,13 @@ export default {
   methods: {
     get(val, value) {
       for (let i of val) {
+        console.log(i)
         const asd = {}
         asd.status = false
         asd.ischecked = false
         asd.key = Math.random()
         asd.num = i.number + ''
-        asd.Activate = 3
+        asd.Activate = i.Activate + 2
         asd.time = this.cardList[i.Activate][i.id].time
         asd.title = this.cardList[i.Activate][i.id].title
         asd.img = this.cardList[i.Activate][i.id].image
@@ -377,14 +378,18 @@ export default {
         }
       }
     },
-    update() {
-      this.cardState.forEach((items, index) => {
-        if (items.ischecked === true) delete this.cardState[index]
-      })
+    update(value) {
+      if (value) {
+        console.log(123)
+        this.cardState.forEach((items, index) => {
+          if (items.ischecked === true) delete this.cardState[index]
+        })
 
-      this.cardState = this.cardState.filter((val) => {
-        return val
-      })
+        this.cardState = this.cardState.filter((val) => {
+          return val
+        })
+      }
+      this.cardState.map((e) => (e.ischecked = false))
       this.i = 0
       this.values = []
       this.times = []
@@ -542,7 +547,7 @@ export default {
         console.log(i)
         for (let index = 0; index < i.number; index++) {
           const asd = {}
-          asd.Activate = 3
+          asd.Activate = i.Activate + 2
           asd.status = false
           asd.ischecked = false
           asd.key = Math.random()
@@ -580,7 +585,7 @@ export default {
     },
     pro(i) {
       console.log(i)
-      // if (i === false) this.$toast('只能同时选择一种类型的NFT')
+      if (i === false) this.$toast('只能同时选择一种类型的NFT')
     }
   },
   computed: {

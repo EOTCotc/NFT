@@ -3,6 +3,8 @@
     <div class="top">
       <van-nav-bar title="管理数据上传"
                    fixed
+                   right-text="手续费"
+                   @click-right="onClickRight"
                    :border=false
                    z-index='99'
                    placeholder />
@@ -177,20 +179,29 @@ export default {
     }
   },
   created() {
-    // for (let i = 1; i <= 20; i++) {
-    //   this.rankCardFlag.push({
-    //     Activate: 3,
-    //     status: false,
-    //     num: i + 1200 + '',
-    //     image: require('@/assets/img/Compose/3-before.png'),
-    //     title: '3级青铜甲犀牛',
-    //     casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL',
-    //     ischecked: false
-    //   })
-    // }
-    this.hallmark()
+    for (let i = 1; i <= 2; i++) {
+      this.equityCard.push({
+        id: Math.random(),
+        Activate: 4,
+        time: 100,
+        type: 0,
+        status: false,
+        ischecked: false,
+        num: i + 430 + '',
+        image: require('@/assets/img/Compose/3-before.png'),
+        title: '3级青铜甲犀牛',
+        casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL'
+      })
+    }
+    // this.hallmark()
   },
   methods: {
+    // 领取手续费页面
+    onClickRight() {
+      this.$router.push({
+        name: 'chargesAdmin'
+      })
+    },
     // 卡牌
     hallmark() {
       GetAppStake({})

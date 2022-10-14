@@ -370,16 +370,20 @@ export default {
         }
       }
     },
-    update() {
-      this.rankCardFlag2.forEach((item, index) => {
-        this.select.forEach((items) => {
-          if (item.num == items && item.Activate == this.activate) delete this.rankCardFlag2[index]
+    update(value) {
+      if (value) {
+        this.rankCardFlag2.forEach((item, index) => {
+          this.select.forEach((items) => {
+            if (item.num == items && item.Activate == this.activate) delete this.rankCardFlag2[index]
+          })
         })
-      })
-      this.rankCardFlag2 = this.rankCardFlag2.filter((val) => {
-        return val
-      })
-      this.i = 0
+        this.rankCardFlag2 = this.rankCardFlag2.filter((val) => {
+          return val
+        })
+      }
+      this.rankCardFlag2.map((e) => (e.ischecked = false))
+      // this.i = 0
+      this.select = []
       console.log(this.rankCardFlag2)
     },
     // 返回上一级
@@ -463,7 +467,8 @@ export default {
     },
     changeCheck: {
       get() {
-        return this.selecked == this.rankCardFlag2.filter((e) => e.Activate == this.i).length
+        if (this.selecked == 0) return false
+        else return this.selecked == this.rankCardFlag2.filter((e) => e.Activate == this.i).length
       },
       set(v) {
         if (v) {

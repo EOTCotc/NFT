@@ -6,7 +6,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '一级',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '合成前' },
 					{ id: Math.random() + 100, title: '合成后' }
 				]
@@ -14,7 +14,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '二级',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '合成前' },
 					{ id: Math.random() + 100, title: '合成后' }
 				]
@@ -22,7 +22,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '三级',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '合成前' },
 					{ id: Math.random() + 100, title: '合成后' }
 				]
@@ -30,7 +30,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '四级',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '合成前' },
 					{ id: Math.random() + 100, title: '合成后' }
 				]
@@ -38,7 +38,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '五级',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '合成前' },
 					{ id: Math.random() + 100, title: '合成后' }
 				]
@@ -52,7 +52,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '创世会',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '永久' },
 					{ id: Math.random() + 100, title: '300天' },
 					{ id: Math.random() + 100, title: '200天' },
@@ -62,7 +62,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '联合会',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '永久' },
 					{ id: Math.random() + 100, title: '300天' },
 					{ id: Math.random() + 100, title: '200天' },
@@ -72,7 +72,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '实时节点',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '永久' },
 					{ id: Math.random() + 100, title: '300天' },
 					{ id: Math.random() + 100, title: '200天' },
@@ -82,7 +82,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '中级节点',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '永久' },
 					{ id: Math.random() + 100, title: '300天' },
 					{ id: Math.random() + 100, title: '200天' },
@@ -92,7 +92,7 @@ export const options = [
 			{
 				id: Math.random() + 10,
 				title: '高级节点',
-				status: [
+				form: [
 					{ id: Math.random() + 100, title: '永久' },
 					{ id: Math.random() + 100, title: '300天' },
 					{ id: Math.random() + 100, title: '200天' },

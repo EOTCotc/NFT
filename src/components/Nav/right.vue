@@ -35,64 +35,6 @@
       </div>
     </header>
     <div class="main-p">
-      <!-- <van-collapse accordion
-                    v-model="activeNames">
-        <van-collapse-item title="白名单"
-                           :icon="require('../../assets/img/rightMenuIcon/whiteListIcon.png')"
-                           name="2">
-          <div class="item">
-            <p @click="goUrl(2)">白名单</p>
-          </div>
-        </van-collapse-item>
-        <van-collapse-item title="盲盒"
-                           :icon="require('../../assets/img/rightMenuIcon/blindBoxIcon.png')"
-                           name="3">
-          <div class="item">
-            <p @click="goUrl(3)">盲盒</p>
-          </div>
-        </van-collapse-item>
-        <van-collapse-item title="市场"
-                           :icon="require('../../assets/img/rightMenuIcon/bazaarIcon.png')"
-                           name="4">
-          <div class="item">
-            <p @click="goUrl(4)">市场</p>
-          </div>
-        </van-collapse-item>
-        <van-collapse-item title="订单"
-                           :icon="require('../../assets/img/rightMenuIcon/orderIcon.png')"
-                           name="5">
-          <div class="item">
-            <p @click="goUrl(5)">订单</p>
-          </div>
-        </van-collapse-item>
-        <van-collapse-item title="我的NFT"
-                           :icon="require('../../assets/img/rightMenuIcon/nftCardIcon.png')"
-                           name="6">
-          <div class="item">
-            <p @click="goUrl(6.1)">
-              权益卡牌
-            </p>
-            <p @click="goUrl(6.2)">
-              等级卡牌
-            </p>
-          </div>
-        </van-collapse-item>
-        <van-collapse-item title="合成"
-                           :icon="require('../../assets/img/rightMenuIcon/guideIcon.png')"
-                           name="7">
-          <div class="item">
-            <p @click="goUrl(7)"> 合成</p>
-          </div>
-        </van-collapse-item>
-        <van-collapse-item title="新手指引"
-                           :icon="require('../../assets/img/rightMenuIcon/orderIcon.png')"
-                           name="8">
-          <div class="item">
-            <p @click="goUrl(8)">新手指引</p>
-          </div>
-        </van-collapse-item>
-      </van-collapse> -->
-
       <div class="title"
            @click="goUrl(2)">
         <div class="h">
@@ -132,7 +74,7 @@
         </div>
       </div>
 
-      <div class="title"
+      <!-- <div class="title"
            @click="goUrl(5)">
         <div class="h">
           <div class="l">
@@ -143,7 +85,7 @@
             <van-icon name="arrow" />
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="title"
            @click="show=!show">
@@ -167,6 +109,10 @@
           </p>
           <p @click="goUrl(6.2)">
             等级卡牌
+            <van-icon name="arrow" />
+          </p>
+          <p @click="goUrl(6.3)">
+            领取手续费
             <van-icon name="arrow" />
           </p>
         </div>
@@ -265,9 +211,10 @@ export default {
       if (i == 2) this.$router.push({ name: 'CurrencyTrading' })
       if (i == 3) this.$router.push({ name: 'buy_blindbox' })
       if (i == 4) this.$router.push({ name: 'marketNFT' })
-      if (i == 5) this.$router.push({ name: 'order_all' })
+      // if (i == 5) this.$router.push({ name: 'order_all' })
       if (i == 6.1) this.$router.push({ name: 'hvae_card' })
       if (i == 6.2) this.$router.push({ name: 'rank_card' })
+      if (i == 6.3) this.$router.push({ name: 'get_service' })
       if (i == 7) this.$router.push({ name: 'synthesis_page' })
       if (i == 8) location.href = 'https://eotc.im/html/guide/guide.html'
       // if (i == 7 || i == 5 || i == 4) this.$toast('暂未开放')

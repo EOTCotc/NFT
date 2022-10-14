@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import { loadweb3, userBaseMes } from '@/utils/web3';
+// import { loadweb3, userBaseMes } from '@/utils/web3';
 
 Vue.use(VueRouter);
 
@@ -49,6 +49,11 @@ const routes = [
 				name: 'CurrencyTrading', // 货币购买页面
 				component: () => import('@/components/ChooseWay')
 			},
+			{
+				path: 'get_service',
+				name: 'get_service',
+				component: () => import('@/components/ChooseWay/get_service.vue')
+			},
 			// 个人信息页面 往下
 			{
 				path: 'userInfo',
@@ -71,6 +76,11 @@ const routes = [
 		path: '/admin',
 		name: 'admin',
 		component: () => import('@/components/admin/admin')
+	},
+	{
+		path: '/chargesAdmin',
+		name: 'chargesAdmin',
+		component: () => import('@/components/admin/chargesAdmin')
 	},
 	{
 		path: '/rank_card',
@@ -142,12 +152,12 @@ const router = new VueRouter({
 //     return next()
 // }
 
-router.beforeEach((to, form, next) => {
-	if (to.name == 'nft_home' || to.name == 'CurrencyTrading') {
-		loadweb3(userBaseMes);
-		next();
-	}
-	next();
-});
+// router.beforeEach((to, form, next) => {
+// 	if (to.name == 'nft_home' || to.name == 'CurrencyTrading') {
+// 		loadweb3(userBaseMes);
+// 		next();
+// 	}
+// 	next();
+// });
 
 export default router;
