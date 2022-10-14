@@ -25,11 +25,12 @@
                    v-if="cartItem.length">
                 <div class="cartItem"
                      v-for="item in cartItem"
-                     :key="item.id">
+                     :key="item.key">
                   <img :src="item.img"
                        alt=""
-                       @click="cardDetails(item.id)">
+                       @click="cardDetails(item.num,item.title,item.time,item.Activate)">
                   <p>{{item.title}}</p>
+                  <p class="num">#{{item.num.padStart(6, 0) }}</p>
                   <img src="../../assets/img/link.png"
                        alt=""
                        class="image">
@@ -61,7 +62,7 @@
 
                 <div class="waitcarditem"
                      v-for="item in cardState"
-                     :key="item.id">
+                     :key="item.key">
                   <div class="left">
                     <img :src="item.img">
                   </div>
@@ -71,7 +72,7 @@
                       <span @click="pro(i==0?i:item.Activate==i)">
                         <van-checkbox icon-size="16px"
                                       :disabled="i==0?false:item.Activate==i?false:true"
-                                      @change="look(item.Activate,item.id,$event)"
+                                      @change="look(item.Activate,item.time,$event)"
                                       v-model="item.ischecked"></van-checkbox>
                       </span>
                     </div>
@@ -116,7 +117,7 @@
               <div v-else
                    class="coinwarp">
                 <div v-for="cast in castDataList"
-                     :key="cast.id"
+                     :key="cast.key"
                      class="coineditem">
                   <div class="left">
                     <img :src="cast.img"
@@ -124,18 +125,19 @@
                   </div>
                   <div class="right">
                     <div>{{ cast.title }}</div>
-                    <!-- <div>编号：{{cast.id}}</div> -->
-                    <div v-if="cast.status ? fontFlag : !fontFlag">
-                      <span @click="coincardHandler(cast.Activate, cast.id)">
-                        <img src="../../assets/img/coincard/icon3.png"
-                             alt="铸造" />铸造
-                      </span>
-                    </div>
-                    <div v-else
+                    <div>数量：1</div>
+                    <div v-if="cast.status||cast.id==2"
                          class="waitrank">
                       <p>铸造中…</p>
                       <p>铸造完成后可在待领取中进行领取</p>
                     </div>
+                    <div v-else>
+                      <span @click="coincardHandler(cast.Activate, cast.num)">
+                        <img src="../../assets/img/coincard/icon3.png"
+                             alt="铸造" />铸造
+                      </span>
+                    </div>
+
                   </div>
                 </div>
               </div>
@@ -154,7 +156,7 @@
                    class="cartList">
                 <div class="cartItem"
                      v-for="item in Not_activatedList"
-                     :key="item.id">
+                     :key="item.key">
                   <img :src="item.img"
                        style="opacity: 0.5;" />
                   <p>{{item.title}}</p>
@@ -201,78 +203,68 @@
 </template>
 
 <script>
+import { Toast } from 'vant'
 import { myNft, PayEotc } from '@/api/newReqets'
-import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards } from '@/utils/web3'
+import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards, alreadyEquity, already, notEquity, notEquityTime, genesis, getCardsTime } from '@/utils/web3'
+import { cardList } from '@/utils/options'
 export default {
   name: 'myNFT-list',
   data() {
     return {
-      cardList: [
-        { status: false, title: '创世会权益卡', text: '创世会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续费平均分红', ischecked: false, img: require('@/assets/img/equityItem1.png') },
-        { status: false, title: '联合会权益卡', text: '联合会权益卡，全球仅限666张，享有全网EOTC NFT 1%手续费平均分红', ischecked: false, img: require('@/assets/img/equityItem2.png') },
-        { status: false, title: '100天实时节点分红权益卡', text: '100天实时节点分红权益卡，全球仅限3960张', ischecked: false, img: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { status: false, title: '200天实时节点分红权益卡', text: '200天实时节点分红权益卡，全球仅限2310张', ischecked: false, img: require('@/assets/img/Compose/actual-200-before.jpg') },
-        { status: false, title: '300天实时节点分红权益卡', text: '300天实时节点分红权益卡，全球仅限330张', ischecked: false, img: require('@/assets/img/Compose/actual-300-before.jpg') },
-        { status: false, title: '实时节点永久分红权益卡', text: '实时节点永久分红权益卡，全球仅限330张', ischecked: false, img: require('@/assets/img/Compose/actual-forever.jpg') },
-        { status: false, title: '100天中级节点分红权益卡', text: '100天中级节点分红权益卡，全球仅限600张', ischecked: false, img: require('@/assets/img/Compose/middle-100-before.jpg') },
-        { status: false, title: '200天中级节点分红权益卡', text: '200天中级节点分红权益卡，全球仅限350张', ischecked: false, img: require('@/assets/img/Compose/middle-200-before.jpg') },
-        { status: false, title: '300天中级节点分红权益卡', text: '300天中级节点分红权益卡，全球仅限50张', ischecked: false, img: require('@/assets/img/Compose/middle-300-before.jpg') },
-        { status: false, title: '中级节点永久分红权益卡', text: '中级节点永久分红权益卡，全球仅限50张', ischecked: false, img: require('@/assets/img/Compose/middle-forever.jpg') },
-        { status: false, title: '100天高级节点分红权益卡', text: '100天高级节点分红权益卡，全球仅限240张', ischecked: false, img: require('@/assets/img/Compose/high-100-before.jpg') },
-        { status: false, title: '200天高级节点分红权益卡', text: '200天高级节点分红权益卡，全球仅限140张', ischecked: false, img: require('@/assets/img/Compose/high-200-before.jpg') },
-        { status: false, title: '300天高级节点分红权益卡', text: '300天高级节点分红权益卡，全球仅限20张', ischecked: false, img: require('@/assets/img/Compose/high-300-before.jpg') },
-        { status: false, title: '高级节点永久分红权益卡', text: '高级节点永久分红权益卡，全球仅限20张', ischecked: false, img: require('@/assets/img/Compose/high-eiky.jpg') }
-      ],
-      toggleActive: '3',
+      cardList,
+      toggleActive: '4',
       // 待激活卡牌
       Not_activatedList: [],
       //已拥有卡牌
-      cartItem: [
-        { id: Math.random(), title: '创世会权益NFT', img: require('../../assets/img/equityItem1.png') },
-        { id: Math.random(), title: '联合会权益NFT', img: require('../../assets/img/equityItem2.png') }
-      ],
+      cartItem: [],
       //待领取卡牌
-      cardState: [
-        {
-          Activate: 1,
-          id: Math.random(),
-          status: false,
-          title: '联合会权益卡',
-          text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……',
-          ischecked: false,
-          img: require('@/assets/img/equityItem2.png')
-        }
-      ],
+      cardState: [],
       coinFlag: false,
       currentIndex: -1,
       index: -2,
       maskFlag1: false, //遮罩第一次状态
       maskFlag2: false, //遮罩第二次状态
       maskFlag3: false, //遮罩第三次状态
-      fontFlag: false, //字体状态
       //待铸造卡牌
-      castDataList: [
-        // { id: '1', status: false, img: require('@/assets/img/Compose/3-before.png'), title: '创世会权益卡', text: '联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续……', ischecked: false },
-      ],
+      castDataList: [],
       i: 0,
       equity: [],
-      apphx: ''
+      apphx: '',
+      flag: true,
+      time: [],
+      values: [],
+      times: []
     }
   },
   created() {
     this.getMyNFT()
   },
   methods: {
+    get(val, value) {
+      for (let i of val) {
+        console.log(i)
+        const asd = {}
+        asd.status = false
+        asd.ischecked = false
+        asd.key = Math.random()
+        asd.num = i.number + ''
+        asd.Activate = i.Activate + 2
+        asd.time = this.cardList[i.Activate][i.id].time
+        asd.title = this.cardList[i.Activate][i.id].title
+        asd.img = this.cardList[i.Activate][i.id].image
+        asd.text = this.cardList[i.Activate][i.id].text
+
+        value.push(asd)
+      }
+      console.log(value)
+    },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
-    cardDetails(id) {
-      console.log(id)
-      // sessionStorage.setItem('toggle2', true)
-      // this.$router.push({ name: 'card_details' })
+    cardDetails(id, title, time, Activate) {
+      // console.log(id, title, time, Activate)
+      this.$router.push({ name: 'card_details', query: { id: id, title: title, time: time, Activate: Activate + '', url: this.$route.name } })
     },
     // 点击铸造显示扣除TRX的提示
     coincardHandler(i, index) {
-      this.index = null
-      // this.cardData.push(item)
       this.index = index
       this.maskFlag1 = true
     },
@@ -287,11 +279,11 @@ export default {
         sfeotc1().then(
           (res) => {
             this.apphx = localStorage.getItem('apphx')
-            PayEotc(this.index, this.apphx).then((res) => {
-              // console.log(res)
+            PayEotc(this.index, this.apphx, 1).then((res) => {
               if (res.data.State > 0) {
                 this.res()
               } else {
+                this.maskFlag1 = false
                 this.$toast.error('铸造失败')
               }
             })
@@ -307,7 +299,7 @@ export default {
       this.currentIndex = this.index
       this.maskFlag1 = false
       this.maskFlag3 = true
-      let status = this.castDataList.filter((e) => e.id == this.index)
+      let status = this.castDataList.filter((e) => e.num == this.index)
       status[0].status = true
     },
     // 成功提交铸造后的提示
@@ -316,61 +308,280 @@ export default {
     },
     // 返回上一级
     onClickLeft() {
-      this.$router.back()
+      this.$router.push({
+        name: 'userInfo'
+      })
     },
-    look(a, b, c) {
-      this.i = a
-      console.log(a, b, c)
-      if (c) {
-        this.equity.push(b)
+    look(Activate, time, event) {
+      this.i = Activate
+      if (event) {
+        time && this.time.push(time)
+        this.equity.push(1)
       } else {
+        time &&
+          this.time.splice(
+            this.time.findIndex((item) => item === time),
+            1
+          )
         this.equity.splice(
-          this.equity.findIndex((item) => item === b),
+          this.equity.findIndex((item) => item === 1),
           1
         )
       }
 
       if (this.equity.length == 0) this.i = 0
-      console.log(this.i, this.equity)
+      // console.log(this.i, this.equity, this.time)
     },
     // “领取”卡牌
-    getCard() {
-      console.log(this.i, this.equity)
-      this.$toast('领取成功')
+    async getCard() {
+      Toast.loading({
+        message: '领取中...',
+        forbidClick: true,
+        duration: 0
+      })
+      // console.log(this.i, this.selecked)
+      console.log(this.cardState)
 
-      // if (this.changeCheck) {
-      //        // 全部领取
-      //   getAllCards(1, this.activate - 1)
-      // } else {
-      //   if (this.selecked > 1) {
-      //     // 批量领取
-      //     getCards(1, this.activate - 1, this.selecked)
-      //   } else {
-      //     // 单笔领取
-      //     getCard(1, this.activate - 1)
-      //   }
-      // }
-      // 领取成功后重新请求数据
+      let an = this.time.filter((val) => {
+        return val == 100
+      })
+      let bn = this.time.filter((val) => {
+        return val == 200
+      })
+      let cn = this.time.filter((val) => {
+        return val == 300
+      })
+      if (an.length) {
+        this.values.push(an.length)
+        this.times.push('100')
+      }
+      if (bn.length) {
+        this.values.push(bn.length)
+        this.times.push('200')
+      }
+      if (cn.length) {
+        this.values.push(cn.length)
+        this.times.push('300')
+      }
+      console.log(this.values, this.times)
+
+      if (this.changeCheck && !this.time.length) {
+        // 全部领取
+        await getAllCards(1, this.i - 1, this.update)
+      } else {
+        if (this.selecked > 1) {
+          // 批量领取
+          this.time.length ? await getCardsTime(this.times, this.i - 1, this.values, this.update) : await getCards(1, this.i - 1, [this.selecked], this.update)
+        } else {
+          // 单笔领取
+          this.time.length ? await getCardsTime(this.times, this.i - 1, this.values, this.update) : await getCard(1, this.i - 1, this.update)
+        }
+      }
+    },
+    update(value) {
+      if (value) {
+        console.log(123)
+        this.cardState.forEach((items, index) => {
+          if (items.ischecked === true) delete this.cardState[index]
+        })
+
+        this.cardState = this.cardState.filter((val) => {
+          return val
+        })
+      }
+      this.cardState.map((e) => (e.ischecked = false))
+      this.i = 0
+      this.values = []
+      this.times = []
+      this.time = []
+      console.log(this.cardState)
     },
     async getMyNFT() {
-      const { data } = await myNft(1)
-      console.log(data)
+      Toast.loading({
+        message: '数据加载中...',
+        forbidClick: true,
+        duration: 0
+      })
       this.Not_activatedList = []
       this.castDataList = []
-      // type 1是创世会，2是联合会
-      // Activate 0是未激活，1是待铸造
+      this.cartItem = []
+      const { data } = await myNft(1)
+      console.log(data)
+      this.limited()
+      this.limitedFor()
+      this.hadLimitedFor()
+      // type 创世会1，联合会2，
+      // 实时节点（100天、200天、300天）31、32、33
+      // 中级节点（100天、200天、300天）41、42、43
+      // 高级节点（100天、200天、300天）51、52、53
+      // 实时永久6，中级永久7，高级永久8
+      // Activate 0是未激活，1是待铸造，2是铸造中，3是待领取
       for (let i of data) {
         const asd = {}
-        asd.Activate = i.Activate
-        asd.id = Math.random()
-        asd.title = this.cardList[i.Type - 1].title
-        asd.text = this.cardList[i.Type - 1].text
-        asd.status = this.cardList[i.Type - 1].status
-        asd.img = this.cardList[i.Type - 1].img
-        asd.ischecked = this.cardList[i.Type - 1].ischecked
-        if (asd.Activate == 0) this.Not_activatedList.push(asd)
-        if (asd.Activate == 1) this.castDataList.push(asd)
+        asd.key = Math.random()
+        asd.id = i.Activate
+        asd.num = i.ID
+        asd.status = false
+        asd.ischecked = false
+        if (['1', '2'].includes(i.Type)) {
+          asd.Activate = i.Type
+          asd.text = this.cardList[0][i.Type - 1].text
+          asd.img = this.cardList[0][i.Type - 1].image
+          asd.title = this.cardList[0][i.Type - 1].title
+        } else if (['6', '7', '8'].includes(i.Type)) {
+          asd.Activate = i.Type
+          asd.text = this.cardList[4][i.Type - 6].text
+          asd.img = this.cardList[4][i.Type - 6].image
+          asd.title = this.cardList[4][i.Type - 6].title
+        } else if (['31', '32', '33'].includes(i.Type)) {
+          asd.Activate = 3
+          asd.text = this.cardList[1][i.Type - 31].text
+          asd.img = this.cardList[1][i.Type - 31].image
+          asd.title = this.cardList[1][i.Type - 31].title
+        } else if (['41', '42', '43'].includes(i.Type)) {
+          asd.Activate = 4
+          asd.text = this.cardList[2][i.Type - 41].text
+          asd.img = this.cardList[2][i.Type - 41].image
+          asd.title = this.cardList[2][i.Type - 41].title
+        } else if (['51', '52', '53'].includes(i.Type)) {
+          asd.Activate = 5
+          asd.text = this.cardList[3][i.Type - 51].text
+          asd.img = this.cardList[3][i.Type - 51].image
+          asd.title = this.cardList[3][i.Type - 51].title
+        }
+
+        if (i.Activate == 0) this.Not_activatedList.push(asd)
+        if (['1', '2'].includes(i.Activate)) this.castDataList.unshift(asd)
       }
+    },
+    // 有限权益卡牌
+    async limited() {
+      let Array = []
+      await alreadyEquity(2, Array)
+      await alreadyEquity(3, Array)
+      await alreadyEquity(4, Array)
+
+      console.log(Array)
+      this.get(Array, this.cartItem)
+      Toast.clear()
+    },
+    // 永久权益卡
+    async limitedFor() {
+      let Array = []
+      await already(1, 5, Array)
+      await already(1, 6, Array)
+      await already(1, 7, Array)
+
+      console.log(Array)
+
+      for (let i of Array) {
+        const asd = {}
+        asd.status = false
+        asd.ischecked = false
+        asd.key = Math.random()
+        asd.num = i.num + ''
+        asd.Activate = i.Activate
+        asd.title = this.cardList[4][i.Activate - 6].title
+        asd.img = this.cardList[4][i.Activate - 6].image
+        asd.text = this.cardList[4][i.Activate - 6].text
+
+        this.cartItem.push(asd)
+        console.log(asd)
+      }
+    },
+    // 创世会、联合会已拥有
+    async hadLimitedFor() {
+      let Array = []
+      await already(1, 0, Array)
+      await already(1, 1, Array)
+
+      console.log(Array)
+
+      for (let i of Array) {
+        const asd = {}
+        asd.status = false
+        asd.ischecked = false
+        asd.key = Math.random()
+        asd.num = i.num + ''
+        asd.Activate = i.Activate
+        asd.title = this.cardList[0][i.Activate - 1].title
+        asd.img = this.cardList[0][i.Activate - 1].image
+        asd.text = this.cardList[0][i.Activate - 1].text
+
+        this.cartItem.push(asd)
+      }
+    },
+    // 创世-联合权益卡（待领取）
+    async getGenesis() {
+      let Array = []
+      await genesis(0, Array)
+      await genesis(1, Array)
+      console.log(Array)
+
+      for (let i of Array) {
+        const asd = {}
+        asd.status = false
+        asd.ischecked = false
+        asd.key = Math.random()
+        asd.Activate = i.Activate + 1
+        asd.title = this.cardList[0][i.Activate].title
+        asd.img = this.cardList[0][i.Activate].image
+        asd.text = this.cardList[0][i.Activate].text
+        this.cardState.push(asd)
+      }
+      this.getNotTime()
+    },
+    // 有限权益卡牌（待领取）
+    async getNotTime() {
+      let Array = []
+      let time = [100, 200, 300]
+      for (let num = 0; num < 3; num++) {
+        for (let i = 0; i < time.length; i++) {
+          await notEquityTime(num + 2, time[i], Array)
+        }
+      }
+
+      console.log(Array)
+
+      for (let i of Array) {
+        console.log(i)
+        for (let index = 0; index < i.number; index++) {
+          const asd = {}
+          asd.Activate = i.Activate + 2
+          asd.status = false
+          asd.ischecked = false
+          asd.key = Math.random()
+          asd.time = this.cardList[i.Activate][i.m].time
+          asd.title = this.cardList[i.Activate][i.m].title
+          asd.img = this.cardList[i.Activate][i.m].image
+          asd.text = this.cardList[i.Activate][i.m].text
+          this.cardState.push(asd)
+        }
+      }
+      this.getForever()
+    },
+    // 永久权益卡牌（待领取）
+    async getForever() {
+      let Array = []
+      await notEquity(5, Array)
+      await notEquity(6, Array)
+      await notEquity(7, Array)
+      console.log(Array)
+
+      for (let i of Array) {
+        for (let index = 0; index < i.number; index++) {
+          const asd = {}
+          asd.status = false
+          asd.ischecked = false
+          asd.key = Math.random()
+          asd.Activate = i.Activate
+          asd.title = this.cardList[4][i.Activate - 6].title
+          asd.img = this.cardList[4][i.Activate - 6].image
+          asd.text = this.cardList[4][i.Activate - 6].text
+          this.cardState.push(asd)
+        }
+      }
+      Toast.clear()
     },
     pro(i) {
       console.log(i)
@@ -378,10 +589,6 @@ export default {
     }
   },
   computed: {
-    // // 待激活卡牌
-    // Not_activatedList() {
-    //   return this.cardList.filter((card) => card.Activate === '0')
-    // },
     // 用户选择的领取卡牌数
     selecked() {
       return this.cardState.filter((card) => card.ischecked === true).length
@@ -400,6 +607,19 @@ export default {
         } else {
           this.cardState.filter((e) => e.Activate == this.i).map((e) => (e.ischecked = false))
         }
+      }
+    }
+  },
+  watch: {
+    toggleActive(i) {
+      if (i == 3 && this.flag) {
+        this.flag = false
+        Toast.loading({
+          message: '数据加载中...',
+          forbidClick: true,
+          duration: 0
+        })
+        this.getGenesis()
       }
     }
   }
@@ -573,12 +793,22 @@ export default {
           margin-top: 10px;
           letter-spacing: 2px;
           font-size: 32px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .num {
+          margin-top: 10px;
+          font-size: 26px;
+          font-weight: 400;
+          color: #858992;
+          text-align: left;
         }
         .image {
           width: 60px;
           position: absolute;
           right: 40px;
-          bottom: 100px;
+          bottom: 3em;
         }
       }
     }

@@ -29,102 +29,7 @@
                    src="@/assets/img/synth/start2.png"
                    alt="" />
             </div>
-            <div class="threecardlog">
-              <div class="img">
-                <img src="@/assets/img/synth/synthlog.png"
-                     alt="" />
-              </div>
-            </div>
             <div class="synthcard">
-              <!-- 倒计时 -->
-              <!-- 距离开始还剩 -->
-              <div :key="1"
-                   v-if="countdownFlag"
-                   class="countdown">
-                <span class="text">距离开始还剩: </span>
-                <span class="time">
-                  <van-count-down @finish="finishHandler"
-                                  millisecond
-                                  :time="time">
-                    <template #default="timeData">
-                      <span class="block">0{{ timeData.hours  }}</span>
-                      <span class="colon">:</span>
-                      <span class="block">{{ timeData.minutes  }}</span>
-                      <span class="colon">:</span>
-                      <span class="block seconds">{{
-                        timeData.seconds 
-                      }}</span>
-                    </template>
-                  </van-count-down>
-                </span>
-              </div>
-              <!-- 距离结束还剩 -->
-              <div :key="2"
-                   v-if="!countdownFlag"
-                   class="countdown bgcountdown">
-                <span class="text bgtext">距离结束还剩: </span>
-                <span class="time">
-                  <van-count-down @finish="finishHandler2"
-                                  millisecond
-                                  :time="time">
-                    <template #default="timeData">
-                      <span class="block bgblock">0{{ timeData.hours }}</span>
-                      <span class="colon bgcolon">:</span>
-                      <span class="block bgblock">{{ timeData.minutes }}</span>
-                      <span class="colon bgcolon">:</span>
-                      <span class="block bgblock seconds">{{
-                        timeData.seconds
-                      }}</span>
-                    </template>
-                  </van-count-down>
-                </span>
-              </div>
-              <!-- 添加卡牌 -->
-              <div class="addcardwarp">
-                <div class="addcard">
-                  <div @click="countdownFlag?showCard(0):showCard(1.1,'L01')"
-                       class="top">
-                    <p v-if="level[0][0]">
-                      <img src="@/assets/img/Compose/1.jpg">
-                    </p>
-                    <p v-else>
-                      <span class="cardAdd">+</span>
-                      <br />
-                      添加一级卡牌
-                    </p>
-                  </div>
-                  <div @click="countdownFlag?showCard(0):showCard(1.1,'L01')">
-                    <p v-if="level[0][1]">
-                      <img src="@/assets/img/Compose/1.jpg">
-                    </p>
-                    <p v-else>
-                      <span class="cardAdd">+</span>
-                      <br />
-                      添加一级卡牌
-                    </p>
-                  </div>
-                  <div @click="countdownFlag?showCard(0):showCard(2,'L02')">
-                    <p v-if="level[0][2]">
-                      <img src="@/assets/img/Compose/2.jpg">
-                    </p>
-                    <p v-else>
-                      <span class="cardAdd">+</span>
-                      <br />
-                      添加二级卡牌
-                    </p>
-                  </div>
-                </div>
-                <div class="addcardfooter">
-                  <div class="ftop">
-                    <van-button :disabled="level[0][0]&&level[0][1]&&level[0][2]?false : true"
-                                @click="msg = 'one',show1 = true,synthNum=3"
-                                type="info">100%合成</van-button>
-                  </div>
-                  <p>成功概率100%</p>
-                  <p>一级卡牌*2+二级卡牌 铸造合成三级卡牌</p>
-                </div>
-              </div>
-
               <!-- 添加卡牌 -->
               <div class="addcardwarp">
                 <div class="addcard">
@@ -661,9 +566,11 @@
     </van-overlay>
 
     <!-- 合成动画 -->
-    <Two v-if="two"></Two>
+    <Two v-if="two"
+         :time="timeSyn"></Two>
     <Three v-if="three"
-           :primary-card="msg"></Three>
+           :primary-card="msg"
+           :time="timeSyn"></Three>
     <Five v-if="five"
           :node-made="msg"
           :number="number"></Five>
@@ -672,7 +579,9 @@
   </div>
 </template>
 <script>
-import { myNft } from '@/api/newReqets'
+import { allCard, cardList, selectAll } from '@/utils/options'
+import { myNft, FusingNFT } from '@/api/newReqets'
+import { level3, level4, level5, realTime, middleLevel, highLevel, already, alreadySyn, alreadyEquity } from '@/utils/web3'
 import { Toast } from 'vant'
 import Two from './layout/two.vue'
 import Three from './layout/three.vue'
@@ -701,19 +610,7 @@ export default {
         [0, 0, 0],
         [0, 0, 0]
       ],
-      selectAll: [
-        [
-          [0, 0, 0],
-          [0, 0, 0],
-          [0, 0]
-        ],
-        [[], [], []],
-        [
-          [[], [], 0],
-          [[], [], 0],
-          [[], [], 0]
-        ]
-      ],
+      selectAll,
       cardmaskFlag: '', //单选框
       cardmaskFlags: [], //多选框
       showcard: false, //卡牌单选遮罩
@@ -726,105 +623,27 @@ export default {
       time: '',
       synthActiveName: '1',
       countdownFlag: false,
-      // 卡牌数据
-      allCard: [
-        { title: '一级卡通版犀牛', ucode: '', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '', url: require('@/assets/img/Compose/4-before.png') },
-        { title: '五级黄金甲犀牛', ucode: '', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { title: '200天实时节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/actual-200-before.jpg') },
-        { title: '300天实时节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/actual-300-before.jpg') },
-        { title: '100天中级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/middle-100-before.jpg') },
-        { title: '200天中级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/middle-200-before.jpg') },
-        { title: '300天中级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/middle-300-before.jpg') },
-        { title: '100天高级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/high-100-before.jpg') },
-        { title: '200天高级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/high-200-before.jpg') },
-        { title: '300天高级节点分红权益卡', ucode: '', url: require('@/assets/img/Compose/high-300-before.jpg') }
-      ],
+      // 等级卡牌数据
+      allCard,
       // 定义卡牌数据
       maskcardData: [],
 
       // 用户一级卡牌
-      numOne: [
-        { title: '一级卡通版犀牛', ucode: '23', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '24', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '25', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '26', url: require('@/assets/img/Compose/4-before.png') },
-        { title: '五级黄金甲犀牛', ucode: '27', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '28', url: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { title: '200天实时节点分红权益卡', ucode: '29', url: require('@/assets/img/Compose/actual-200-before.jpg') },
-        { title: '300天实时节点分红权益卡', ucode: '30', url: require('@/assets/img/Compose/actual-300-before.jpg') },
-        { title: '100天中级节点分红权益卡', ucode: '31', url: require('@/assets/img/Compose/middle-100-before.jpg') }
-      ],
+      numOne: [],
       //用户二级卡牌
-      numTwo: [
-        { title: '一级卡通版犀牛', ucode: '15', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '16', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '17', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '18', url: require('@/assets/img/Compose/4-before.png') },
-        { title: '五级黄金甲犀牛', ucode: '19', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '20', url: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { title: '200天实时节点分红权益卡', ucode: '21', url: require('@/assets/img/Compose/actual-200-before.jpg') },
-        { title: '300天实时节点分红权益卡', ucode: '22', url: require('@/assets/img/Compose/actual-300-before.jpg') }
-      ],
+      numTwo: [],
       //用户三级卡牌
-      numThree: [
-        { title: '一级卡通版犀牛', ucode: '1', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '12', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '10', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '13', url: require('@/assets/img/Compose/4-before.png') },
-        { title: '五级黄金甲犀牛', ucode: '14', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '11', url: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { title: '300天实时节点分红权益卡', ucode: '3', url: require('@/assets/img/Compose/actual-300-before.jpg') },
-        { title: '100天中级节点分红权益卡', ucode: '4', url: require('@/assets/img/Compose/middle-100-before.jpg') },
-        { title: '200天中级节点分红权益卡', ucode: '5', url: require('@/assets/img/Compose/middle-200-before.jpg') },
-        { title: '200天高级节点分红权益卡', ucode: '8', url: require('@/assets/img/Compose/high-200-before.jpg') },
-        { title: '300天高级节点分红权益卡', ucode: '9', url: require('@/assets/img/Compose/high-300-before.jpg') }
-      ],
+      numThree: [],
       //用户四级卡牌
-      numFour: [
-        { title: '一级卡通版犀牛', ucode: '1', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '12', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '10', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '13', url: require('@/assets/img/Compose/4-before.png') },
-        { title: '五级黄金甲犀牛', ucode: '14', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '11', url: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { title: '300天实时节点分红权益卡', ucode: '3', url: require('@/assets/img/Compose/actual-300-before.jpg') },
-        { title: '100天中级节点分红权益卡', ucode: '4', url: require('@/assets/img/Compose/middle-100-before.jpg') },
-        { title: '200天中级节点分红权益卡', ucode: '5', url: require('@/assets/img/Compose/middle-200-before.jpg') }
-      ],
+      numFour: [],
       //用户五级卡牌
-      numFive: [
-        { title: '一级卡通版犀牛', ucode: '1', url: require('@/assets/img/Compose/1.jpg') },
-        { title: '二级玄铁甲犀牛', ucode: '12', url: require('@/assets/img/Compose/2.jpg') },
-        { title: '三级青铜甲犀牛', ucode: '10', url: require('@/assets/img/Compose/3-before.png') },
-        { title: '四级白银甲犀牛', ucode: '13', url: require('@/assets/img/Compose/4-before.png') },
-        { title: '五级黄金甲犀牛', ucode: '14', url: require('@/assets/img/Compose/5-before.png') },
-        { title: '100天实时节点分红权益卡', ucode: '11', url: require('@/assets/img/Compose/actual-100-before.jpg') },
-        { title: '300天实时节点分红权益卡', ucode: '3', url: require('@/assets/img/Compose/actual-300-before.jpg') },
-        { title: '100天中级节点分红权益卡', ucode: '4', url: require('@/assets/img/Compose/middle-100-before.jpg') },
-        { title: '200天中级节点分红权益卡', ucode: '5', url: require('@/assets/img/Compose/middle-200-before.jpg') }
-      ],
+      numFive: [],
       // 100实时节点
-      current100: [
-        { id: Math.random(), title: '一级卡通版犀牛', ucode: '1', url: require('@/assets/img/Compose/1.jpg') },
-        { id: Math.random(), title: '二级玄铁甲犀牛', ucode: '12', url: require('@/assets/img/Compose/2.jpg') },
-        { id: Math.random(), title: '三级青铜甲犀牛', ucode: '10', url: require('@/assets/img/Compose/3-before.png') },
-        { id: Math.random(), title: '四级白银甲犀牛', ucode: '13', url: require('@/assets/img/Compose/4-before.png') }
-      ],
+      current100: [],
       // 200实时节点
-      current200: [
-        { id: Math.random(), title: '200天中级节点分红权益卡', ucode: '5', url: require('@/assets/img/Compose/middle-200-before.jpg') },
-        { id: Math.random(), title: '200天高级节点分红权益卡', ucode: '8', url: require('@/assets/img/Compose/high-200-before.jpg') },
-        { id: Math.random(), title: '300天高级节点分红权益卡', ucode: '9', url: require('@/assets/img/Compose/high-300-before.jpg') }
-      ],
+      current200: [],
       // 300实时节点
-      current300: [
-        { id: Math.random(), title: '五级黄金甲犀牛', url: require('@/assets/img/Compose/5-before.png') },
-        { id: Math.random(), title: '100天实时节点分红权益卡', url: require('@/assets/img/Compose/actual-100-before.jpg') }
-      ],
+      current300: [],
       // 100中级节点
       middle100: [],
       // 200中级节点
@@ -844,7 +663,11 @@ export default {
       six: false,
       synthNum: 0,
       string: null,
-      msg: ''
+      msg: '',
+      Arr: [],
+      array: [],
+      cardList,
+      timeSyn: ''
     }
   },
   created() {
@@ -858,36 +681,123 @@ export default {
       this.numThree = []
       this.numFour = []
       this.numFive = []
+      this.current100 = []
+      this.current200 = []
+      this.current300 = []
+      this.middle100 = []
+      this.middle200 = []
+      this.middle300 = []
+      this.high100 = []
+      this.high200 = []
+      this.high300 = []
       // 请求接口获取数据
       const { data } = await myNft(3)
       console.log(data)
       for (let i of data) {
         const asd = {}
-        asd.ucode = i.ID.padStart(6, 0)
+        asd.ucode = i.ID
         asd.Activate = i.Activate
         asd.title = this.allCard[i.Activate - 1].title
-        // asd.status = this.allCard[i.Activate - 1].status
-        asd.url = this.allCard[i.Activate - 1].url
-        // asd.ischecked = this.allCard[i.Activate - 1].ischecked
-        if (asd.Activate == 1) this.numOne.push(asd)
-        if (asd.Activate == 2) this.numTwo.push(asd)
-        if (asd.Activate == 3) this.numThree.push(asd)
-        if (asd.Activate == 4) this.numFour.push(asd)
-        if (asd.Activate == 5) this.numFive.push(asd)
+        asd.url = this.allCard[i.Activate - 1].image
+        if (i.Type != -1) {
+          if (asd.Activate == 1) this.numOne.push(asd)
+          if (asd.Activate == 2) this.numTwo.push(asd)
+        }
+      }
+
+      this.hadReceive()
+      this.hadEquity()
+    },
+    // 3-5级等级卡牌已拥有(全部)
+    async hadReceive() {
+      this.array = []
+
+      await already(0, 2, this.array)
+      await already(0, 3, this.array)
+      await already(0, 4, this.array)
+
+      this.hadReceiveSyn()
+    },
+
+    // 3-5级等级卡牌已拥有（已合成）
+    async hadReceiveSyn() {
+      this.Arr = []
+
+      await alreadySyn(2, this.Arr)
+      await alreadySyn(3, this.Arr)
+      await alreadySyn(4, this.Arr)
+      Toast.clear()
+
+      let list = this.array.filter((items) => {
+        if (!this.Arr.some((ele) => items.num == ele.num && items.Activate == ele.Activate)) return items
+      })
+      console.log(list)
+      this.getRank(list)
+    },
+
+    getRank(val) {
+      for (let i of val) {
+        const asd = {}
+        asd.ucode = i.num + ''
+        asd.Activate = i.Activate
+        asd.title = this.allCard[i.Activate - 1].title
+        asd.url = this.allCard[i.Activate - 1].image
+
+        i.Activate == 3 && this.numThree.push(asd)
+        i.Activate == 4 && this.numFour.push(asd)
+        i.Activate == 5 && this.numFive.push(asd)
       }
     },
+
+    // 查询有限权益卡牌
+    async hadEquity() {
+      let Array = []
+      await alreadyEquity(2, Array)
+      await alreadyEquity(3, Array)
+      await alreadyEquity(4, Array)
+
+      console.log(Array)
+      this.getEquity(Array)
+    },
+    getEquity(val) {
+      for (let i of val) {
+        const asd = {}
+        asd.ucode = i.number + ''
+        // asd.Activate = i.Activate + 1
+        asd.title = this.cardList[i.Activate][i.id].title
+        asd.url = this.cardList[i.Activate][i.id].image
+
+        // 实时节点
+        if (i.Activate == 1) {
+          i.id == 0 && this.current100.push(asd)
+          i.id == 1 && this.current200.push(asd)
+          i.id == 2 && this.current300.push(asd)
+        }
+
+        // 中级节点
+        if (i.Activate == 2) {
+          i.id == 0 && this.middle100.push(asd)
+          i.id == 1 && this.middle200.push(asd)
+          i.id == 2 && this.middle300.push(asd)
+        }
+
+        // 高级节点
+        if (i.Activate == 3) {
+          i.id == 0 && this.high100.push(asd)
+          i.id == 1 && this.high200.push(asd)
+          i.id == 2 && this.high300.push(asd)
+        }
+      }
+    },
+
     // 取消选择卡牌
     maskCancelHandler() {
       this.showcard = false
       this.showcards = false
     },
-    // showCardHandler() {
-    //   this.showcard = true
-    // },
-    //合成动画
-    confirmHandler2() {
-      this.show2 = false
-      this.show3 = false
+    // 清空
+    empty() {
+      this.$toast.clear()
 
       this.level = [
         [0, 0, 0],
@@ -900,75 +810,128 @@ export default {
         [0, 0, 0],
         [0, 0, 0]
       ]
+      this.selectAll = [
+        [
+          [0, 0, 0],
+          [0, 0, 0],
+          [0, 0]
+        ],
+        [[], [], []],
+        [
+          [[], [], 0],
+          [[], [], 0],
+          [[], [], 0]
+        ]
+      ]
 
       setTimeout(() => {
-        this.selectAll = [
-          [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0]
-          ],
-          [[], [], []],
-          [
-            [[], [], 0],
-            [[], [], 0],
-            [[], [], 0]
-          ]
-        ]
-      }, 3600)
+        this.getCard()
+      }, 2000)
+    },
+    //合成动画
+    confirmHandler2() {
+      this.$toast(`合成大约需要1分钟\n\n请耐心等候不要退出页面`, {
+        timeout: 300000
+      })
+      Toast.loading({
+        message: '正在确认中...',
+        forbidClick: true,
+        duration: 0
+      })
+      this.show2 = false
+      this.show3 = false
 
       if (this.synthNum == 2) {
-        console.log(this.selectAll[0][2])
-        setTimeout(() => {
-          this.two = true
-        }, 500)
-        setTimeout(() => {
-          this.two = false
-        }, 3500)
+        Toast.clear()
+        let synthcard = (i) => {
+          this.timeSyn = i
+          setTimeout(() => {
+            this.two = true
+          }, 500)
+          setTimeout(() => {
+            this.two = false
+          }, 3500)
+        }
+        FusingNFT(this.selectAll[0][2][0], 0, this.selectAll[0][2][1])
+          .then((res) => {
+            let time = res.data.State
+            // 合成成功 time=3
+            synthcard(time)
+            this.empty()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       }
       if (this.synthNum == 3) {
-        if (this.msg == 'one') console.log(this.selectAll[0][0])
-        if (this.msg == 'two') console.log(this.selectAll[0][1])
-        setTimeout(() => {
-          this.three = true
-        }, 500)
-        setTimeout(() => {
-          this.three = false
-        }, 3500)
+        Toast.clear()
+        let synthcard = (i) => {
+          this.timeSyn = i
+          setTimeout(() => {
+            this.three = true
+          }, 500)
+          setTimeout(() => {
+            this.three = false
+          }, 3500)
+        }
+        FusingNFT(this.selectAll[0][1][0], this.selectAll[0][1][1], this.selectAll[0][1][2])
+          .then((res) => {
+            let time = res.data.State
+            // 合成成功 time=3
+            synthcard(time)
+            this.empty()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       }
       if (this.synthNum == 5) {
-        if (this.msg == 'three') console.log(this.selectAll[1][0])
-        if (this.msg == 'four') console.log(this.selectAll[1][1])
-        if (this.msg == 'five') console.log(this.selectAll[1][2])
-        setTimeout(() => {
-          this.five = true
-        }, 500)
-        setTimeout(() => {
-          this.five = false
-        }, 3500)
+        let synthcard = (i) => {
+          console.log(i)
+          this.number = i
+          setTimeout(() => {
+            this.five = true
+          }, 500)
+          setTimeout(() => {
+            this.five = false
+          }, 3500)
+        }
+
+        if (this.msg == 'three') {
+          console.log(this.selectAll[1][0])
+          level3(this.selectAll[1][0], synthcard, this.empty)
+        }
+        if (this.msg == 'four') {
+          level4(this.selectAll[1][1], synthcard, this.empty)
+        }
+        if (this.msg == 'five') {
+          level5(this.selectAll[1][2], synthcard, this.empty)
+        }
       }
       if (this.synthNum == 6) {
+        let synthcard = () => {
+          setTimeout(() => {
+            this.six = true
+          }, 500)
+          setTimeout(() => {
+            this.six = false
+          }, 3500)
+        }
+
         let Array = []
         if (this.msg == 'actual') {
           Array = [...[...this.selectAll[2][0][0], ...this.selectAll[2][0][1], ...this.selectAll[2][0][2]]]
+          realTime(Array, synthcard, this.empty)
         }
         if (this.msg == 'middle') {
           Array = [...[...this.selectAll[2][1][0], ...this.selectAll[2][1][1], ...this.selectAll[2][1][2]]]
+          middleLevel(Array, synthcard, this.empty)
         }
         if (this.msg == 'high') {
           Array = [...[...this.selectAll[2][2][0], ...this.selectAll[2][2][1], ...this.selectAll[2][2][2]]]
+          highLevel(Array, synthcard, this.empty)
         }
-        console.log(Array)
-        setTimeout(() => {
-          this.six = true
-        }, 500)
-        setTimeout(() => {
-          this.six = false
-        }, 3500)
       }
-      setTimeout(() => {
-        this.getCard()
-      }, 3550)
     },
     // 合成遮罩确认
     confirmHandler() {
@@ -978,14 +941,6 @@ export default {
     // 点击回退
     onClickLeft() {
       this.$router.back()
-    },
-    finishHandler() {
-      this.time = 10 * 60 * 1000
-      this.countdownFlag = false
-    },
-    finishHandler2() {
-      this.time = 30 * 60 * 60 * 1000
-      this.countdownFlag = true
     },
     showCard(i, string) {
       let count = ['一', '二', '三', '四', '五']
@@ -1114,10 +1069,9 @@ export default {
     suresHandler() {
       // 将选择的卡牌图片渲染到页面
       if (this.cardmaskFlags.length) {
-        if ((this.string == 'L01' || this.string == 'L11' || this.string == 'ei01' || this.string == 'ei11' || this.string == 'ei21') && this.cardmaskFlags.length != 2)
-          return Toast({ message: '请选择两张卡牌' })
-        if ((this.string == 'eq0' || this.string == 'eq1' || this.string == 'eq2') && this.cardmaskFlags.length != 5) return Toast({ message: '请选择五张卡牌' })
-        if ((this.string == 'ei00' || this.string == 'ei10' || this.string == 'ei20') && this.cardmaskFlags.length != 3) return Toast({ message: '请选择三张卡牌' })
+        if (['L01', 'L11', 'ei01', 'ei11', 'ei21'].includes(this.string) && this.cardmaskFlags.length != 2) return Toast({ message: '请选择两张卡牌' })
+        if (['eq0', 'eq1', 'eq2'].includes(this.string) && this.cardmaskFlags.length != 5) return Toast({ message: '请选择五张卡牌' })
+        if (['ei00', 'ei10', 'ei20'].includes(this.string) && this.cardmaskFlags.length != 3) return Toast({ message: '请选择三张卡牌' })
 
         if (this.string == 'L11') (this.level[1][0] = 1), (this.level[1][1] = 1)
         if (this.string == 'L01') (this.level[0][0] = 1), (this.level[0][1] = 1)
@@ -1273,12 +1227,12 @@ export default {
         }
         .addcardwarp {
           width: 100%;
-          background: #1b2333;
+          // background: #1b2333;
           .addcard {
             display: flex;
             justify-content: space-around;
             flex-wrap: wrap;
-            padding-top: 130px;
+            // padding-top: 130px;
             div {
               width: 330px;
               height: 460px;

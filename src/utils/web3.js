@@ -9,6 +9,8 @@ import { BuyNft, PayEotc } from '@/api/newReqets';
 
 import { Toast } from 'vant';
 
+import axios from 'axios';
+
 /**
  * ! Reconstruction_ 标记开头的方法进行了 promise化重构
  */
@@ -29,19 +31,37 @@ var address = '';
 var mytron_usdt = null; //是合约对象，生成合约对象后，可以做很多操作，比如获取你的余额，转账等
 var mytron = null;
 
+// 主网
+// const url = 'https://api.trongrid.io/wallet/gettransactioninfobyid';
+
+// 测试网
+const url = 'https://api.shasta.trongrid.io/wallet/gettransactioninfobyid';
+
 const AllCard = [
-	['TCFzxSDTqT51w1Kjdg1yaxd36QaY8Bxgre', 'TP3dYd7v1ULoDRVEarAJEetHW1QPZVEgyW', 'TTZHai5L1y39Bvx34onDgFqCkdb62qKNgr', 'TBQ6VEmZRoo3FBGkhN3FbZauQMip8Ekf5h', 'THNdSFMtXiaQtShDZWvhzsU5mThFBbjRVx'],
+	['TNLWdgLrBaffdH8icE8At9tUFJBCeFFtzU', 'TDjBpnEB3pd4RdGnbhBV6H7wiayjhjRUqP', 'TKDHJMgVeN9x7j3g564jB9AgLxRNo3WTeN', 'TAooLLSoxxK4zQjCbBrmPtmuu8o5WXbCJW', 'TDaFmDiymkduYmGhbRn7xERGzs4SC1pKPz'],
 	[
-		'',
-		'',
-		'TNRMQfbLncYFv13RUepU7jd6PaEXHb7RTp',
-		'TXphviNMZsM2sQavbYTP1L2GQEHukqBjQi',
-		'TXdzjNhT4UBgdi9EKWa2GYQSEp1w43N7Hy',
-		'TCr48e3wW26bgCW1TCLBVftRDosSbef6zi',
-		'TXip3n118Z2gbw3LM9NPj9nFTSe1GD2uv1',
-		'TJorSfw9NxVmSPYNfpPGhtg8vXaZENPJrN'
+		'TRXRStGGQC8T397jGeWg48soe6fkqgZkP7',
+		'TSUu64YWCPf4BJDwZAvENW1SyDmuU7cd23',
+		'TUDftnsHA2qGRwqRRmdM7YcLdMqKqZUjZe',
+		'TNfLD3hNgyS1Co7Nw12jrUBEHx6R9KWfYA',
+		'TGji72zqprDCtvu61314Jx3FpJ7WsoMEyY',
+		'TUUDLWPM2eWsX6hGEJ88yCEPBfry5eoxcp',
+		'TA8yzwymfXTymVrRfUysv1QJZQa2oTX89Y',
+		'TBoP15gHpQ1P1HnfRmAEXGdazTei7stGem'
 	]
 ];
+
+// 合成
+const synthesis = 'TXpePr1mdgrtnhS7Ew1vdqJE1aPkUaTocp';
+
+// 手续费合约
+const charge = 'TXBdemx22WNUkBqjhbtr3jbw2iZMELXK7e';
+
+// 资金池合约
+const capital = 'TW46QNKyZqQe7LVZ8tD2xZAt68h7hWfeNJ';
+
+// NFT交易
+const NFTDeal = 'TR9shvNqD5YQiTHaAdkq5K8ei58Et2kKAo';
 
 const trxMin = 30000000;
 const trxMes = '为使交易顺畅,请确保钱包中不少于30 TRX';
@@ -54,6 +74,7 @@ function eotcmes(message) {
 
 function warnmes(mes) {
 	console.warn(mes);
+	Vue.$toast.warning(mes);
 }
 
 function distsmes1(message) {
@@ -161,6 +182,7 @@ export const userBaseMes = async function () {
 
 export const loadweb3 = async function (func) {
 	//bsg为true强制签名
+	// console.log(window.tronWeb);
 	if (window.tronWeb) {
 		var obj = setInterval(async () => {
 			if (window.tronWeb.defaultAddress.base58) {
@@ -172,7 +194,8 @@ export const loadweb3 = async function (func) {
 					mytron = await window.tronWeb.contract().at(contractAddress);
 					myUsdtAmount();
 					myEOTCAmount();
-					localStorage.setItem('netType', 'trx');
+					// localStorage.setItem('netType', 'trx');
+					localStorage.setItem('netType', 'xxx');
 					if (address != localStorage.getItem('myaddress')) {
 						localStorage.removeItem('myaddress');
 						localStorage.removeItem('mysign');
@@ -272,10 +295,12 @@ export const runSign = function () {
 //usdt合约授权,val适当大一些，就不用多次授权了
 export const usdtsend = async function (val, mes) {
 	let valmes;
+	let ads = window.tronWeb.defaultAddress.base58;
 	try {
-		if (mytron_usdt == null) mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
+		// if (mytron_usdt == null)
+		mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
 		valmes = distsmes1(mes + '授权期间请不要刷新或切换页面！');
-		let res = await mytron_usdt.approve(contractAddress, TronValues(val)).send({
+		let res = await mytron_usdt.approve(NFTDeal, TronValues(val)).send({
 			feeLimit: 100000000,
 			callValue: 0,
 			shouldPollResponse: false
@@ -288,6 +313,7 @@ export const usdtsend = async function (val, mes) {
 			if (it.State == '1') {
 				localStorage.setItem('usdtsq', val);
 				eotcmes('授权成功'); //
+				Vue.$toast('授权成功');
 				// setTimeout(function () {
 				//     valmes.style.display = "none";
 				// }, 1500);
@@ -696,7 +722,7 @@ export const verifyUSDT = async function (amount, fuc) {
 export const myApprove = async function (num, func) {
 	let ads = window.tronWeb.defaultAddress.base58;
 	if (mytron_usdt == null) mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
-	const value = await mytron_usdt.allowance(ads, contractAddress).call();
+	const value = await mytron_usdt.allowance(ads, NFTDeal).call();
 	let owancevalue;
 	try {
 		owancevalue = value.remaining._hex;
@@ -1064,145 +1090,1018 @@ export const sfeotc1 = async function (func) {
 	let result = await window.tronWeb.trx.sendTransaction('TA6jfgkurdTrwqic3G56GpG2Keh5EWx2kq', TronValues(num));
 
 	console.log(result);
-	// setTimeout(function () {
-	// debugger.
-	// console.log(111);
-	// let success = await zhuanzhang(result.txid);
-	// console.log(success);
-	// if (success.ret[0].contractRet != "SUCCESS") {
-	//   Toast.clear();
-	//   Vue.$toast.error('质押失败！');
-	// } else {
+
 	localStorage.setItem('apphx', result.txid);
-
-	// func();
-	// }
-	// }, 1000);
-
-	// });
 };
 
 //等级卡牌、权益卡牌
-export const AllCards = async function AllCards(adress, num, m, n) {
+export const AllCards = async function AllCards(address, id, m, n, arr) {
 	try {
-		console.log(adress, num, m, n);
-		console.log(AllCard[m][n]);
 		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
-		let res = await mytron.subscribeList(adress, num).send({
-			feeLimit: 100000000,
+		let res = await mytron.subscribeList(address, id).send({
+			feeLimit: 5000000000,
 			callValue: 0,
 			shouldPollResponse: false
 		});
-
+		arr();
 		console.log(res);
-		// setTimeout(async function () {
-		// 	// let success = await hx(res);
 		Toast.clear();
-		// 	// if (success.contractRet != "SUCCESS") {
-		// 	//   Vue.$toast.error('质押失败！');
-		// 	// } else {
-		// 	that.list.splice(index, 1);
 		Vue.$toast.success('上传成功！');
-		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
-		// 	// }
-		// }, 1000);
 	} catch (e) {
-		// Toast.clear();
+		Toast.clear();
+		Vue.$toast.warning('上传失败！');
+	}
+};
+
+//权益卡牌(有限)
+export const AllCardTime = async function AllCardTime(address, num, time, n, arr) {
+	try {
+		let mytron = await window.tronWeb.contract().at(AllCard[1][n]);
+		let res = await mytron.subscribeList(address, num, time).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		arr();
+		console.log(res);
+		Toast.clear();
+		Vue.$toast.success('上传成功！');
+	} catch (e) {
 		Toast.clear();
 		Vue.$toast.warning('上传失败！');
 	}
 };
 
 //单笔领取
-export const getCard = async function getCard(m, n) {
+export const getCard = async function getCard(m, n, id, arr) {
 	try {
-		console.log(AllCard[m][n]);
 		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
-		let res = await mytron.withdraw().send({
-			feeLimit: 100000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
 
-		console.log(res);
-		// setTimeout(async function () {
-		// 	// let success = await hx(res);
-		// Toast.clear();
-		// 	// if (success.contractRet != "SUCCESS") {
-		// 	//   Vue.$toast.error('质押失败！');
-		// 	// } else {
-		// 	that.list.splice(index, 1);
-		Vue.$toast.success('领取成功！');
-		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
-		// 	// }
-		// }, 1000);
-	} catch (e) {
-		// Toast.clear();
+		if (m == 1) {
+			let res = await mytron.withdraw().send({
+				feeLimit: 100000000,
+				callValue: 0,
+				shouldPollResponse: false
+			});
+		} else {
+			let res = await mytron.withdraw(id).send({
+				feeLimit: 100000000,
+				callValue: 0,
+				shouldPollResponse: false
+			});
+		}
+		arr(1);
 		Toast.clear();
-		Vue.$toast.warning('领取失败！');
+		Vue.$toast.success('领取成功！');
+	} catch (e) {
+		arr(0);
+		Toast.clear();
+		Vue.$toast.warning('取消领取！');
 	}
 };
 
 //批量领取
-export const getCards = async function getCards(m, n, num) {
+export const getCards = async function getCards(m, n, id, arr) {
 	try {
-		console.log(AllCard[m][n]);
 		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
-		let res = await mytron.withdrawList(num).send({
-			feeLimit: 100000000,
+		let res = await mytron.withdrawList(id).send({
+			feeLimit: 5000000000,
 			callValue: 0,
 			shouldPollResponse: false
 		});
 
+		arr(1);
 		console.log(res);
-		// setTimeout(async function () {
-		// 	// let success = await hx(res);
-		// Toast.clear();
-		// 	// if (success.contractRet != "SUCCESS") {
-		// 	//   Vue.$toast.error('质押失败！');
-		// 	// } else {
-		// 	that.list.splice(index, 1);
-		Vue.$toast.success('领取成功！');
-		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
-		// 	// }
-		// }, 1000);
-	} catch (e) {
-		// Toast.clear();
 		Toast.clear();
-		Vue.$toast.warning('领取失败！');
+		Vue.$toast.success('领取成功！');
+	} catch (e) {
+		arr(0);
+		Toast.clear();
+		Vue.$toast.warning('取消领取！');
+	}
+};
+
+//批量领取(有限)
+export const getCardsTime = async function getCardsTime(time, n, num, arr) {
+	try {
+		let mytron = await window.tronWeb.contract().at(AllCard[1][n]);
+		let res = await mytron.withdrawList(num, time).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		arr(1);
+		console.log(res);
+		Toast.clear();
+		Vue.$toast.success('领取成功！');
+	} catch (e) {
+		arr(0);
+		Toast.clear();
+		Vue.$toast.warning('取消领取！');
 	}
 };
 
 //全部领取
-export const getAllCards = async function getAllCards(m, n) {
+export const getAllCards = async function getAllCards(m, n, arr) {
 	try {
-		console.log(AllCard[m][n]);
 		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		//  valmes = distsmes1('等待区块打包确认，打包期间请不要关闭或刷新该页面');
 		let res = await mytron.allWithdraw().send({
 			feeLimit: 5000000000,
 			callValue: 0,
 			shouldPollResponse: false
 		});
 
+		arr(1);
 		console.log(res);
-		// setTimeout(async function () {
-		// 	// let success = await hx(res);
-		// Toast.clear();
-		// 	// if (success.contractRet != "SUCCESS") {
-		// 	//   Vue.$toast.error('质押失败！');
-		// 	// } else {
-		// 	that.list.splice(index, 1);
-		Vue.$toast.success('领取成功！');
-		// 	StakingEotc({ num: that.zynum, zq: that.nowaday, hx: res });
-		// 	// }
-		// }, 1000);
-	} catch (e) {
-		// Toast.clear();
 		Toast.clear();
-		Vue.$toast.warning('领取失败！');
+		Vue.$toast.success('领取成功！');
+	} catch (e) {
+		arr(0);
+		Toast.clear();
+		Vue.$toast.warning('取消领取！');
+	}
+};
+
+// 三级合成
+export const level3 = async function level3(Array, func, fun) {
+	try {
+		let mytron = await window.tronWeb.contract().at(synthesis);
+		let res = await mytron.level3Merge(Array).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		console.log(res);
+		setTimeout(() => {
+			hx(res).then((result) => {
+				let str = result.contractResult[0].slice(-4);
+				let num = parseInt(str, 16);
+				Toast.clear();
+				func(num);
+				fun();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast.warning('取消合成！');
+	}
+};
+
+// 四级合成
+export const level4 = async function level4(Array, func, fun) {
+	try {
+		let mytron = await window.tronWeb.contract().at(synthesis);
+		let res = await mytron.level4Merge(Array).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		console.log(res);
+		setTimeout(() => {
+			hx(res).then((result) => {
+				let str = result.contractResult[0].slice(-4);
+				let num = parseInt(str, 16);
+				Toast.clear();
+				func(num);
+				fun();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast.warning('取消合成！');
+	}
+};
+
+// 五级合成
+export const level5 = async function level5(Array, func, fun) {
+	try {
+		let mytron = await window.tronWeb.contract().at(synthesis);
+		let res = await mytron.level5Merge(Array).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: true
+		});
+		console.log(res);
+		setTimeout(() => {
+			hx(res).then((result) => {
+				let str = result.contractResult[0].slice(-4);
+				let num = parseInt(str, 16);
+				Toast.clear();
+				func(num);
+				fun();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast.warning('取消合成！');
+	}
+};
+
+// 实时节点合成
+export const realTime = async function realTime(Array, func, fun) {
+	try {
+		let mytron = await window.tronWeb.contract().at(synthesis);
+		let res = await mytron.realTimeMerge(Array).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		setTimeout(() => {
+			hx(res).then((result) => {
+				Toast.clear();
+				func();
+				fun();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast.warning('取消合成！');
+	}
+};
+
+// 中级节点合成
+export const middleLevel = async function middleLevel(Array, func, fun) {
+	try {
+		let mytron = await window.tronWeb.contract().at(synthesis);
+		let res = await mytron.middleLevelMerge(Array).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		setTimeout(() => {
+			hx(res).then((result) => {
+				Toast.clear();
+				func();
+				fun();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast.warning('取消合成！');
+	}
+};
+
+// 高级节点合成
+export const highLevel = async function highLevel(Array, func, fun) {
+	try {
+		let mytron = await window.tronWeb.contract().at(synthesis);
+		let res = await mytron.highLevelMerge(Array).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		setTimeout(() => {
+			hx(res).then((result) => {
+				Toast.clear();
+				func();
+				fun();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast.warning('取消合成！');
+	}
+};
+
+// 查询有限权益卡牌周期
+export const idByLimitedTimes = async function (n, id, str) {
+	let address = AllCard[1][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.idByLimitedTime(id).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					str.push(parseInt(result._hex, 16) / 100 - 1);
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询待领取等级卡牌
+export const inquire = async function (n, Array) {
+	let address = AllCard[0][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.blindBoxList(localStorage.getItem('myaddress')).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [];
+					result.forEach((e) => data.push(parseInt(e._hex, 16)));
+					res(result);
+
+					for (let i of data) {
+						const asd = {};
+						asd.num = i;
+						asd.Activate = n + 1;
+						Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询全部已拥有卡牌
+export const already = async function (m, n, Array) {
+	let address = AllCard[m][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.tokensOwnedByIds(localStorage.getItem('myaddress')).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [];
+					result.forEach((e) => data.push(parseInt(e._hex, 16)));
+					res(result);
+					for (let i of data) {
+						const asd = {};
+						asd.num = i;
+						asd.Activate = n + 1;
+						Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询已拥有(已合成)等级卡牌
+export const alreadySyn = async function (n, Array) {
+	let address = AllCard[0][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.getBurnIds(localStorage.getItem('myaddress')).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [];
+					result.forEach((e) => data.push(parseInt(e._hex, 16)));
+					res(result);
+
+					for (let i of data) {
+						const asd = {};
+						asd.num = i;
+						asd.Activate = n + 1;
+						Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询有限权益卡牌(已拥有)
+export const alreadyEquity = async function (n, Array) {
+	let address = AllCard[1][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.getIdAndLimitedTime(localStorage.getItem('myaddress')).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [[], []];
+					result[0].forEach((val) => data[0].push(parseInt(val._hex, 16)));
+					result[1].forEach((val) => data[1].push(parseInt(val._hex, 16)));
+
+					res(result);
+					for (let i = 0; i < data[0].length; i++) {
+						const asd = {};
+						// 编号
+						asd.number = data[0][i];
+						// 对应下标
+						asd.Activate = n - 1;
+						// 100/200/300
+						asd.id = data[1][i] / 100 - 1;
+						Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询有限权益卡牌(待领取)
+export const notEquityTime = async function (n, time, Array) {
+	let address = AllCard[1][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.lotteryList(localStorage.getItem('myaddress'), time).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [[], []];
+					data[0].push(parseInt(result.amount._hex, 16));
+					data[1].push(parseInt(result.reward._hex, 16));
+					res(result);
+					for (let i = 0; i < data[0].length; i++) {
+						const asd = {};
+						// 数量
+						asd.number = data[0][i] - data[1][i];
+						// 对应下标
+						asd.Activate = n - 1;
+						// 100/200/300
+						asd.m = time / 100 - 1;
+						asd.number && Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询永久权益卡牌(待领取)
+export const notEquity = async function (n, Array) {
+	let address = AllCard[1][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.lotteryList(localStorage.getItem('myaddress')).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [[], []];
+					data[0].push(parseInt(result.amount._hex, 16));
+					data[1].push(parseInt(result.reward._hex, 16));
+					res(result);
+					for (let i = 0; i < data[0].length; i++) {
+						const asd = {};
+						// 数量
+						asd.number = data[0][i] - data[1][i];
+						asd.Activate = n + 1;
+						asd.number && Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询创世-联合权益卡(待领取)
+export const genesis = async function (n, Array) {
+	let address = AllCard[1][n];
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.buyList(localStorage.getItem('myaddress')).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					let data = [[], []];
+					data[0].push(parseInt(result.amount._hex, 16));
+					data[1].push(parseInt(result.reward._hex, 16));
+					res(result);
+					for (let i = 0; i < data[0].length; i++) {
+						const asd = {};
+						// 数量
+						asd.number = data[0][i] - data[1][i];
+						// 下标
+						asd.Activate = n;
+						asd.number && Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+export const hx = function (num) {
+	return new Promise((resolve, reject) => {
+		function asd(num) {
+			const options = {
+				method: 'POST',
+				url: url,
+				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+				data: { value: num }
+			};
+			axios.request(options).then(function (response) {
+				console.log(response.data.receipt);
+				if (response.data.receipt == undefined) {
+					setTimeout(() => {
+						asd(num);
+					}, 500);
+				} else {
+					console.log(response.data);
+					if (response.data.receipt.result == 'SUCCESS') {
+						resolve(response.data);
+						return;
+					} else if (response.data.receipt.result == 'REVERT') {
+						resolve('REVERT');
+						return;
+					}
+				}
+			});
+		}
+		asd(num);
+	});
+};
+
+// 查询NFT第一持有人
+export const firstHolders = async function (address, id) {
+	let mytron = await window.tronWeb.contract().at(address);
+	return new Promise((res, rej) => {
+		mytron.firstHolder(id).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+					// holder(window.tronWeb.address.fromHex(result));
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 获取市场所有订单
+export const allMarketOrders = async function (Array) {
+	let mytron = await window.tronWeb.contract().at(NFTDeal);
+	return new Promise((res, rej) => {
+		mytron.allMarketOrder().call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+					let data = [[], [], [], [], [], [], []];
+					// 订单id
+					result[0].forEach((val) => data[0].push(parseInt(val._hex, 16)));
+					// 指定购买者
+					// result[1].forEach((val) => data[1].push(window.tronWeb.address.fromHex(val)));
+					// 出售者
+					result[1].forEach((val) => data[1].push(window.tronWeb.address.fromHex(val)));
+					// NFT地址
+					result[2].forEach((val) => data[2].push(window.tronWeb.address.fromHex(val)));
+					// NFT ID
+					result[3].forEach((val) => data[3].push(parseInt(val._hex, 16)));
+					// 卡牌售价
+					result[4].forEach((val) => data[4].push(parseInt(val._hex, 16)));
+					// 卡牌状态
+					result[5].forEach((val) => data[5].push(parseInt(val._hex, 16)));
+					// 结束时间
+					result[6].forEach((val) => data[6].push(parseInt(val._hex, 16)));
+
+					res(result);
+
+					console.log(data);
+					for (let i = 0; i < data[0].length; i++) {
+						const asd = {};
+						// 订单id
+						asd.id = data[0][i];
+						// // 买方
+						// data[1][i] == 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' ? (asd.buyer = '') : (asd.buyer = data[1][i]);
+						// 卖方
+						asd.seller = data[1][i];
+						// NFT地址
+						asd.NFTaddress = data[2][i];
+						// NFT ID
+						asd.NFTid = data[3][i];
+						// 卡牌售价
+						asd.price = data[4][i];
+						// 卡牌状态  1为已合成
+						asd.state = data[5][i];
+						// 结束时间
+						asd.endTime = data[6][i];
+						asd.id != 0 && Array.push(asd);
+					}
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询项目状态
+// export const projectState = async function (address, id, Array) {
+// 	let mytron = await window.tronWeb.contract().at(NFTDeal);
+// 	return new Promise((res, rej) => {
+// 		mytron.projectStatus(address, id).call(
+// 			{
+// 				from: window.tronWeb.defaultAddress.base58
+// 			},
+// 			function (error, result) {
+// 				if (!error) {
+// 					res(result);
+// 					console.log(result);
+
+// 					let data = [[], [], [], [], []];
+// 					// 订单事件
+// 					result[0].forEach((val) => data[0].push(parseInt(val._hex, 16)));
+// 					// 订单报价
+// 					result[1].forEach((val) => data[1].push(parseInt(val._hex, 16)));
+// 					// 订单提供者
+// 					result[2].forEach((val) => data[2].push(window.tronWeb.address.fromHex(val)));
+// 					// 订单完成者
+// 					result[3].forEach((val) => data[3].push(window.tronWeb.address.fromHex(val)));
+// 					// 事件时间
+// 					result[4].forEach((val) => data[4].push(parseInt(val._hex, 16)));
+
+// 					console.log(data);
+// 					for (let i = data[0].length - 1; i >= 0; i--) {
+// 						const asd = {};
+// 						// 订单事件
+// 						asd.id = data[0][i];
+// 						// 订单报价
+// 						asd.price = data[1][i];
+// 						// 订单提供者
+// 						asd.seller = data[2][i];
+// 						// 订单完成者
+// 						data[3][i] == 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' ? (asd.buyer = '') : (asd.buyer = data[3][i]);
+// 						// 事件时间
+// 						asd.time = data[4][i];
+// 						Array.push(asd);
+// 					}
+// 				} else {
+// 					Vue.$toast.error(error);
+// 					rej(error);
+// 				}
+// 			}
+// 		);
+// 	});
+// };
+
+// 查询卡牌是否授权
+export const isApprovedForAlls = async function (conAddress) {
+	let mytron = await window.tronWeb.contract().at(conAddress);
+	return new Promise((res, rej) => {
+		mytron.isApprovedForAll(localStorage.getItem('myaddress'), NFTDeal).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 卡牌授权
+export const setApprovalForAlls = async function setApprovalForAlls(conAddress) {
+	try {
+		let mytron = await window.tronWeb.contract().at(conAddress);
+		let res = await mytron.setApprovalForAll(NFTDeal, 'true').send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		Vue.$toast('授权成功');
+		console.log(res);
+	} catch (e) {
+		console.log(e);
+	}
+};
+
+// 上架NFT订单
+export const postAnOrders = async function postAnOrders(NFTaddress, NFTid, price, endTime, func) {
+	try {
+		console.log(NFTaddress, NFTid, price, endTime);
+		let mytron = await window.tronWeb.contract().at(NFTDeal);
+		let res = await mytron.postAnOrder(NFTaddress, NFTid, TronValues(price), endTime).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		setTimeout(() => {
+			hx(res).then((res) => {
+				Toast.clear();
+				console.log(res);
+				Vue.$toast(`发布成功\n\n请前往<市场>页面查看相关信息`);
+				func();
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		console.log(e);
+		Vue.$toast.error('取消发布');
+	}
+};
+
+// 查询卡牌是否在出售中
+export const orderActivitys = async function (address, id) {
+	let mytron = await window.tronWeb.contract().at(NFTDeal);
+	return new Promise((res, rej) => {
+		mytron.orderActivity(address, id).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 购买卡牌
+export const fulfillBasicOrders = async function fulfillBasicOrders(id, price, arr) {
+	try {
+		console.log(id, price);
+		let mytron = await window.tronWeb.contract().at(NFTDeal);
+		let res = await mytron.fulfillBasicOrder(id, TronValues(price)).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		setTimeout(() => {
+			hx(res).then((res) => {
+				console.log(res);
+				if (res == 'REVERT') {
+					Toast.clear();
+					Vue.$toast('购买失败');
+				} else {
+					arr();
+					Toast.clear();
+					Vue.$toast('购买成功');
+				}
+			});
+		}, 1000);
+	} catch (e) {
+		// arr();
+		Toast.clear();
+		console.log(e);
+		Vue.$toast.error('取消购买');
+	}
+};
+
+// 取消订单
+export const cancels = async function cancels(id, arr) {
+	try {
+		console.log(id);
+		let mytron = await window.tronWeb.contract().at(NFTDeal);
+		let res = await mytron.cancel(id).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+
+		console.log(res);
+		setTimeout(() => {
+			hx(res).then((res) => {
+				arr();
+				Toast.clear();
+				console.log(res);
+				Vue.$toast('订单取消成功');
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		console.log(e);
+		Vue.$toast.error('继续出售');
+	}
+};
+
+// 编辑订单
+export const editOrders = async function editOrders(id, price, endTime, arr) {
+	console.log(endTime);
+	try {
+		let mytron = await window.tronWeb.contract().at(NFTDeal);
+		let res = await mytron.editOrder(id, TronValues(price), endTime).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		setTimeout(() => {
+			hx(res).then((res) => {
+				arr();
+				Toast.clear();
+				console.log(res);
+				Vue.$toast('修改成功');
+			});
+		}, 1000);
+	} catch (e) {
+		Toast.clear();
+		console.log(e);
+		Vue.$toast.error('取消修改');
+	}
+};
+
+// 用户等级卡牌待领取额度
+export const amountAvailableLists = async function (address, id, array) {
+	let mytron = await window.tronWeb.contract().at(capital);
+	return new Promise((res, rej) => {
+		mytron.amountAvailableList(address, id).call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+					result[1].forEach((val) => array[0].push(parseInt(val._hex, 16)));
+					result[2].forEach((val) => array[1].push(parseInt(val._hex, 16) / 1000000));
+					console.log(array);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 用户等级卡牌资金领取
+export const multipleWithdraws = async function multipleWithdraws(address, id, array) {
+	try {
+		let mytron = await window.tronWeb.contract().at(capital);
+		let res = await mytron.multipleWithdraw(address, id).send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		Toast.clear();
+		Vue.$toast.success('领取成功');
+		console.log(res);
+		array();
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast('取消领取');
+		console.log(e);
+	}
+};
+
+// DAO组织可领取的资金
+export const daoAvailables = async function () {
+	let mytron = await window.tronWeb.contract().at(capital);
+	return new Promise((res, rej) => {
+		mytron.daoAvailable().call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// DAO资金领取
+export const daoWithdraws = async function daoWithdraws() {
+	try {
+		let mytron = await window.tronWeb.contract().at(capital);
+		let res = await mytron.daoWithdraw().send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		Toast.clear();
+		Vue.$toast.success('领取成功');
+		console.log(res);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast('取消领取');
+		console.log(e);
+	}
+};
+
+// 技术支持待领取的手续费
+export const technicalSupportFees = async function () {
+	let mytron = await window.tronWeb.contract().at(charge);
+	return new Promise((res, rej) => {
+		mytron.technicalSupportFee().call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 技术支持手续费领取
+export const technologyFeeWithdraws = async function technologyFeeWithdraws() {
+	try {
+		let mytron = await window.tronWeb.contract().at(charge);
+		let res = await mytron.technologyFeeWithdraw().send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		Toast.clear();
+		Vue.$toast.success('领取成功');
+		console.log(res);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast('取消领取');
+		console.log(e);
+	}
+};
+
+// 资金池合约可领取的手续费
+export const capitalPoolFees = async function () {
+	let mytron = await window.tronWeb.contract().at(charge);
+	return new Promise((res, rej) => {
+		mytron.capitalPoolFee().call(
+			{
+				from: window.tronWeb.defaultAddress.base58
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 资金池手续费领取
+export const poolFeeWithdraws = async function poolFeeWithdraws() {
+	try {
+		let mytron = await window.tronWeb.contract().at(charge);
+		let res = await mytron.poolFeeWithdraw().send({
+			feeLimit: 5000000000,
+			callValue: 0,
+			shouldPollResponse: false
+		});
+		Toast.clear();
+		Vue.$toast.success('领取成功');
+		console.log(res);
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast('取消领取');
+		console.log(e);
 	}
 };

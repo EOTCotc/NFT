@@ -138,11 +138,11 @@ export default {
       i: 0,
       // 卡牌数据
       listData: [
-        { id: Math.random(), url: require('../../assets/img/Compose/1.jpg'), title: '1级卡通版犀牛' },
-        { id: Math.random(), url: require('../../assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛' },
-        { id: Math.random(), url: require('../../assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛' },
-        { id: Math.random(), url: require('../../assets/img/Compose/4-before.png'), title: '4级白银甲犀牛' },
-        { id: Math.random(), url: require('../../assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛' }
+        { url: require('@/assets/img/Compose/1.jpg'), title: '1级卡通版犀牛' },
+        { url: require('@/assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛' },
+        { url: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛' },
+        { url: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛' },
+        { url: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛' }
       ],
       boxData: [] // 盲盒开出的卡牌数据
     }
@@ -249,8 +249,13 @@ export default {
       const { data } = await OpenBlindBox(id)
       console.log(data)
       for (let i of data) {
-        this.boxData.push(this.listData[i.Activate - 1])
+        const asd = {}
+        asd.id = Math.random()
+        asd.url = this.listData[i.Activate - 1].url
+        asd.title = this.listData[i.Activate - 1].title
+        this.boxData.push(asd)
       }
+
       console.log(this.boxData)
     }
   },

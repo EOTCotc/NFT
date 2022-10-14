@@ -32,7 +32,7 @@
                  :key="item.id">
               <div class="img">
                 <img :src="item.image"
-                     @click="cardDetails(item.id)"
+                     @click="cardDetails(item.num, item.title, item.Activate, item.state)"
                      alt="卡片">
               </div>
               <p class="title">{{item.title }}</p>
@@ -94,7 +94,7 @@
                                   :disabled="isselect"
                                   block
                                   type="info"
-                                  @click="getCard">领取</van-button>
+                                  @click="getsCard">领取</van-button>
                     </div>
                   </div>
 
@@ -195,7 +195,7 @@
           已成功提交铸造，请等待铸造铸造完成后即可领取至钱包
         </div>
         <div>
-          <p @click="confirmSuccHandler">确定</p>
+          <p @click="maskFlag3 = false">确定</p>
         </div>
         <img class="img"
              src="@/assets/img/coincard/icon2.png"
@@ -207,24 +207,20 @@
 
 </template>
 <script>
+import { Toast } from 'vant'
 import { myNft, PayEotc } from '@/api/newReqets'
-import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards } from '@/utils/web3'
+import { allCard, allCards } from '@/utils/options'
+import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards, inquire, already, alreadySyn } from '@/utils/web3'
 export default {
   data() {
     return {
+      array: [],
+      Array: [],
+      Arr: [],
       //已拥有卡牌
-      rankCardFlag1: [
-        // { id: Math.random(), title: '一级卡通版犀牛', num: '#000005', image: require('@/assets/img/blindbox/card1.png') }
-      ],
-      //待领取卡牌owncard
-      rankCardFlag2: [
-        { Activate: 3, status: false, num: '1', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        { Activate: 4, status: false, num: '2', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        { Activate: 4, status: false, num: '92', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        { Activate: 2, status: false, num: '31', image: require('@/assets/img/Compose/3-before.png'), title: '2级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        { Activate: 4, status: false, num: '102', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        { Activate: 5, status: false, num: '3', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
-      ],
+      rankCardFlag1: [],
+      //待领取卡牌
+      rankCardFlag2: [],
       RankCardActive: '3',
       // ischecked: false,
       maskFlag1: false, //遮罩第一次状态
@@ -234,50 +230,57 @@ export default {
       currentIndex: -1,
       index: -2,
       //待铸造、铸造中卡牌
-      castDataList: [
-        { Activate: 3, status: false, num: '1', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        { Activate: 4, status: false, num: '2', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false }
-        // { Activate: 5, status: false, num: '3', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false },
-        // { Activate: 3, status: false, num: '4', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '5', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 5, status: false, num: '6', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false },
-        // { Activate: 3, status: false, num: '7', image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        // { Activate: 4, status: false, num: '8', image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        // { Activate: 5, status: false, num: '9', image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
-      ],
-      // 全部卡牌
-      allCard: [
-        { num: '', status: false, image: require('@/assets/img/Compose/1.jpg'), title: '1级卡通版犀牛', text: '一级卡通版犀牛，总发行量60000张', ischecked: false },
-        { num: '', status: false, image: require('@/assets/img/Compose/2.jpg'), title: '2级玄铁甲犀牛', text: '二级玄铁甲犀牛，总发行量25000张', ischecked: false },
-        { num: '', status: false, image: require('@/assets/img/Compose/3-before.png'), title: '3级青铜甲犀牛', text: '三级青铜甲犀牛，总发行量8000张', ischecked: false },
-        { num: '', status: false, image: require('@/assets/img/Compose/4-before.png'), title: '4级白银甲犀牛', text: '四级白银甲犀牛，总发行量5000张', ischecked: false },
-        { num: '', status: false, image: require('@/assets/img/Compose/5-before.png'), title: '5级黄金甲犀牛', text: '五级黄金甲犀牛，总发行量2000张', ischecked: false }
-      ],
+      castDataList: [],
+      // 全部未合成卡牌
+      allCard,
+      // 全部已合成卡牌
+      allCards,
       select: [],
       activate: '',
       activeKey: 0,
       activeNum: 0,
       activeTitle: [
-        // { id: Math.random(), name: 1, title: '一级' },
-        // { id: Math.random(), name: 2, title: '二级' },
         { id: Math.random(), name: 3, title: '三级卡牌' },
         { id: Math.random(), name: 4, title: '四级卡牌' },
         { id: Math.random(), name: 5, title: '五级卡牌' }
       ],
       i: 3,
-      apphx: ''
+      apphx: '',
+      flag: true
     }
   },
   created() {
-    // this.getRank()
+    this.getRank()
   },
   methods: {
+    get(val, value1, value2, state) {
+      for (let i of val) {
+        const asd = {}
+        if (state) asd.state = state
+        asd.num = i.num + ''
+        asd.Activate = i.Activate
+        asd.title = value1[i.Activate - 1].title
+        asd.status = false
+        asd.image = value1[i.Activate - 1].image
+        asd.text = value1[i.Activate - 1].text
+        asd.ischecked = false
+
+        value2.push(asd)
+      }
+    },
     // 卡牌
     async getRank() {
+      Toast.loading({
+        message: '数据加载中...',
+        forbidClick: true,
+        duration: 0
+      })
       this.castDataList = []
       this.rankCardFlag2 = []
       this.rankCardFlag1 = []
       const { data } = await myNft(3)
+      this.hadReceive()
+
       console.log(data)
       for (let i of data) {
         // type 0、1待铸造（0是送的卡牌，1是开盲盒出来的） 4铸造中 5待领取
@@ -287,47 +290,107 @@ export default {
         asd.Activate = i.Activate
         asd.type = i.Type
         asd.title = this.allCard[i.Activate - 1].title
-        asd.status = this.allCard[i.Activate - 1].status
+        asd.status = false
         asd.image = this.allCard[i.Activate - 1].image
         asd.text = this.allCard[i.Activate - 1].text
-        asd.ischecked = this.allCard[i.Activate - 1].ischecked
-
-        if (asd.Activate == 1 || asd.Activate == 2) {
-          this.rankCardFlag1.push(asd)
-        } else {
-          if (asd.type == 0 || asd.type == 1 || asd.type == 4) this.castDataList.push(asd)
-          if (asd.type == 5) this.rankCardFlag2.push(asd)
+        asd.ischecked = false
+        if (i.Type != -1) {
+          if (['1', '2'].includes(asd.Activate)) {
+            this.rankCardFlag1.unshift(asd)
+          } else {
+            if (['0', '1', '4'].includes(asd.type)) this.castDataList.push(asd)
+          }
         }
       }
     },
+    // 待领取
+    async notReceive() {
+      this.array = []
+      this.rankCardFlag2 = []
+
+      await inquire(2, this.array)
+      await inquire(3, this.array)
+      await inquire(4, this.array)
+      Toast.clear()
+      this.get(this.array, this.allCard, this.rankCardFlag2)
+    },
+    // 已拥有(全部)
+    async hadReceive() {
+      this.Array = []
+
+      await already(0, 2, this.Array)
+      await already(0, 3, this.Array)
+      await already(0, 4, this.Array)
+      // Toast.clear()
+      this.hadReceiveSyn()
+      // console.log(this.Array)
+    },
+    // 已拥有（已合成）
+    async hadReceiveSyn() {
+      this.Arr = []
+
+      await alreadySyn(2, this.Arr)
+      await alreadySyn(3, this.Arr)
+      await alreadySyn(4, this.Arr)
+      Toast.clear()
+
+      let list = this.Array.filter((items) => {
+        if (!this.Arr.some((ele) => items.num == ele.num && items.Activate == ele.Activate)) return items
+      })
+
+      this.get(list, this.allCard, this.rankCardFlag1)
+      this.get(this.Arr, this.allCards, this.rankCardFlag1, 1)
+    },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
-    cardDetails(id) {
-      console.log(id)
-      // sessionStorage.setItem('toggle2', true)
-      // this.$router.push({ name: 'card_details' })
+    cardDetails(id, title, Activate, state) {
+      console.log(id, title, Activate)
+      this.$router.push({ name: 'card_details', query: { id: id, title: title, Activate: Activate + '', state: state, url: this.$route.name } })
     },
     // “领取”卡牌
-    getCard() {
+    async getsCard() {
+      console.log(this.rankCardFlag2)
       // this.select 选择的编号数组
+      // console.log(this.select)
+      Toast.loading({
+        message: '领取中...',
+        forbidClick: true,
+        duration: 0
+      })
 
       if (this.changeCheck) {
         // 全部领取
-        getAllCards(0, this.activate - 1)
+        await getAllCards(0, this.activate - 1, this.update)
       } else {
         if (this.selecked > 1) {
           // 批量领取
-          getCards(0, this.activate - 1, this.selecked)
+          await getCards(0, this.activate - 1, this.select, this.update)
         } else {
           // 单笔领取
-          getCard(0, this.activate - 1)
+          await getCard(0, this.activate - 1, ...this.select, this.update)
         }
       }
-
-      // 领取成功后重新渲染页面
+    },
+    update(value) {
+      if (value) {
+        this.rankCardFlag2.forEach((item, index) => {
+          this.select.forEach((items) => {
+            if (item.num == items && item.Activate == this.activate) delete this.rankCardFlag2[index]
+          })
+        })
+        this.rankCardFlag2 = this.rankCardFlag2.filter((val) => {
+          return val
+        })
+      }
+      this.rankCardFlag2.map((e) => (e.ischecked = false))
+      // this.i = 0
+      this.select = []
+      console.log(this.rankCardFlag2)
     },
     // 返回上一级
     onClickLeft() {
-      this.$router.back()
+      this.$router.push({
+        name: 'userInfo'
+      })
     },
     // 点击铸造显示扣除TRX的提示
     coincardHandler(i, index) {
@@ -350,11 +413,12 @@ export default {
         sfeotc1().then(
           (res) => {
             this.apphx = localStorage.getItem('apphx')
-            PayEotc(this.index, this.apphx).then((res) => {
+            PayEotc(this.index, this.apphx, 0).then((res) => {
               // console.log(res)
               if (res.data.State > 0) {
                 this.res()
               } else {
+                this.maskFlag1 = false
                 this.$toast.error('铸造失败')
               }
             })
@@ -373,10 +437,6 @@ export default {
       let status = this.castDataList.filter((e) => e.num == this.index)
       status[0].status = true
       console.log(status)
-    },
-    // 显示开始铸造后的提示
-    confirmSuccHandler() {
-      this.maskFlag3 = false
     },
     look(Activate, num, event) {
       this.activate = Activate
@@ -407,7 +467,8 @@ export default {
     },
     changeCheck: {
       get() {
-        return this.selecked == this.rankCardFlag2.filter((e) => e.Activate == this.i).length
+        if (this.selecked == 0) return false
+        else return this.selecked == this.rankCardFlag2.filter((e) => e.Activate == this.i).length
       },
       set(v) {
         if (v) {
@@ -415,6 +476,19 @@ export default {
         } else {
           this.rankCardFlag2.filter((e) => e.Activate == this.i).map((e) => (e.ischecked = false))
         }
+      }
+    }
+  },
+  watch: {
+    RankCardActive(i) {
+      if (i == 2 && this.flag) {
+        this.flag = false
+        Toast.loading({
+          message: '数据加载中...',
+          forbidClick: true,
+          duration: 0
+        })
+        this.notReceive()
       }
     }
   }

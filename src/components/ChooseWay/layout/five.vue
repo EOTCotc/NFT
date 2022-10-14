@@ -47,9 +47,9 @@ export default {
           { id: Math.random(), img: require('@/assets/img/Compose/3-before.png') }
         ]
         //按概率
-        if (this.number == 'xx') this.img = require('@/assets/img/Compose/actual-100-before.jpg')
-        // this.img = require('@/assets/img/Compose/actual-200-before.jpg')
-        // this.img = require('@/assets/img/Compose/actual-300-before.jpg')
+        if (this.number == 100) this.img = require('@/assets/img/Compose/actual-100-before.jpg')
+        if (this.number == 200) this.img = require('@/assets/img/Compose/actual-200-before.jpg')
+        if (this.number == 300) this.img = require('@/assets/img/Compose/actual-300-before.jpg')
       } else if (this.nodeMade == 'four') {
         this.imgs = [
           { id: Math.random(), img: require('@/assets/img/Compose/4-before.png') },
@@ -59,9 +59,9 @@ export default {
           { id: Math.random(), img: require('@/assets/img/Compose/4-before.png') }
         ]
         //按概率
-        this.img = require('@/assets/img/Compose/middle-100-before.jpg')
-        // this.img = require('@/assets/img/Compose/middle-200-before.jpg')
-        // this.img = require('@/assets/img/Compose/middle-300-before.jpg')
+        if (this.number == 100) this.img = require('@/assets/img/Compose/middle-100-before.jpg')
+        if (this.number == 200) this.img = require('@/assets/img/Compose/middle-200-before.jpg')
+        if (this.number == 300) this.img = require('@/assets/img/Compose/middle-300-before.jpg')
       } else if (this.nodeMade == 'five') {
         this.imgs = [
           { id: Math.random(), img: require('@/assets/img/Compose/5-before.png') },
@@ -71,9 +71,9 @@ export default {
           { id: Math.random(), img: require('@/assets/img/Compose/5-before.png') }
         ]
         //按概率
-        this.img = require('@/assets/img/Compose/high-100-before.jpg')
-        // this.img = require('@/assets/img/Compose/high-200-before.jpg')
-        // this.img = require('@/assets/img/Compose/high-300-before.jpg')
+        if (this.number == 100) this.img = require('@/assets/img/Compose/high-100-before.jpg')
+        if (this.number == 200) this.img = require('@/assets/img/Compose/high-200-before.jpg')
+        if (this.number == 300) this.img = require('@/assets/img/Compose/high-300-before.jpg')
       }
       this.show1 = true
       setTimeout(() => {

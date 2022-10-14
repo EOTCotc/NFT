@@ -14,16 +14,15 @@
     <div class="content">
       <!-- 卡片展示 -->
       <div class="cardShow">
-        <div class="img"><img src="../../assets/img/cardDetails/king.png"
-               alt=""></div>
+        <div class="img"><img :src="img"></div>
         <div class="text">
-          <p class="title">创世会权益卡</p>
-          <p class="txt">联合会权益卡，全球仅限66张，享有全网EOTC NFT 1%手续费平均分红，EOTC DAO的治理投票权。</p>
+          <p class="title">{{query.title}}</p>
+          <p class="txt">{{brief}}</p>
         </div>
       </div>
       <!-- 设置价格 -->
       <div class="price">
-        <div class="title">设置价格</div>
+        <div class="title">设置价格<span>*</span></div>
         <div class="input">
           <van-field v-model="price"
                      :border="false"
@@ -33,6 +32,32 @@
           <span>USDT</span>
         </div>
       </div>
+      <!-- 设置上架时间 -->
+      <div class="date">
+        <div class="title">设置商品上架截止时间<span>*</span></div>
+        <div class="calendar">
+          <van-cell :value="date"
+                    @click="show = true" />
+          <van-calendar v-model="show"
+                        :min-date="minDate"
+                        title="商品上架截止时间"
+                        @confirm="onConfirm"
+                        color="#1989fa"
+                        :show-confirm="false" />
+        </div>
+      </div>
+      <!-- 设置指定购买人 -->
+      <!-- <div class="wallet">
+        <div class="title">设置指定购买人</div>
+        <div class="address">
+          <van-form>
+            <van-field v-model="value"
+                       name="pattern"
+                       placeholder="请输入钱包地址"
+                       :rules="[{ pattern, message: '请输入正确钱包地址' }]" />
+          </van-form>
+        </div>
+      </div> -->
       <!-- 其他费用 -->
       <div class="otherPrice">
         <div class="title">其他费用</div>
@@ -40,16 +65,16 @@
           <p class="l">平台服务费</p>
           <p class="r">9%</p>
         </div>
-        <div class="cost">
+        <!-- <div class="cost">
           <p class="l">创作者版权税</p>
           <p class="r">3%</p>
-        </div>
+        </div> -->
       </div>
     </div>
     <!-- 页脚 -->
     <div class="footer">
       <div class="btn"
-           :class="price>0?'active':''"
+           :class="price>0&&endTime?'active':''"
            @click="sureHandler">
         <p>发布</p>
       </div>
@@ -58,36 +83,141 @@
 </template>
 
 <script>
+import { Toast } from 'vant'
+import { cardList, allCard, allCards } from '@/utils/options'
+import { postAnOrders, isApprovedForAlls, setApprovalForAlls, editOrders } from '@/utils/web3'
 export default {
   data() {
     return {
-      price: ''
+      show: false,
+      minDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+      date: '',
+      price: '',
+      query: '',
+      brief: '',
+      img: '',
+      cardList,
+      allCard,
+      allCards,
+      endTime: '',
+      value: '',
+      pattern: /^[A-Za-z0-9]{34}|^[0]{0}$/
     }
   },
+  created() {
+    this.query = this.$route.query
+    console.log(this.query)
+    this.start()
+  },
   methods: {
+    start() {
+      this.authorization()
+      this.query.url == 'hvae_card' ? this.rights() : this.grade()
+    },
+    // 查询卡牌是否授权
+    authorization() {
+      setTimeout(() => {
+        isApprovedForAlls(this.query.address).then((res) => {
+          if (!res) setApprovalForAlls(this.query.address)
+        })
+      }, 500)
+    },
+    // 等级卡牌
+    grade() {
+      let Activate = this.query.Activate
+      this.brief = this.allCard[Activate - 1].text
+      this.query.state ? (this.img = this.allCards[Activate - 1].image) : (this.img = this.allCard[Activate - 1].image)
+    },
+    // 权益卡牌
+    rights() {
+      let Activate = this.query.Activate
+      if (['1', '2'].includes(Activate)) {
+        this.img = this.cardList[0][Activate - 1].image
+        this.brief = this.cardList[0][Activate - 1].text
+      } else if (['6', '7', '8'].includes(Activate)) {
+        this.img = this.cardList[4][Activate - 6].image
+        this.brief = this.cardList[4][Activate - 6].text
+      } else {
+        if (this.query.time == 100) {
+          this.img = this.cardList[Activate - 2][0].image
+          this.brief = this.cardList[Activate - 2][0].text
+        } else if (this.query.time == 200) {
+          this.img = this.cardList[Activate - 2][1].image
+          this.brief = this.cardList[Activate - 2][1].text
+        } else if (this.query.time == 300) {
+          this.img = this.cardList[Activate - 2][2].image
+          this.brief = this.cardList[Activate - 2][2].text
+        }
+      }
+    },
     onClickLeft() {
-      sessionStorage.setItem('off', true)
+      this.$router.push({
+        name: 'card_details',
+        query: this.query
+      })
+    },
+    // 发布卡牌订单
+    async sureHandler() {
+      if (this.price > 0 && this.endTime) {
+        Toast.loading({
+          message: '发布中...',
+          forbidClick: true,
+          duration: 0
+        })
+        await postAnOrders(this.query.address, this.query.id, this.price, this.endTime, this.goToDetails)
+      }
+
+      // if (this.price > 0 && this.endTime && this.pattern.test(this.value)) {
+      //   if (this.value == localStorage.getItem('myaddress')) {
+      //     this.$toast('指定购买人不可为自己')
+      //   } else {
+      //     Toast.loading({
+      //       message: '发布中...',
+      //       forbidClick: true,
+      //       duration: 0
+      //     })
+      //     let values = ''
+      //     this.value == '' ? (values = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb') : (values = this.value)
+      //     await postAnOrders(values, this.query.address, this.query.id, this.price, this.endTime, this.goToDetails)
+      //   }
+      // } else if (!this.pattern.test(this.value)) {
+      //   this.$toast('钱包地址错误')
+      // }
+    },
+    goToDetails() {
+      this.price = ''
+      this.date = ''
+      this.value = ''
       this.$nextTick(() => {
         this.$router.push({
-          name: 'card_details'
+          name: 'card_details',
+          query: { ...this.query, sell: 1 }
         })
       })
     },
-    sureHandler() {
-      if (this.price > 0) {
-        sessionStorage.setItem('show', true)
-        this.$toast('发布成功')
-        this.price = ''
-        this.$nextTick(() => {
-          this.$router.push({
-            name: 'card_details'
-          })
-        })
-      }
+    formatDate(date) {
+      return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 8时`
+    },
+    onConfirm(date) {
+      // 结束时间为选择日期的上午8时
+      this.endTime = new Date(date).getTime() / 1000 + 8 * 3600
+      this.show = false
+      this.date = this.formatDate(date)
+      this.timestampToTime(this.endTime)
+    },
+    timestampToTime(timestamp) {
+      var date = new Date(timestamp * 1000) //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      let Y = date.getFullYear() + '-'
+      let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+      let D = date.getDate() + ' '
+      let h = date.getHours() + ':'
+      let m = date.getMinutes() + ':'
+      let s = date.getSeconds()
+      console.log(Y + M + D + h + m + s)
     }
   }
 }
-</script>
+</script> 
 
 <style lang="less" scoped>
 .cardSell,
@@ -112,6 +242,7 @@ html {
 .content {
   width: 100%;
   background: #06070a;
+  padding-bottom: 110px;
   // 卡片展示
   .cardShow {
     position: relative;
@@ -153,12 +284,16 @@ html {
     width: 92%;
     margin: 0px auto;
     margin-top: 110px;
-    padding-bottom: 110px;
-    border-bottom: 0.5px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 40px;
+    color: #fff;
+    // border-bottom: 0.5px solid rgba(255, 255, 255, 0.3);
     .title {
-      color: #fff;
-      font-size: 34px;
+      font-size: 30px;
       margin-bottom: 20px;
+      span {
+        color: red;
+        margin-left: 10px;
+      }
     }
     .input {
       position: relative;
@@ -167,17 +302,73 @@ html {
         border-radius: 8px 8px 8px 8px;
         border: 1px solid rgba(255, 255, 255, 0.5);
         background: transparent;
-        color: #fff;
       }
       span {
         position: absolute;
         right: 22px;
         top: 22px;
-        color: #ffffff;
         font-size: 28px;
       }
     }
   }
+  // 设置上架时间
+  .date {
+    color: #fff;
+    width: 92%;
+    margin: 0px auto;
+    padding-bottom: 40px;
+    .title {
+      font-size: 30px;
+      margin-bottom: 20px;
+      span {
+        color: red;
+        margin-left: 10px;
+      }
+    }
+    .calendar {
+      .van-cell {
+        background: transparent;
+        height: 88px;
+        border-radius: 8px 8px 8px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: #ccc;
+        &::after {
+          border: none;
+        }
+      }
+      .van-cell__value {
+        letter-spacing: 1px;
+        text-align: center;
+        color: #fff;
+      }
+      /deep/ .van-calendar {
+        background: #06070a;
+      }
+    }
+  }
+  // 设置指定购买人
+  .wallet {
+    color: #fff;
+    width: 92%;
+    margin: 0px auto;
+    .title {
+      font-size: 30px;
+      margin-bottom: 20px;
+    }
+    .address {
+      .van-field {
+        background: transparent;
+        height: 88px;
+        border-radius: 8px 8px 8px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+      }
+      /deep/ .van-field__error-message {
+        position: absolute;
+        top: -50%;
+      }
+    }
+  }
+
   // 其他费用
   .otherPrice {
     width: 92%;
