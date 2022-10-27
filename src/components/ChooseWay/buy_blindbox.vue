@@ -170,7 +170,7 @@ export default {
       } else {
         this.blindboxUid.splice(num, 1)
       }
-      console.log(this.blindboxUid)
+      // console.log(this.blindboxUid)
     },
 
     // 去购买盲盒，跳转至购买页面
@@ -245,9 +245,9 @@ export default {
       this.boxData = []
       let id = this.blindboxUid
       id == 1 ? '' : (id = id.join('&'))
-      console.log(id)
+      // console.log(id)
       const { data } = await OpenBlindBox(id)
-      console.log(data)
+      // console.log(data)
       for (let i of data) {
         const asd = {}
         asd.id = Math.random()
@@ -256,7 +256,7 @@ export default {
         this.boxData.push(asd)
       }
 
-      console.log(this.boxData)
+      // console.log(this.boxData)
     }
   },
   computed: {

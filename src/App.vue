@@ -4,26 +4,26 @@
 
 <script>
 export default {
-  name: "App",
+  name: 'App',
   data() {
     return {
-      isRouterAlive: true,
-    };
+      isRouterAlive: true
+    }
   },
   provide() {
     return {
-      reload: this.reload,
-    };
+      reload: this.reload
+    }
   },
   methods: {
     reload() {
-      this.isRouterAlive = false;
+      this.isRouterAlive = false
       this.$nextTick(function () {
-        this.isRouterAlive = true;
-      });
-    },
-  },
-};
+        this.isRouterAlive = true
+      })
+    }
+  }
+}
 </script>
 
 <style lang="less">
@@ -41,8 +41,8 @@ export default {
 
 html,
 body {
-   background-color: #06070a;
-  font-family: "PingFang SC", "Microsoft YaHei", "SimHei", "Arial", "SimSun" !important;
+  background-color: #06070a;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'SimHei', 'Arial', 'SimSun' !important;
 }
 
 p {

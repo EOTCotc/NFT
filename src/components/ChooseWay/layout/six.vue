@@ -1,6 +1,8 @@
 <template>
   <div id="six">
-    <van-popup v-model="show">
+    <van-popup v-model="show"
+               :closeable="!show1"
+               close-icon="close">
       <div class="imgs"
            v-if="show1">
         <div class="img"
@@ -73,10 +75,10 @@ export default {
       this.show1 = true
       setTimeout(() => {
         this.show1 = false
-      }, 1500)
+      }, 2000)
       setTimeout(() => {
         this.show2 = true
-      }, 1600)
+      }, 2000)
     }
   }
 }
@@ -87,7 +89,11 @@ export default {
   width: 100vw;
   height: 100vh;
   background: transparent;
-
+  /deep/ .van-popup__close-icon--top-right {
+    font-size: 70px;
+    top: 73%;
+    left: 46%;
+  }
   .imgs {
     position: relative;
 
@@ -97,27 +103,27 @@ export default {
       width: 30%;
 
       &:nth-of-type(1) {
-        animation: rotate1 1.5s linear infinite;
+        animation: rotate1 2s linear infinite;
       }
 
       &:nth-of-type(2) {
-        animation: rotate2 1.5s linear infinite;
+        animation: rotate2 2s linear infinite;
       }
 
       &:nth-of-type(3) {
-        animation: rotate3 1.5s linear infinite;
+        animation: rotate3 2s linear infinite;
       }
 
       &:nth-of-type(4) {
-        animation: rotate4 1.5s linear infinite;
+        animation: rotate4 2s linear infinite;
       }
 
       &:nth-of-type(5) {
-        animation: rotate5 1.5s linear infinite;
+        animation: rotate5 2s linear infinite;
       }
 
       &:nth-of-type(6) {
-        animation: rotate6 1.5s linear infinite;
+        animation: rotate6 2s linear infinite;
       }
 
       img {

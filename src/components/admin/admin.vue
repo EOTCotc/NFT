@@ -179,18 +179,19 @@ export default {
     }
   },
   created() {
-    for (let i = 1; i <= 2; i++) {
+    for (let i = 1; i <= 10; i++) {
       this.equityCard.push({
         id: Math.random(),
-        Activate: 4,
-        time: 100,
+        Activate: 1,
         type: 0,
+        // type: 1,
+        time: 0,
         status: false,
         ischecked: false,
-        num: i + 430 + '',
+        num: i + 5 + '',
         image: require('@/assets/img/Compose/3-before.png'),
         title: '3级青铜甲犀牛',
-        casting: 'TFQ8Pvb9uxxhaw4YJxbZQuzswX8btUEzFL'
+        casting: '0x04DA18A861206A11E702852e6d8F42706B9d52C2'
       })
     }
     // this.hallmark()
@@ -204,9 +205,12 @@ export default {
     },
     // 卡牌
     hallmark() {
+      this.i = 0
+      this.e = 0
+      this.time = 0
       GetAppStake({})
         .then((res) => {
-          console.log(res.data)
+          // console.log(res.data)
           this.myRanks = res.data.filter((val) => val.type == 0)
           this.myEquity = res.data.filter((val) => val.type == 1)
           this.rankCard()
@@ -219,7 +223,7 @@ export default {
     // 等级卡牌
     rankCard() {
       this.rankCardFlag = []
-      console.log(this.myRanks)
+      // console.log(this.myRanks)
       for (let i of this.myRanks) {
         const com = {}
         com.num = i.id
@@ -236,7 +240,7 @@ export default {
     // 权益卡牌
     equityCards() {
       this.equityCard = []
-      console.log(this.myEquity)
+      // console.log(this.myEquity)
       for (let i of this.myEquity) {
         const com = {}
         com.id = Math.random()
@@ -295,10 +299,10 @@ export default {
         )
       }
       if (this.rank.length == 0) this.i = 0
-      console.log(this.rank, this.casting1)
+      // console.log(this.rank, this.casting1)
     },
     looks(time, Activate, num, casting, event) {
-      console.log(Activate, casting, event)
+      // console.log(Activate, casting, event)
       this.e = Activate
       if (event) {
         if (time && this.time == 0) this.time = time
@@ -306,7 +310,7 @@ export default {
         this.equity.push(num)
         this.equitys.push(1)
         this.casting2.push(casting)
-        console.log(time)
+        // console.log(time)
       } else {
         this.equity.splice(
           this.equity.findIndex((item) => item === num),
@@ -322,14 +326,14 @@ export default {
         )
       }
       if (this.equity.length == 0) (this.e = 0), (this.time = 0)
-      console.log(this.equity, this.casting2, this.time)
+      // console.log(this.equity, this.casting2, this.time)
     },
     pro(i) {
-      console.log(i)
+      // console.log(i)
       if (i === false) this.$toast('只能同时选择一种类型的NFT')
     },
     pros(e) {
-      console.log(e)
+      // console.log(e)
       if (e === false) this.$toast('只能同时选择一种类型的NFT')
     },
     changeList(i) {

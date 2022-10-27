@@ -25,6 +25,7 @@
         <div class="title">设置价格<span>*</span></div>
         <div class="input">
           <van-field v-model="price"
+                     oninput="if(value>1000000000000000)value=1000000000000000"
                      :border="false"
                      type="digit"
                      placeholder="请输入价格"
@@ -34,7 +35,7 @@
       </div>
       <!-- 设置上架时间 -->
       <div class="date">
-        <div class="title">设置商品上架截止时间<span>*</span></div>
+        <div class="title">设置商品下架时间<span>*</span></div>
         <div class="calendar">
           <van-cell :value="date"
                     @click="show = true" />
@@ -84,7 +85,7 @@
 
 <script>
 import { Toast } from 'vant'
-import { cardList, allCard, allCards } from '@/utils/options'
+import { cardList, allCard, allCards, contract } from '@/utils/options'
 import { postAnOrders, isApprovedForAlls, setApprovalForAlls, editOrders } from '@/utils/web3'
 export default {
   data() {
@@ -101,6 +102,7 @@ export default {
       allCards,
       endTime: '',
       value: '',
+      addressIndex: { first: null, last: null },
       pattern: /^[A-Za-z0-9]{34}|^[0]{0}$/
     }
   },
@@ -111,14 +113,25 @@ export default {
   },
   methods: {
     start() {
+      for (let i = 0; i < 2; i++) {
+        let index = contract[i].indexOf(this.query.address)
+        // console.log(index)
+        if (index != -1) (this.addressIndex.first = i), (this.addressIndex.last = index)
+      }
       this.authorization()
       this.query.url == 'hvae_card' ? this.rights() : this.grade()
     },
     // 查询卡牌是否授权
     authorization() {
+      Toast.loading({
+        message: '卡牌授权中...',
+        forbidClick: true,
+        duration: 0
+      })
       setTimeout(() => {
-        isApprovedForAlls(this.query.address).then((res) => {
-          if (!res) setApprovalForAlls(this.query.address)
+        isApprovedForAlls(this.addressIndex).then((res) => {
+          if (!res) setApprovalForAlls(this.addressIndex)
+          else Toast.clear()
         })
       }, 500)
     },
@@ -164,7 +177,8 @@ export default {
           forbidClick: true,
           duration: 0
         })
-        await postAnOrders(this.query.address, this.query.id, this.price, this.endTime, this.goToDetails)
+        // 合成传1，未合成传0
+        await postAnOrders(this.query.address, this.query.id, this.query.state == 1 ? 1 : 0, this.price, this.endTime + 8 * 3600, this.goToDetails)
       }
 
       // if (this.price > 0 && this.endTime && this.pattern.test(this.value)) {

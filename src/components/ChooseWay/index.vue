@@ -158,7 +158,7 @@ export default {
           await Reconstruction_getTrxBalance()
           await Reconstruction_verifyUSDT(money)
           const { data } = await nft_SendUSDT(money)
-          console.log(data)
+          // console.log(data)
           this.$toast.clear()
           this.$toast.success('购买成功！')
           let num = parseFloat(localStorage.getItem('myamount'))
@@ -184,7 +184,7 @@ export default {
       const { data } = await BuyNft(2)
       localStorage.setItem('residue_card1', data.State)
       this.card1 = data.State
-      console.log(this.card1)
+      // console.log(this.card1)
       if (this.card1 === '-1' || data.State === '-1') {
         //卡牌数量不足
         this.isNoBuy = true

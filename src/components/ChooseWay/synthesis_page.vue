@@ -491,8 +491,7 @@
                   :key="item.id">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
-                <p class="text"
-                   v-if="num">#{{ item.ucode.padStart(6, 0) }}</p>
+                <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
 
                 <div class="cardselect">
                   <van-radio :name="item.ucode"
@@ -525,8 +524,7 @@
                   :key="item.id">
                 <img :src="item.url" />
                 <p class="title">{{ item.title }}</p>
-                <p class="text"
-                   v-if="num">#{{ item.ucode.padStart(6, 0) }}</p>
+                <p class="text">#{{ item.ucode.padStart(6, 0) }}</p>
                 <div class="cardselect">
                   <van-checkbox :name="item.ucode"
                                 icon-size="20px"></van-checkbox>
@@ -547,8 +545,7 @@
            @click.stop>
         <div class="maskbox">
           <div style="color: #333333">
-            合成:
-            60%卡牌为100天分红期限，35%卡牌200天分红期限，5%卡牌为300天分红期限
+            60%卡牌为100天分红期限<br>35%卡牌为200天分红期限<br>5%卡牌为300天分红期限
           </div>
           <div>
             <p @click="show3 = false">取消</p>
@@ -566,6 +563,7 @@
     </van-overlay>
 
     <!-- 合成动画 -->
+    <One v-if="one"></One>
     <Two v-if="two"
          :time="timeSyn"></Two>
     <Three v-if="three"
@@ -579,10 +577,11 @@
   </div>
 </template>
 <script>
-import { allCard, cardList, selectAll } from '@/utils/options'
+import { contract, allCard, cardList, selectAll } from '@/utils/options'
 import { myNft, FusingNFT } from '@/api/newReqets'
-import { level3, level4, level5, realTime, middleLevel, highLevel, already, alreadySyn, alreadyEquity } from '@/utils/web3'
+import { orderActivitys, level3, level4, level5, realTime, middleLevel, highLevel, already, alreadySyn, alreadyEquity } from '@/utils/web3'
 import { Toast } from 'vant'
+import One from './layout/one.vue'
 import Two from './layout/two.vue'
 import Three from './layout/three.vue'
 import Five from './layout/five.vue'
@@ -590,6 +589,7 @@ import Six from './layout/six.vue'
 export default {
   components: {
     //组件与标签映射
+    One: One,
     Two: Two,
     Three: Three,
     Five: Five,
@@ -597,6 +597,7 @@ export default {
   },
   data() {
     return {
+      digit: null,
       //三级卡牌
       level: [
         [0, 0, 0],
@@ -657,6 +658,7 @@ export default {
       // 300高级节点
       high300: [],
       // 点击合成
+      one: false,
       two: false,
       three: false,
       five: false,
@@ -692,7 +694,7 @@ export default {
       this.high300 = []
       // 请求接口获取数据
       const { data } = await myNft(3)
-      console.log(data)
+      // console.log(data)
       for (let i of data) {
         const asd = {}
         asd.ucode = i.ID
@@ -700,8 +702,8 @@ export default {
         asd.title = this.allCard[i.Activate - 1].title
         asd.url = this.allCard[i.Activate - 1].image
         if (i.Type != -1) {
-          if (asd.Activate == 1) this.numOne.push(asd)
-          if (asd.Activate == 2) this.numTwo.push(asd)
+          if (asd.Activate == 1) (asd.address = contract[0][i.Activate - 1]), this.numOne.push(asd)
+          if (asd.Activate == 2) (asd.address = contract[0][i.Activate - 1]), this.numTwo.push(asd)
         }
       }
 
@@ -711,81 +713,109 @@ export default {
     // 3-5级等级卡牌已拥有(全部)
     async hadReceive() {
       this.array = []
+      this.Arr = []
 
       await already(0, 2, this.array)
       await already(0, 3, this.array)
       await already(0, 4, this.array)
 
-      this.hadReceiveSyn()
-    },
-
-    // 3-5级等级卡牌已拥有（已合成）
-    async hadReceiveSyn() {
-      this.Arr = []
-
-      await alreadySyn(2, this.Arr)
-      await alreadySyn(3, this.Arr)
-      await alreadySyn(4, this.Arr)
-      Toast.clear()
-
-      let list = this.array.filter((items) => {
-        if (!this.Arr.some((ele) => items.num == ele.num && items.Activate == ele.Activate)) return items
-      })
-      console.log(list)
-      this.getRank(list)
-    },
-
-    getRank(val) {
-      for (let i of val) {
+      // this.hadReceiveSyn()
+      for (let i = 0; i < this.array.length; i++) {
+        await alreadySyn(this.array[i].Activate - 1, this.array[i].num, this.Arr)
+      }
+      for (let i of this.Arr) {
         const asd = {}
-        asd.ucode = i.num + ''
-        asd.Activate = i.Activate
-        asd.title = this.allCard[i.Activate - 1].title
-        asd.url = this.allCard[i.Activate - 1].image
+        if (i.data == 0) {
+          asd.ucode = i.num + ''
+          asd.Activate = i.Activate
+          asd.status = false
+          asd.ischecked = false
+          asd.address = contract[0][i.Activate - 1]
+          asd.title = this.allCard[i.Activate - 1].title
+          asd.url = this.allCard[i.Activate - 1].image
 
-        i.Activate == 3 && this.numThree.push(asd)
-        i.Activate == 4 && this.numFour.push(asd)
-        i.Activate == 5 && this.numFive.push(asd)
+          await orderActivitys(asd.address, asd.ucode).then((res) => {
+            this.digit = res
+          })
+        }
+        // console.log(asd)
+        asd.Activate == 3 && this.digit != 1 && this.numThree.push(asd)
+        asd.Activate == 4 && this.digit != 1 && this.numFour.push(asd)
+        asd.Activate == 5 && this.digit != 1 && this.numFive.push(asd)
       }
     },
 
-    // 查询有限权益卡牌
+    // // 3-5级等级卡牌已拥有（已合成）
+    // async hadReceiveSyn() {
+    //   await alreadySyn(2, this.Arr)
+    //   await alreadySyn(3, this.Arr)
+    //   await alreadySyn(4, this.Arr)
+    //   Toast.clear()
+
+    //   let list = this.array.filter((items) => {
+    //     if (!this.Arr.some((ele) => items.num == ele.num && items.Activate == ele.Activate)) return items
+    //   })
+    //   console.log(list)
+    //   this.getRank(list)
+    // },
+    // // 等级卡牌
+    // async getRank(val) {
+    //   for (let i of val) {
+    //     const asd = {}
+    //     asd.ucode = i.num + ''
+    //     asd.Activate = i.Activate
+    //     asd.title = this.allCard[i.Activate - 1].title
+    //     asd.url = this.allCard[i.Activate - 1].image
+    //     asd.address = contract[0][i.Activate - 1]
+    //     await orderActivitys(asd.address, asd.ucode).then((res) => {
+    //       this.digit = res
+    //     })
+    //     i.Activate == 3 && this.digit != 1 && this.numThree.push(asd)
+    //     i.Activate == 4 && this.digit != 1 && this.numFour.push(asd)
+    //     i.Activate == 5 && this.digit != 1 && this.numFive.push(asd)
+    //   }
+    // },
+
+    /* 查询有限权益卡牌 */
     async hadEquity() {
       let Array = []
       await alreadyEquity(2, Array)
       await alreadyEquity(3, Array)
       await alreadyEquity(4, Array)
 
-      console.log(Array)
+      // console.log(Array)
       this.getEquity(Array)
     },
-    getEquity(val) {
+    async getEquity(val) {
       for (let i of val) {
         const asd = {}
         asd.ucode = i.number + ''
+        asd.address = contract[1][i.Activate + 1]
         // asd.Activate = i.Activate + 1
         asd.title = this.cardList[i.Activate][i.id].title
         asd.url = this.cardList[i.Activate][i.id].image
-
+        await orderActivitys(asd.address, asd.ucode).then((res) => {
+          this.digit = res
+        })
         // 实时节点
         if (i.Activate == 1) {
-          i.id == 0 && this.current100.push(asd)
-          i.id == 1 && this.current200.push(asd)
-          i.id == 2 && this.current300.push(asd)
+          i.id == 0 && this.digit != 1 && this.current100.push(asd)
+          i.id == 1 && this.digit != 1 && this.current200.push(asd)
+          i.id == 2 && this.digit != 1 && this.current300.push(asd)
         }
 
         // 中级节点
         if (i.Activate == 2) {
-          i.id == 0 && this.middle100.push(asd)
-          i.id == 1 && this.middle200.push(asd)
-          i.id == 2 && this.middle300.push(asd)
+          i.id == 0 && this.digit != 1 && this.middle100.push(asd)
+          i.id == 1 && this.digit != 1 && this.middle200.push(asd)
+          i.id == 2 && this.digit != 1 && this.middle300.push(asd)
         }
 
         // 高级节点
         if (i.Activate == 3) {
-          i.id == 0 && this.high100.push(asd)
-          i.id == 1 && this.high200.push(asd)
-          i.id == 2 && this.high300.push(asd)
+          i.id == 0 && this.digit != 1 && this.high100.push(asd)
+          i.id == 1 && this.digit != 1 && this.high200.push(asd)
+          i.id == 2 && this.digit != 1 && this.high300.push(asd)
         }
       }
     },
@@ -798,7 +828,7 @@ export default {
     // 清空
     empty() {
       this.$toast.clear()
-
+      this.one = false
       this.level = [
         [0, 0, 0],
         [0, 0, 0],
@@ -826,13 +856,10 @@ export default {
 
       setTimeout(() => {
         this.getCard()
-      }, 2000)
+      }, 500)
     },
     //合成动画
     confirmHandler2() {
-      this.$toast(`合成大约需要1分钟\n\n请耐心等候不要退出页面`, {
-        timeout: 300000
-      })
       Toast.loading({
         message: '正在确认中...',
         forbidClick: true,
@@ -845,12 +872,7 @@ export default {
         Toast.clear()
         let synthcard = (i) => {
           this.timeSyn = i
-          setTimeout(() => {
-            this.two = true
-          }, 500)
-          setTimeout(() => {
-            this.two = false
-          }, 3500)
+          this.two = true
         }
         FusingNFT(this.selectAll[0][2][0], 0, this.selectAll[0][2][1])
           .then((res) => {
@@ -867,12 +889,7 @@ export default {
         Toast.clear()
         let synthcard = (i) => {
           this.timeSyn = i
-          setTimeout(() => {
-            this.three = true
-          }, 500)
-          setTimeout(() => {
-            this.three = false
-          }, 3500)
+          this.three = true
         }
         FusingNFT(this.selectAll[0][1][0], this.selectAll[0][1][1], this.selectAll[0][1][2])
           .then((res) => {
@@ -887,51 +904,53 @@ export default {
       }
       if (this.synthNum == 5) {
         let synthcard = (i) => {
-          console.log(i)
+          this.one = false
+          // console.log(i)
           this.number = i
-          setTimeout(() => {
-            this.five = true
-          }, 500)
-          setTimeout(() => {
-            this.five = false
-          }, 3500)
+          this.five = true
+        }
+
+        let arr = () => {
+          this.one = true
         }
 
         if (this.msg == 'three') {
-          console.log(this.selectAll[1][0])
-          level3(this.selectAll[1][0], synthcard, this.empty)
+          // console.log(this.selectAll[1][0])
+          level3(arr, this.selectAll[1][0], synthcard, this.empty)
         }
         if (this.msg == 'four') {
-          level4(this.selectAll[1][1], synthcard, this.empty)
+          level4(arr, this.selectAll[1][1], synthcard, this.empty)
         }
         if (this.msg == 'five') {
-          level5(this.selectAll[1][2], synthcard, this.empty)
+          level5(arr, this.selectAll[1][2], synthcard, this.empty)
         }
       }
       if (this.synthNum == 6) {
         let synthcard = () => {
-          setTimeout(() => {
-            this.six = true
-          }, 500)
-          setTimeout(() => {
-            this.six = false
-          }, 3500)
+          this.one = false
+          this.six = true
+        }
+
+        let arr = () => {
+          this.one = true
         }
 
         let Array = []
         if (this.msg == 'actual') {
-          Array = [...[...this.selectAll[2][0][0], ...this.selectAll[2][0][1], ...this.selectAll[2][0][2]]]
-          realTime(Array, synthcard, this.empty)
+          Array = [...[...this.selectAll[2][0][0], ...this.selectAll[2][0][1], this.selectAll[2][0][2]]]
+          realTime(arr, Array, synthcard, this.empty)
         }
         if (this.msg == 'middle') {
-          Array = [...[...this.selectAll[2][1][0], ...this.selectAll[2][1][1], ...this.selectAll[2][1][2]]]
-          middleLevel(Array, synthcard, this.empty)
+          Array = [...[...this.selectAll[2][1][0], ...this.selectAll[2][1][1], this.selectAll[2][1][2]]]
+          middleLevel(arr, Array, synthcard, this.empty)
         }
         if (this.msg == 'high') {
-          Array = [...[...this.selectAll[2][2][0], ...this.selectAll[2][2][1], ...this.selectAll[2][2][2]]]
-          highLevel(Array, synthcard, this.empty)
+          Array = [...[...this.selectAll[2][2][0], ...this.selectAll[2][2][1], this.selectAll[2][2][2]]]
+          highLevel(arr, Array, synthcard, this.empty)
         }
       }
+
+      // this.one = false
     },
     // 合成遮罩确认
     confirmHandler() {

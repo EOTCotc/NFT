@@ -19,13 +19,13 @@
     <div class="manyCard">
       <template v-if="manyCard.length">
         <div class="item"
-             @click="goCardDetails(item.id,item.num,item.title,item.Activate,item.form,item.status,item.state,item.price,item.endTime,item.time)"
+             @click="goCardDetails(item.text,item.id,item.num,item.title,item.Activate,item.form,item.status,item.state,item.price,item.endTime,item.time)"
              v-for="item in manyCard"
              :key="item.id">
           <p class="img"><img :src="item.image"></p>
           <p class="title">{{item.title }}</p>
           <p class="text">{{item.text|ellipsis }}</p>
-          <p class="price"><img src="@/assets/img/logo-removebg-preview.png">{{item.price.toFixed(2)}}</p>
+          <p class="price"><img src="@/assets/img/logo-removebg-preview.png">{{item.price}}</p>
         </div>
       </template>
 
@@ -91,7 +91,7 @@
 <script>
 import { Toast } from 'vant'
 import { options, allCard, allCards, cardList, contract } from '@/utils/options'
-import { allMarketOrders, idByLimitedTimes } from '@/utils/web3'
+import { getMarketOrders, allMarketOrders, idByLimitedTimes } from '@/utils/web3'
 export default {
   data() {
     return {
@@ -106,19 +106,20 @@ export default {
       manyCard: [],
       manyCards: [],
       tabs: [
-        { id: 0, name: '全部' },
-        { id: 1, name: '等级' },
-        { id: 2, name: '权益' },
+        { id: 0, name: '全部卡牌' },
+        { id: 1, name: '等级卡牌' },
+        { id: 2, name: '权益卡牌' },
         // { id: 3, name: '专属' },
-        { id: 4, name: '我的' }
+        { id: 4, name: '我的卡牌' }
       ],
       array: [], //订单信息
       index: [],
-      user: localStorage.getItem('myaddress')
+      user: localStorage.getItem('myaddress').toLowerCase()
     }
   },
   created() {
     this.option = options
+    // console.log(this.user)
     setTimeout(() => {
       this.allOrders()
     }, 500)
@@ -134,7 +135,7 @@ export default {
       this.array = []
       let arr = []
       await allMarketOrders(this.array)
-      console.log(this.array)
+      // console.log(this.array)
       this.array.forEach((value) => arr.push(value.NFTaddress))
       this.getPage(arr)
     },
@@ -147,7 +148,7 @@ export default {
           if (index != -1) this.array[j].NFTaddress = { i, index }
         }
       }
-      console.log(this.array)
+      // console.log(this.array)
 
       for (let n of this.array) {
         if (n.NFTaddress.i == 0) {
@@ -161,7 +162,7 @@ export default {
           asd.title = allCard[n.NFTaddress.index].title
           n.state ? (asd.image = allCards[n.NFTaddress.index].image) : (asd.image = allCard[n.NFTaddress.index].image)
           asd.text = n.seller
-          asd.price = n.price / 1000000
+          asd.price = n.price
           // asd.buyer = n.buyer
           asd.form = 1
           // if (n.buyer == this.user) asd.state = 3
@@ -177,25 +178,27 @@ export default {
           asd.num = n.NFTid
           asd.endTime = n.endTime
           asd.Activate = n.NFTaddress.index + 1
+          // console.log(n.NFTaddress)
           asd.text = n.seller
-          asd.price = n.price / 1000000
+          asd.price = n.price
           // asd.buyer = n.buyer
           asd.form = 2
           asd.status = 0
+          // console.log(n.seller, this.user)
           // if (n.buyer == this.user) asd.state = 3
           if (n.seller == this.user) asd.state = 4
           if ([3, 4, 5].includes(asd.Activate)) {
             let str = []
             await idByLimitedTimes(n.NFTaddress.index, n.NFTid, str)
-            console.log(str)
-            asd.time = (str[0] + 1) * 100
+            // console.log(str)
+            asd.time = (str[0] * 1 + 1) * 100
             asd.title = cardList[asd.Activate - 2][str[0]].title
             asd.image = cardList[asd.Activate - 2][str[0]].image
           } else if ([1, 2].includes(asd.Activate)) {
             asd.title = cardList[0][n.NFTaddress.index].title
             asd.image = cardList[0][n.NFTaddress.index].image
           } else {
-            console.log(n.NFTaddress)
+            // console.log(n.NFTaddress)
             asd.title = cardList[4][asd.Activate - 6].title
             asd.image = cardList[4][asd.Activate - 6].image
           }
@@ -206,7 +209,7 @@ export default {
           // }
         }
       }
-      console.log(this.manyCards)
+      // console.log(this.manyCards)
       this.manyCard = this.manyCards
       Toast.clear()
     },
@@ -226,11 +229,11 @@ export default {
     //   this.show = !this.show
     // },
     // 查看卡牌详情
-    goCardDetails(orderID, id, title, Activate, form, status, state, price, endTime, time) {
+    goCardDetails(seller, orderID, id, title, Activate, form, status, state, price, endTime, time) {
       this.$router.push({
         name: 'card_details',
         query: {
-          // buyer: buyer,
+          seller: seller,
           orderID: orderID,
           id: id + '',
           time: time,
@@ -267,14 +270,14 @@ export default {
       handler(num) {
         this.number = 0
         this.option = options.filter((e) => e.id == num)[0]
-        console.log(this.option)
+        // console.log(this.option)
       },
       immediate: true
     },
     number: {
       handler(number) {
         this.menu = this.option.name.filter((e) => e.id == number)[0]
-        console.log(this.menu)
+        // console.log(this.menu)
       }
       // immediate: true
     }
@@ -310,7 +313,7 @@ export default {
     }
   }
   .tab {
-    padding: 0 1em;
+    // padding: 0 1em;
     // margin-bottom: 30px;
     color: #878d9a;
     font-size: 32px;

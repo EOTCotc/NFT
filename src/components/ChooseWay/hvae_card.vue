@@ -32,7 +32,7 @@
                   <p>{{item.title}}</p>
                   <p class="num">#{{item.num.padStart(6, 0) }}</p>
                   <img src="../../assets/img/link.png"
-                       alt=""
+                       v-if="item.bind"
                        class="image">
                 </div>
               </div>
@@ -173,7 +173,7 @@
          class="rankmask">
       <div class="maskbox">
         <div>
-          本次铸造需要扣除20-50不等的TRX
+          本次铸造需要扣除0.0030--0.0050不等的bsc
           现在立即铸造？
         </div>
         <div>
@@ -204,8 +204,8 @@
 
 <script>
 import { Toast } from 'vant'
-import { myNft, PayEotc } from '@/api/newReqets'
-import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards, alreadyEquity, already, notEquity, notEquityTime, genesis, getCardsTime } from '@/utils/web3'
+import { myNft, PayEotc, BindNft } from '@/api/newReqets'
+import { sfeotc1, Reconstruction_getBscBalance, getCard, getCards, getAllCards, alreadyEquity, already, notEquity, notEquityTime, genesis, getCardsTime } from '@/utils/web3'
 import { cardList } from '@/utils/options'
 export default {
   name: 'myNFT-list',
@@ -242,7 +242,6 @@ export default {
   methods: {
     get(val, value) {
       for (let i of val) {
-        console.log(i)
         const asd = {}
         asd.status = false
         asd.ischecked = false
@@ -256,7 +255,7 @@ export default {
 
         value.push(asd)
       }
-      console.log(value)
+      // console.log(value)
     },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
     cardDetails(id, title, time, Activate) {
@@ -265,6 +264,7 @@ export default {
     },
     // 点击铸造显示扣除TRX的提示
     coincardHandler(i, index) {
+      // Toast('铸造暂未开放')
       this.index = index
       this.maskFlag1 = true
     },
@@ -274,26 +274,35 @@ export default {
       this.maskFlag3 = false
     },
     // 确定铸造
-    confirmHandler() {
-      getTrxBalance(() => {
-        sfeotc1().then(
-          (res) => {
-            this.apphx = localStorage.getItem('apphx')
-            PayEotc(this.index, this.apphx, 1).then((res) => {
-              if (res.data.State > 0) {
-                this.res()
-              } else {
-                this.maskFlag1 = false
-                this.$toast.error('铸造失败')
-              }
-            })
-          },
-          (rej) => {
-            this.$toast.warning('取消铸造')
-            this.maskFlag1 = false
-          }
-        )
+    async confirmHandler() {
+      Toast.loading({
+        message: '铸造中...',
+        forbidClick: true,
+        duration: 0
       })
+      // getTrxBalance(() => {
+      await Reconstruction_getBscBalance()
+      sfeotc1().then(
+        (res) => {
+          this.apphx = localStorage.getItem('apphx')
+          PayEotc(this.index, this.apphx, 1).then((res) => {
+            if (res.data.State > 0) {
+              Toast.clear()
+              this.res()
+            } else {
+              Toast.clear()
+              this.maskFlag1 = false
+              this.$toast.error('铸造失败')
+            }
+          })
+        },
+        (rej) => {
+          Toast.clear()
+          this.$toast.warning('取消铸造')
+          this.maskFlag1 = false
+        }
+      )
+      // })
     },
     res() {
       this.currentIndex = this.index
@@ -332,6 +341,24 @@ export default {
       if (this.equity.length == 0) this.i = 0
       // console.log(this.i, this.equity, this.time)
     },
+
+    update(value) {
+      if (value) {
+        this.cardState.forEach((items, index) => {
+          if (items.ischecked === true) delete this.cardState[index]
+        })
+
+        this.cardState = this.cardState.filter((val) => {
+          return val
+        })
+      }
+      this.cardState.map((e) => (e.ischecked = false))
+      this.i = 0
+      this.values = []
+      this.times = []
+      this.time = []
+      // console.log(this.cardState)
+    },
     // “领取”卡牌
     async getCard() {
       Toast.loading({
@@ -340,7 +367,7 @@ export default {
         duration: 0
       })
       // console.log(this.i, this.selecked)
-      console.log(this.cardState)
+      // console.log(this.cardState)
 
       let an = this.time.filter((val) => {
         return val == 100
@@ -363,7 +390,7 @@ export default {
         this.values.push(cn.length)
         this.times.push('300')
       }
-      console.log(this.values, this.times)
+      // console.log(this.values, this.times)
 
       if (this.changeCheck && !this.time.length) {
         // 全部领取
@@ -378,23 +405,46 @@ export default {
         }
       }
     },
-    update(value) {
-      if (value) {
-        console.log(123)
-        this.cardState.forEach((items, index) => {
-          if (items.ischecked === true) delete this.cardState[index]
-        })
-
-        this.cardState = this.cardState.filter((val) => {
-          return val
-        })
+    // 绑定中的卡牌
+    async bind() {
+      let address = localStorage.getItem('myaddress')
+      const { data } = await BindNft(address, 'null', 0, 0, 'null', 0)
+      // console.log(data)
+      for (let i of data) {
+        // console.log(i)
+        const asd = {}
+        asd.key = Math.random()
+        asd.bind = true
+        asd.num = i.kid + ''
+        asd.status = false
+        asd.ischecked = false
+        if ([6, 7, 8].includes(i.id)) {
+          asd.Activate = i.id
+          asd.text = this.cardList[4][i.id - 6].text
+          asd.img = this.cardList[4][i.id - 6].image
+          asd.title = this.cardList[4][i.id - 6].title
+        } else if ([31, 32, 33].includes(i.id)) {
+          asd.time = i.xday
+          asd.Activate = 3
+          asd.text = this.cardList[1][i.id - 31].text
+          asd.img = this.cardList[1][i.id - 31].image
+          asd.title = this.cardList[1][i.id - 31].title
+        } else if ([41, 42, 43].includes(i.id)) {
+          asd.time = i.xday
+          asd.Activate = 4
+          asd.text = this.cardList[2][i.id - 41].text
+          asd.img = this.cardList[2][i.id - 41].image
+          asd.title = this.cardList[2][i.id - 41].title
+        } else if ([51, 52, 53].includes(i.id)) {
+          asd.time = i.xday
+          asd.Activate = 5
+          asd.text = this.cardList[3][i.id - 51].text
+          asd.img = this.cardList[3][i.id - 51].image
+          asd.title = this.cardList[3][i.id - 51].title
+        }
+        // console.log(asd)
+        i.id < 100 && this.cartItem.push(asd)
       }
-      this.cardState.map((e) => (e.ischecked = false))
-      this.i = 0
-      this.values = []
-      this.times = []
-      this.time = []
-      console.log(this.cardState)
     },
     async getMyNFT() {
       Toast.loading({
@@ -406,7 +456,8 @@ export default {
       this.castDataList = []
       this.cartItem = []
       const { data } = await myNft(1)
-      console.log(data)
+      // console.log(data)
+      this.bind()
       this.limited()
       this.limitedFor()
       this.hadLimitedFor()
@@ -453,6 +504,7 @@ export default {
         if (i.Activate == 0) this.Not_activatedList.push(asd)
         if (['1', '2'].includes(i.Activate)) this.castDataList.unshift(asd)
       }
+      // Toast.clear()
     },
     // 有限权益卡牌
     async limited() {
@@ -461,7 +513,7 @@ export default {
       await alreadyEquity(3, Array)
       await alreadyEquity(4, Array)
 
-      console.log(Array)
+      // console.log(Array)
       this.get(Array, this.cartItem)
       Toast.clear()
     },
@@ -472,7 +524,7 @@ export default {
       await already(1, 6, Array)
       await already(1, 7, Array)
 
-      console.log(Array)
+      // console.log(Array)
 
       for (let i of Array) {
         const asd = {}
@@ -486,7 +538,7 @@ export default {
         asd.text = this.cardList[4][i.Activate - 6].text
 
         this.cartItem.push(asd)
-        console.log(asd)
+        // console.log(asd)
       }
     },
     // 创世会、联合会已拥有
@@ -495,7 +547,7 @@ export default {
       await already(1, 0, Array)
       await already(1, 1, Array)
 
-      console.log(Array)
+      // console.log(Array)
 
       for (let i of Array) {
         const asd = {}
@@ -516,7 +568,7 @@ export default {
       let Array = []
       await genesis(0, Array)
       await genesis(1, Array)
-      console.log(Array)
+      // console.log(Array)
 
       for (let i of Array) {
         const asd = {}
@@ -541,10 +593,9 @@ export default {
         }
       }
 
-      console.log(Array)
+      // console.log(Array)
 
       for (let i of Array) {
-        console.log(i)
         for (let index = 0; index < i.number; index++) {
           const asd = {}
           asd.Activate = i.Activate + 2
@@ -566,7 +617,7 @@ export default {
       await notEquity(5, Array)
       await notEquity(6, Array)
       await notEquity(7, Array)
-      console.log(Array)
+      // console.log(Array)
 
       for (let i of Array) {
         for (let index = 0; index < i.number; index++) {
@@ -584,7 +635,7 @@ export default {
       Toast.clear()
     },
     pro(i) {
-      console.log(i)
+      // console.log(i)
       if (i === false) this.$toast('只能同时选择一种类型的NFT')
     }
   },
@@ -808,7 +859,7 @@ export default {
           width: 60px;
           position: absolute;
           right: 40px;
-          bottom: 3em;
+          bottom: 160px;
         }
       }
     }

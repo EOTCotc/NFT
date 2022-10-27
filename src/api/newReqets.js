@@ -121,3 +121,22 @@ export const FusingNFT = (id_10, id_11, id_20) => {
 		data
 	});
 };
+
+// NFT/BindNft 权益卡牌绑定、解绑、查询是否绑定
+// 1已绑定，2待赎回，3已赎回
+export const BindNft = (ads, sign, id, kid, hx, day) => {
+	const params = {
+		ads,
+		sign,
+		id,
+		kid, //卡牌编号
+		hx,
+		day
+	};
+
+	return request({
+		url: '/api/NFT/BindNft',
+		method: 'POST',
+		params
+	});
+};

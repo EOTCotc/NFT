@@ -1,3 +1,6 @@
+import { level1, level2, level3, level4, level5 } from './levelCard';
+import { genesis, union, realTime, middleTime, highTime, realForever, middleForever, highForever } from './equity';
+
 export const options = [
 	{
 		id: 1,
@@ -249,15 +252,6 @@ export const selectAll = [
 
 // 合约地址
 export const contract = [
-	['TNLWdgLrBaffdH8icE8At9tUFJBCeFFtzU', 'TDjBpnEB3pd4RdGnbhBV6H7wiayjhjRUqP', 'TKDHJMgVeN9x7j3g564jB9AgLxRNo3WTeN', 'TAooLLSoxxK4zQjCbBrmPtmuu8o5WXbCJW', 'TDaFmDiymkduYmGhbRn7xERGzs4SC1pKPz'],
-	[
-		'TRXRStGGQC8T397jGeWg48soe6fkqgZkP7',
-		'TSUu64YWCPf4BJDwZAvENW1SyDmuU7cd23',
-		'TUDftnsHA2qGRwqRRmdM7YcLdMqKqZUjZe',
-		'TNfLD3hNgyS1Co7Nw12jrUBEHx6R9KWfYA',
-		'TGji72zqprDCtvu61314Jx3FpJ7WsoMEyY',
-		'TUUDLWPM2eWsX6hGEJ88yCEPBfry5eoxcp',
-		'TA8yzwymfXTymVrRfUysv1QJZQa2oTX89Y',
-		'TBoP15gHpQ1P1HnfRmAEXGdazTei7stGem'
-	]
+	[level1, level2, level3, level4, level5],
+	[genesis, union, realTime, middleTime, highTime, realForever, middleForever, highForever]
 ];
