@@ -157,7 +157,7 @@
                class="rankmask">
       <div class="maskbox">
         <div>
-          本次铸造需要扣除20-50不等的TRX
+          本次铸造需要扣除0.0030--0.0050不等的bsc
           现在立即铸造？
         </div>
         <div>
@@ -210,7 +210,7 @@
 import { Toast } from 'vant'
 import { myNft, PayEotc } from '@/api/newReqets'
 import { allCard, allCards } from '@/utils/options'
-import { sfeotc1, getTrxBalance, getCard, getCards, getAllCards, inquire, already, alreadySyn } from '@/utils/web3'
+import { sfeotc1, Reconstruction_getBscBalance, getCard, getCards, getAllCards, inquire, already, alreadySyn } from '@/utils/web3'
 export default {
   data() {
     return {
@@ -281,7 +281,7 @@ export default {
       const { data } = await myNft(3)
       this.hadReceive()
 
-      console.log(data)
+      // console.log(data)
       for (let i of data) {
         // type 0、1待铸造（0是送的卡牌，1是开盲盒出来的） 4铸造中 5待领取
         // Activate 1、2级卡牌直接已拥有
@@ -302,6 +302,7 @@ export default {
           }
         }
       }
+      // Toast.clear()
     },
     // 待领取
     async notReceive() {
@@ -317,18 +318,41 @@ export default {
     // 已拥有(全部)
     async hadReceive() {
       this.Array = []
+      this.Arr = []
 
       await already(0, 2, this.Array)
       await already(0, 3, this.Array)
       await already(0, 4, this.Array)
-      // Toast.clear()
-      this.hadReceiveSyn()
       // console.log(this.Array)
+      // Toast.clear()
+      // this.hadReceiveSyn()
+      for (let i = 0; i < this.Array.length; i++) {
+        await alreadySyn(this.Array[i].Activate - 1, this.Array[i].num, this.Arr)
+      }
+      // console.log(this.Arr)
+      for (let i of this.Arr) {
+        const asd = {}
+        asd.state = i.data
+        asd.num = i.num + ''
+        asd.Activate = i.Activate
+        asd.status = false
+        asd.ischecked = false
+        if (asd.state) {
+          asd.title = this.allCards[i.Activate - 1].title
+          asd.image = this.allCards[i.Activate - 1].image
+          asd.text = this.allCards[i.Activate - 1].text
+        } else {
+          asd.title = this.allCard[i.Activate - 1].title
+          asd.image = this.allCard[i.Activate - 1].image
+          asd.text = this.allCard[i.Activate - 1].text
+        }
+
+        this.rankCardFlag1.push(asd)
+      }
+      Toast.clear()
     },
     // 已拥有（已合成）
     async hadReceiveSyn() {
-      this.Arr = []
-
       await alreadySyn(2, this.Arr)
       await alreadySyn(3, this.Arr)
       await alreadySyn(4, this.Arr)
@@ -343,12 +367,12 @@ export default {
     },
     // 点击“已拥有”卡牌中的图片，跳转至卡牌详情页面
     cardDetails(id, title, Activate, state) {
-      console.log(id, title, Activate)
+      // console.log(id, title, Activate)
       this.$router.push({ name: 'card_details', query: { id: id, title: title, Activate: Activate + '', state: state, url: this.$route.name } })
     },
     // “领取”卡牌
     async getsCard() {
-      console.log(this.rankCardFlag2)
+      // console.log(this.rankCardFlag2)
       // this.select 选择的编号数组
       // console.log(this.select)
       Toast.loading({
@@ -384,7 +408,7 @@ export default {
       this.rankCardFlag2.map((e) => (e.ischecked = false))
       // this.i = 0
       this.select = []
-      console.log(this.rankCardFlag2)
+      // console.log(this.rankCardFlag2)
     },
     // 返回上一级
     onClickLeft() {
@@ -394,7 +418,8 @@ export default {
     },
     // 点击铸造显示扣除TRX的提示
     coincardHandler(i, index) {
-      console.log(i)
+      // Toast('铸造暂未开放')
+      // console.log(i)
       this.index = null
       this.index = index
       this.maskFlag1 = true
@@ -406,29 +431,38 @@ export default {
       this.maskFlag3 = false
     },
     // 确认铸造
-    confirmHandler() {
+    async confirmHandler() {
+      Toast.loading({
+        message: '铸造中...',
+        forbidClick: true,
+        duration: 0
+      })
       // console.log('铸造卡牌')
       // console.log(this.index, this.apphx)
-      getTrxBalance(() => {
-        sfeotc1().then(
-          (res) => {
-            this.apphx = localStorage.getItem('apphx')
-            PayEotc(this.index, this.apphx, 0).then((res) => {
-              // console.log(res)
-              if (res.data.State > 0) {
-                this.res()
-              } else {
-                this.maskFlag1 = false
-                this.$toast.error('铸造失败')
-              }
-            })
-          },
-          (rej) => {
-            this.cancelHandler()
-            this.$toast.warning('取消铸造')
-          }
-        )
-      })
+      await Reconstruction_getBscBalance()
+      // getTrxBalance(() => {
+      sfeotc1().then(
+        (res) => {
+          this.apphx = localStorage.getItem('apphx')
+          PayEotc(this.index, this.apphx, 0).then((res) => {
+            // console.log(res)
+            if (res.data.State > 0) {
+              Toast.clear()
+              this.res()
+            } else {
+              Toast.clear()
+              this.maskFlag1 = false
+              this.$toast.error('铸造失败')
+            }
+          })
+        },
+        (rej) => {
+          Toast.clear()
+          this.cancelHandler()
+          this.$toast.warning('取消铸造')
+        }
+      )
+      // })
     },
     res() {
       this.currentIndex = this.index
@@ -436,7 +470,7 @@ export default {
       this.maskFlag3 = true
       let status = this.castDataList.filter((e) => e.num == this.index)
       status[0].status = true
-      console.log(status)
+      // console.log(status)
     },
     look(Activate, num, event) {
       this.activate = Activate
@@ -448,7 +482,7 @@ export default {
           1
         )
       }
-      console.log(Activate, num, event)
+      // console.log(Activate, num, event)
     },
     changeList(i) {
       this.i = i

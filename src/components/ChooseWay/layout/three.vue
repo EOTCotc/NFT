@@ -1,6 +1,8 @@
 <template>
   <div id="three">
-    <van-popup v-model="show">
+    <van-popup v-model="show"
+               :closeable="!show1"
+               close-icon="close">
       <div class="imgs"
            v-if="show1">
         <div class="img"><img src="@/assets/img/Compose/1.jpg"></div>
@@ -53,7 +55,7 @@ export default {
       this.show1 = true
       setTimeout(() => {
         this.show1 = false
-      }, 1500)
+      }, 2000)
       setTimeout(() => {
         if (this.primaryCard == 'one') {
           this.show2 = true
@@ -61,7 +63,7 @@ export default {
         if (this.primaryCard == 'two') {
           this.time == 3 ? (this.show2 = true) : (this.show3 = true)
         }
-      }, 1600)
+      }, 2000)
     }
   }
 }
@@ -72,7 +74,11 @@ export default {
   width: 100vw;
   height: 100vh;
   background: transparent;
-
+  /deep/ .van-popup__close-icon--top-right {
+    font-size: 70px;
+    top: 73%;
+    left: 46%;
+  }
   .imgs {
     position: relative;
 
@@ -83,17 +89,17 @@ export default {
 
       &:nth-of-type(1) {
         left: 8%;
-        animation: rotate1 1.5s linear infinite;
+        animation: rotate1 2s linear infinite;
       }
 
       &:nth-of-type(2) {
         right: 8%;
-        animation: rotate2 1.5s linear infinite;
+        animation: rotate2 2s linear infinite;
       }
 
       &:nth-of-type(3) {
         right: 30%;
-        animation: rotate3 1.5s linear infinite;
+        animation: rotate3 2s linear infinite;
       }
 
       img {

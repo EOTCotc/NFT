@@ -49,7 +49,7 @@
                   </span>
                 </div>
                 <div>#{{ item.num.padStart(6, 0) }}</div>
-                <div>待领取：{{parseFloat(item.price).toFixed(2)}} USDT</div>
+                <div>待领取：{{parseFloat(item.price).toFixed(10)}} USDT</div>
               </div>
               <!-- 页脚 -->
               <div class="waitfooter">
@@ -62,7 +62,7 @@
                   </p>
                   <p>
                     <span>已选择 {{ selecked }} 个</span>
-                    <span>总量：{{parseFloat(allPrice).toFixed(2)}} USDT</span>
+                    <span>总量：{{parseFloat(allPrice).toFixed(10)}} USDT</span>
                   </p>
                 </div>
                 <div class="right">
@@ -83,17 +83,16 @@
                  name="2">
 
           <div class="nowaitcard"
-               v-if="equityCard.length=== 0">
+               v-if="equityCardFlag.length=== 0">
             <van-empty class="custom-image"
                        :image="require('@/assets/img/cardPage/cardNull.png')"
                        description="暂无领取手续费的权益卡牌" />
           </div>
           <div v-else
-               class="waitcard"
-               :class="equityCard.filter((data) => {return data.Activate==e}).length?'act':''">
+               class="waitcard">
 
             <div class="waitcarditem"
-                 v-for="item in equityCard"
+                 v-for="item in equityCardFlag"
                  :key="item.id">
               <div class="left">
                 <img :src="item.image">
@@ -101,29 +100,29 @@
               <div class="right">
                 <div>
                   <span>{{ item.title }}</span>
-                  <span @click="pros(e==0?e:item.Activate==e)">
+                  <span>
                     <van-checkbox icon-size="16px"
-                                  :disabled="e==0?false:item.Activate!=e?true:item.time!=time?true:false"
-                                  @change="looks(item.time,item.Activate,item.num,$event)"
+                                  :disabled="!item.price"
+                                  @change="looks(item.address,item.num,$event)"
                                   v-model="item.ischecked"></van-checkbox>
                   </span>
                 </div>
                 <div>#{{ item.num.padStart(6, 0) }}</div>
-                <div>待领取：{{item.price}} USDT</div>
+                <div>待领取：{{parseFloat(item.price).toFixed(4)}} USDT</div>
               </div>
 
               <!-- 页脚 -->
-              <div class="waitfooter"
-                   v-if="equityCard.filter((data) => {return data.Activate==e}).length">
+              <div class="waitfooter">
+                <!-- v-if="equityCardFlag.filter((data) => {return data.Activate==e}).length"> -->
                 <div class="left">
                   <p>
                     <span class="sl">
-                      <van-checkbox v-model="changeCheck">全选</van-checkbox>
+                      <van-checkbox v-model="changeChecks">全选</van-checkbox>
                     </span>
                   </p>
                   <p>
-                    <span>已选择 {{ selecked }} 个</span>
-                    <span>总量：{{allPrices}} USDT</span>
+                    <span>已选择 {{ seleckeds }} 个</span>
+                    <span>总量：{{parseFloat(allPrices).toFixed(4)}} USDT</span>
                   </p>
                 </div>
                 <div class="right">
@@ -146,7 +145,7 @@
 
 <script>
 import { Toast } from 'vant'
-import { multipleWithdraws, AllCards, AllCardTime, already, alreadySyn, amountAvailableLists } from '@/utils/web3'
+import { multipleWithdraws, AllCards, AllCardTime, already, alreadySyn, amountAvailableLists, multipleWithdrawFees } from '@/utils/web3'
 import { allCard, allCards, cardList, contract } from '@/utils/options'
 export default {
   data() {
@@ -160,8 +159,10 @@ export default {
       equity: [],
       // 等级卡牌
       rankCardFlag: [],
+      rankCard: [],
       // 权益卡牌
       equityCard: [],
+      equityCardFlag: [],
       // 全部等级卡牌
       allCard,
       allCards,
@@ -175,7 +176,11 @@ export default {
       Arr: [],
       addressRank: [],
       idRank: [],
-      array: [[], []]
+      addressEquity: [],
+      idEquity: [],
+      array: [[], []],
+      arr: [[], []],
+      flag: true
     }
   },
   created() {
@@ -184,7 +189,7 @@ export default {
     }, 500)
   },
   methods: {
-    // 已拥有(全部)
+    // 已拥有等级卡牌(全部)
     async hadReceive() {
       Toast.loading({
         message: '数据更新中...',
@@ -193,93 +198,157 @@ export default {
       })
 
       this.Array = []
+      this.Arr = []
       this.array = [[], []]
       this.addressRank = []
       this.idRank = []
+      this.rankCardFlag = []
 
-      // await already(0, 2, this.Array)
+      await already(0, 2, this.Array)
       await already(0, 3, this.Array)
       await already(0, 4, this.Array)
-      this.hadReceiveSyn()
-    },
-    // 已拥有（已合成）
-    async hadReceiveSyn() {
-      this.Arr = []
+      // this.hadReceiveSyn()
 
-      // await alreadySyn(2, this.Arr)
-      await alreadySyn(3, this.Arr)
-      await alreadySyn(4, this.Arr)
-
-      let list = this.Array.filter((items) => {
-        if (!this.Arr.some((ele) => items.num == ele.num && items.Activate == ele.Activate)) return items
-      })
-
-      this.get(list, this.allCard)
-      this.get(this.Arr, this.allCards)
-      this.getR()
-    },
-    // 等级卡牌
-    async get(val, value1) {
-      for (let i of val) {
+      for (let i = 0; i < this.Array.length; i++) {
+        await alreadySyn(this.Array[i].Activate - 1, this.Array[i].num, this.Arr)
+      }
+      for (let i of this.Arr) {
         const asd = {}
+        asd.state = i.data
         asd.num = i.num + ''
         asd.price = 0
         asd.Activate = i.Activate
-        asd.title = value1[i.Activate - 1].title
-        asd.image = value1[i.Activate - 1].image
+        asd.status = false
         asd.ischecked = false
         asd.address = contract[0][i.Activate - 1]
-        this.rankCardFlag.push(asd)
+        if (asd.state) {
+          asd.title = this.allCards[i.Activate - 1].title
+          asd.image = this.allCards[i.Activate - 1].image
+          asd.text = this.allCards[i.Activate - 1].text
+        } else {
+          asd.title = this.allCard[i.Activate - 1].title
+          asd.image = this.allCard[i.Activate - 1].image
+          asd.text = this.allCard[i.Activate - 1].text
+        }
+
+        this.rankCard.push(asd)
         this.addressRank.push(asd.address)
         this.idRank.push(asd.num)
       }
+      this.getR()
     },
+    // // 已拥有等级卡牌（已合成）
+    // async hadReceiveSyn() {
 
+    //   await alreadySyn(2, this.Arr)
+    //   await alreadySyn(3, this.Arr)
+    //   await alreadySyn(4, this.Arr)
+
+    //   let list = this.Array.filter((items) => {
+    //     if (!this.Arr.some((ele) => items.num == ele.num && items.Activate == ele.Activate)) return items
+    //   })
+
+    //   this.get(list, this.allCard)
+    //   this.get(this.Arr, this.allCards)
+    //   this.getR()
+    // },
+    // // 等级卡牌
+    // async get(val, value1) {
+    //   for (let i of val) {
+    //     const asd = {}
+    //     asd.num = i.num + ''
+    //     asd.price = 0
+    //     asd.Activate = i.Activate
+    //     asd.title = value1[i.Activate - 1].title
+    //     asd.image = value1[i.Activate - 1].image
+    //     asd.ischecked = false
+    //     asd.address = contract[0][i.Activate - 1]
+    //     this.rankCard.push(asd)
+    //     this.addressRank.push(asd.address)
+    //     this.idRank.push(asd.num)
+    //   }
+    // },
     async getR() {
-      await amountAvailableLists(this.addressRank, this.idRank, this.array)
-      console.log(this.array)
-      for (let index = 0; index < this.rankCardFlag.length; index++) {
-        this.rankCardFlag[index].price = this.array[1][index]
-        // console.log(this.rankCardFlag[index].num == this.array[0][index])
+      await amountAvailableLists(0, this.addressRank, this.idRank, this.array)
+      // console.log(this.array)
+      for (let index = 0; index < this.rankCard.length; index++) {
+        this.rankCard[index].price = this.array[1][index]
       }
-      this.rankCardFlag = this.rankCardFlag.filter((e) => e.price)
+      this.rankCardFlag = this.rankCard.filter((e) => e.price)
+      Toast.clear()
+    },
+    // 创世会、联合会已拥有
+    async hadLimitedFor() {
+      let Array = []
+      this.equityCard = []
+      this.idEquity = []
+      this.addressEquity = []
+      this.equityCardFlag = []
+      this.arr = [[], []]
+      await already(1, 0, Array)
+      await already(1, 1, Array)
+
+      // console.log(Array)
+
+      for (let i of Array) {
+        const asd = {}
+        asd.status = false
+        asd.ischecked = false
+        asd.key = Math.random()
+        asd.num = i.num + ''
+        asd.Activate = i.Activate
+        asd.title = this.cardList[0][i.Activate - 1].title
+        asd.image = this.cardList[0][i.Activate - 1].image
+        asd.text = this.cardList[0][i.Activate - 1].text
+        asd.address = contract[1][i.Activate - 1]
+        asd.price = 0
+        this.equityCard.push(asd)
+        this.idEquity.push(asd.num)
+        this.addressEquity.push(asd.address)
+      }
+
+      this.getE()
+    },
+    // 永久权益卡
+    async limitedFor() {
+      let Array = []
+      await already(1, 5, Array)
+      await already(1, 6, Array)
+      await already(1, 7, Array)
+
+      // console.log(Array)
+
+      for (let i of Array) {
+        const asd = {}
+        asd.status = false
+        asd.ischecked = false
+        asd.key = Math.random()
+        asd.num = i.num + ''
+        asd.Activate = i.Activate
+        asd.title = this.cardList[4][i.Activate - 6].title
+        asd.image = this.cardList[4][i.Activate - 6].image
+        asd.text = this.cardList[4][i.Activate - 6].text
+        asd.address = contract[1][i.Activate - 1]
+        asd.price = 0
+        this.equityCard.push(asd)
+        this.idEquity.push(asd.num)
+        this.addressEquity.push(asd.address)
+      }
+    },
+    async getE() {
+      await amountAvailableLists(1, this.addressEquity, this.idEquity, this.arr)
+      // console.log(this.arr)
+      for (let index = 0; index < this.equityCard.length; index++) {
+        this.equityCard[index].price = this.arr[1][index]
+      }
+      this.equityCardFlag = this.equityCard.filter((e) => e.price)
       Toast.clear()
     },
 
-    // 卡牌
-    hallmark() {
-      // GetAppStake({})
-      //   .then((res) => {
-      //     console.log(res.data)
-      //     this.myRanks = res.data.filter((val) => val.type == 0)
-      //     this.myEquity = res.data.filter((val) => val.type == 1)
-      //     this.rankCard()
-      //     this.equityCards()
-      //   })
-      //   .catch(() => {
-      //     this.$toast('请刷新页面')
-      //   })
-    },
-    // 等级卡牌
-    rankCard() {
-      this.rankCardFlag = []
-      console.log(this.myRanks)
-      for (let i of this.myRanks) {
-        const com = {}
-        com.num = i.id
-        com.casting = i.ads.trim()
-        com.type = i.num
-        com.Activate = this.allCard[i.num - 1].Activate
-        com.title = this.allCard[i.num - 1].title
-        com.image = this.allCard[i.num - 1].image
-        com.ischecked = false
-        if (['3', '4', '5'].includes(com.type)) this.rankCardFlag.push(com)
-      }
-    },
     // 权益卡牌
     equityCards() {
       this.equityCard = []
-      console.log(this.myEquity)
+      // console.log(this.myEquity)
       for (let i of this.myEquity) {
         const com = {}
         com.id = Math.random()
@@ -337,56 +406,30 @@ export default {
         )
       }
       // if (this.rank.length == 0) this.i = 0
-      console.log(this.rank, this.address1)
+      // console.log(this.rank, this.address1)
     },
-    looks(time, Activate, num, event) {
-      console.log(Activate, event)
-      this.e = Activate
+    looks(address, num, event) {
+      // this.e = Activate
       if (event) {
-        if (time && this.time == 0) this.time = time
-
+        this.address2.push(address)
         this.equity.push(num)
-        this.equitys.push(1)
-        console.log(time)
       } else {
         this.equity.splice(
           this.equity.findIndex((item) => item === num),
           1
         )
-        this.equitys.splice(
-          this.equitys.findIndex((item) => item === 1),
+        this.address2.splice(
+          this.address2.findIndex((item) => item === address),
           1
         )
       }
-      if (this.equity.length == 0) (this.e = 0), (this.time = 0)
-      console.log(this.equity, this.time)
-    },
-    pros(e) {
-      console.log(e)
-      if (e === false) this.$toast('只能同时选择一种类型的NFT')
+      // if (this.equity.length == 0) (this.e = 0), (this.time = 0)
+      // console.log(this.equity, this.address2)
     },
     changeLists(e) {
       this.e = e
       this.equity = []
-      this.equityCard.map((e) => (e.ischecked = false))
-    },
-
-    reqRank() {
-      // this.rank.unshift(localStorage.getItem('Token') + '_0')
-      // UpdateStakeOrder(this.rank)
-      //   .then(
-      //     (res) => {
-      //       Toast.clear()
-      //       console.log(res)
-      //       this.hallmark()
-      //     },
-      //     (rej) => {
-      //       console.log(rej)
-      //     }
-      //   )
-      //   .catch((err) => {
-      //     console.log(err)
-      //   })
+      this.equityCardFlag.map((e) => (e.ischecked = false))
     },
     // 领取等级卡牌手续费
     getRank() {
@@ -396,21 +439,17 @@ export default {
         duration: 0
       })
 
-      multipleWithdraws(this.address1, this.rank, this.hadReceive)
+      multipleWithdraws(this.address1, this.rank, this.hadReceive, this.allPrice)
     },
-    reqEquity() {},
-    // 上传权益卡牌
+    // 领取权益卡牌手续费
     getEquity() {
       Toast.loading({
-        message: '加载中...',
+        message: '领取中...',
         forbidClick: true,
         duration: 0
       })
-      // console.log(this.equity.length)
-      // console.log(this.address2, [this.seleckeds], 1, this.e - 1)
 
-      // 有限权益卡牌   :   // 非有限权益卡牌
-      this.time ? AllCardTime(this.address2, this.equitys, this.time, this.e - 1, this.reqEquity) : AllCards(this.address2, this.equitys, 1, this.e - 1, this.reqEquity)
+      multipleWithdrawFees(this.address2, this.equity, this.hadLimitedFor, this.allPrices)
     },
     onClickLeft() {
       this.$router.back()
@@ -422,14 +461,14 @@ export default {
       return this.rankCardFlag.filter((card) => card.ischecked === true).length
     },
     seleckeds() {
-      return this.equityCard.filter((card) => card.ischecked === true).length
+      return this.equityCardFlag.filter((card) => card.ischecked === true).length
     },
     // 用户选择的可领取手续费
     allPrice() {
       return this.rankCardFlag.filter((card) => card.ischecked === true).reduce((m, n) => m + n.price, 0)
     },
     allPrices() {
-      return this.equityCard.filter((card) => card.ischecked === true).reduce((m, n) => m + n.price, 0)
+      return this.equityCardFlag.filter((card) => card.ischecked === true).reduce((m, n) => m + n.price, 0)
     },
     // 是否可领取手续费
     isselect() {
@@ -448,10 +487,24 @@ export default {
     },
     changeChecks: {
       get() {
-        return this.seleckeds == this.equityCard.length
+        return this.seleckeds == this.equityCardFlag.length
       },
       set(v) {
-        this.equityCard.forEach((e) => (e.ischecked = v))
+        this.equityCardFlag.forEach((e) => (e.ischecked = v))
+      }
+    }
+  },
+  watch: {
+    synthActiveName(i) {
+      // console.log(i)
+      if (i == 2 && this.flag) {
+        Toast.loading({
+          message: '数据更新中...',
+          forbidClick: true,
+          duration: 0
+        })
+        this.hadLimitedFor()
+        this.flag = !this.flag
       }
     }
   }

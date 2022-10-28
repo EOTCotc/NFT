@@ -1,4 +1,7 @@
-import { contractAddress_usdt, contractAddress, contractAddress_eotc } from './abi';
+import { contractAddress_usdt, contractAddress_eotc, contractAddress, Contract_EOTC, Contract_USDT, Contract_EOTC_token } from './abi';
+import { Contract_level1, Contract_level2, Contract_level3, Contract_level4, Contract_level5 } from './levelCard';
+import { Contract_genesis, Contract_union, Contract_realTime, Contract_middleTime, Contract_highTime, Contract_realForever, Contract_middleForever, Contract_highForever } from './equity';
+import { capital, Contract_synthesis, Contract_capital, Contract_charge, Contract_NFTDeal, NFTDeal } from './synthesis';
 
 import PubSub from 'pubsub-js';
 
@@ -26,47 +29,46 @@ import md5 from 'md5';
 
 import { nft_login } from '@/api/newReqets';
 
+window.web3 = new Web3(ethereum);
+
+var signMes = 'EOTC请求您签名确认,签名不消耗GAS.';
+
+const bscMin = 0.01;
+const bscMes = '为使交易顺畅,请确保钱包中不少于0.01 BNB';
+
 var address = '';
 
 var mytron_usdt = null; //是合约对象，生成合约对象后，可以做很多操作，比如获取你的余额，转账等
 var mytron = null;
 
-// 主网
+// trx主网
 // const url = 'https://api.trongrid.io/wallet/gettransactioninfobyid';
 
-// 测试网
-const url = 'https://api.shasta.trongrid.io/wallet/gettransactioninfobyid';
+// trx测试网
+// const url = 'https://api.shasta.trongrid.io/wallet/gettransactioninfobyid';
+
+// bsc主网
+// const url = 'https://api.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&apikey=MTFE3X1WXZJJCW53UKHW2MXC6J7Q7CKMVS&txhash=';
+
+// bsc测试网
+const url = 'https://api-testnet.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&apikey=MTFE3X1WXZJJCW53UKHW2MXC6J7Q7CKMVS&txhash=';
 
 const AllCard = [
-	['TNLWdgLrBaffdH8icE8At9tUFJBCeFFtzU', 'TDjBpnEB3pd4RdGnbhBV6H7wiayjhjRUqP', 'TKDHJMgVeN9x7j3g564jB9AgLxRNo3WTeN', 'TAooLLSoxxK4zQjCbBrmPtmuu8o5WXbCJW', 'TDaFmDiymkduYmGhbRn7xERGzs4SC1pKPz'],
-	[
-		'TRXRStGGQC8T397jGeWg48soe6fkqgZkP7',
-		'TSUu64YWCPf4BJDwZAvENW1SyDmuU7cd23',
-		'TUDftnsHA2qGRwqRRmdM7YcLdMqKqZUjZe',
-		'TNfLD3hNgyS1Co7Nw12jrUBEHx6R9KWfYA',
-		'TGji72zqprDCtvu61314Jx3FpJ7WsoMEyY',
-		'TUUDLWPM2eWsX6hGEJ88yCEPBfry5eoxcp',
-		'TA8yzwymfXTymVrRfUysv1QJZQa2oTX89Y',
-		'TBoP15gHpQ1P1HnfRmAEXGdazTei7stGem'
-	]
+	[Contract_level1, Contract_level2, Contract_level3, Contract_level4, Contract_level5],
+	[Contract_genesis, Contract_union, Contract_realTime, Contract_middleTime, Contract_highTime, Contract_realForever, Contract_middleForever, Contract_highForever]
 ];
 
 // 合成
-const synthesis = 'TXpePr1mdgrtnhS7Ew1vdqJE1aPkUaTocp';
+// const synthesis = 'TXpePr1mdgrtnhS7Ew1vdqJE1aPkUaTocp';
 
 // 手续费合约
-const charge = 'TXBdemx22WNUkBqjhbtr3jbw2iZMELXK7e';
+// const charge = 'TXBdemx22WNUkBqjhbtr3jbw2iZMELXK7e';
 
 // 资金池合约
-const capital = 'TW46QNKyZqQe7LVZ8tD2xZAt68h7hWfeNJ';
+// const capital = 'TW46QNKyZqQe7LVZ8tD2xZAt68h7hWfeNJ';
 
 // NFT交易
-const NFTDeal = 'TR9shvNqD5YQiTHaAdkq5K8ei58Et2kKAo';
-
-const trxMin = 30000000;
-const trxMes = '为使交易顺畅,请确保钱包中不少于30 TRX';
-
-var signMes = 'EOTC请求您签名确认,签名不消耗GAS.';
+// const NFTDeal = 'TR9shvNqD5YQiTHaAdkq5K8ei58Et2kKAo';
 
 function eotcmes(message) {
 	console.log(message);
@@ -179,46 +181,101 @@ export const userBaseMes = async function () {
 			});
 		});
 };
+//更换连接的钱包(先于loadweb3执行)
+ethereum.on('accountsChanged', handleAccountsChanged);
+function handleAccountsChanged(accounts) {
+	//if (address != localStorage.getItem("myaddress")) {
+	//    clearmymes();
+	//    userSign(signMes, null);
+	//}
+	if (accounts.length === 0) {
+		eotcmes('未连接钱包');
+	}
+}
 
-export const loadweb3 = async function (func) {
+// export const loadweb3 = async function (func) {
+//   //bsg为true强制签名
+//   // console.log(window.tronWeb);
+//   if (window.tronWeb) {
+//     var obj = setInterval(async () => {
+//       if (window.tronWeb.defaultAddress.base58) {
+//         clearInterval(obj)
+//         try {
+//           address = window.tronWeb.defaultAddress.base58
+//           console.log('地址', address)
+//           mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt)
+//           mytron = await window.tronWeb.contract().at(contractAddress)
+//           myUsdtAmount()
+//           myEOTCAmount()
+//           // localStorage.setItem('netType', 'trx');
+//           localStorage.setItem('netType', 'xxx')
+//           if (address != localStorage.getItem('myaddress')) {
+//             localStorage.removeItem('myaddress')
+//             localStorage.removeItem('mysign')
+//             clearmymes()
+//             userSign(signMes, func) //首次消息签名
+//             return false
+//           }
+//           func()
+//         } catch (error) {
+//           console.warn(error)
+//           console.log(localStorage.getItem('myaddress'))
+//           if (address != localStorage.getItem('myaddress')) clearmymes()
+//         }
+//       }
+//     }, 17)
+//   } else {
+//     setTimeout(() => {
+//       if (!window.tronWeb) {
+//         Vue.$toast.error('请在支持 TRON 网络的 DAPP 浏览器中访问')
+//         console.warn('请在支持TRON网络的DAPP浏览器中访问')
+//       }
+//     }, 2000)
+//     console.warn('请在支持TRON网络的DAPP浏览器中访问')
+//   }
+// }
+export const loadweb3 = async function loadweb3(func) {
+	// console.log(Contract_level1)
 	//bsg为true强制签名
-	// console.log(window.tronWeb);
-	if (window.tronWeb) {
-		var obj = setInterval(async () => {
-			if (window.tronWeb.defaultAddress.base58) {
-				clearInterval(obj);
-				try {
-					address = window.tronWeb.defaultAddress.base58;
-					console.log('地址', address);
-					mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
-					mytron = await window.tronWeb.contract().at(contractAddress);
-					myUsdtAmount();
-					myEOTCAmount();
-					// localStorage.setItem('netType', 'trx');
-					localStorage.setItem('netType', 'xxx');
-					if (address != localStorage.getItem('myaddress')) {
-						localStorage.removeItem('myaddress');
-						localStorage.removeItem('mysign');
-						clearmymes();
-						userSign(signMes, func); //首次消息签名
-						return false;
-					}
-					func();
-				} catch (error) {
-					console.warn(error);
-					console.log(localStorage.getItem('myaddress'));
-					if (address != localStorage.getItem('myaddress')) clearmymes();
-				}
+	if (window.ethereum) {
+		// window.web3 = new Web3(ethereum)
+		try {
+			const accounts = await ethereum.request({
+				method: 'eth_requestAccounts'
+			});
+			address = accounts[0].toLocaleLowerCase();
+			localStorage.setItem('netType', 'bsc'); //ethereum.chainId
+			// localStorage.setItem('netType', 'asd')
+			myUsdtAmount();
+			myEOTCAmount();
+			console.log(address);
+
+			if (address != localStorage.getItem('myaddress')) {
+				console.log('没有地址');
+				clearmymes();
+				userSign(signMes, func); //首次消息签名
+				return false;
 			}
-		}, 17);
+			func();
+		} catch (error) {
+			console.warn(error);
+			if (address != localStorage.getItem('myaddress')) clearmymes();
+		}
 	} else {
-		setTimeout(() => {
-			if (!window.tronWeb) {
-				Vue.$toast.error('请在支持 TRON 网络的 DAPP 浏览器中访问');
-				console.warn('请在支持TRON网络的DAPP浏览器中访问');
+		Vue.$toast.warning(
+			{
+				component: loadingToast,
+				props: {
+					title: '请在支持 BSC 的Dapp 游览器中打开！'
+				}
+			},
+			{
+				icon: false,
+				timeout: false
 			}
-		}, 2000);
-		console.warn('请在支持TRON网络的DAPP浏览器中访问');
+		);
+
+		// console.log(signature);
 	}
 };
 
@@ -234,35 +291,51 @@ window.addEventListener('message', function (e) {
 });
 
 //消息签名
-export const userSign = async (mes, func) => {
-	return new Promise((resolve, reject) => {
-		try {
-			let tronweb = window.tronWeb;
-			tronweb.trx
-				.sign(tronweb.toHex(mes))
-				.then((signedStr) => {
-					if (signedStr.substring(0, 2) === '0x') {
-						signedStr = signedStr.substring(2);
-					}
-					localStorage.setItem('myaddress', tronweb.defaultAddress.base58);
-					localStorage.setItem('mysign', md5(signedStr));
-					console.log(md5(signedStr));
-					if (func != null) {
-						func();
-					}
-					resolve();
-				})
-				.catch((err) => {
-					console.warn('拒绝签名');
-					clearmymes();
-					reject('拒绝签名');
-					console.warn(err);
-				});
-		} catch (err) {
-			console.warn(err);
-			reject('签名：', err);
-		}
-	});
+// export const userSign = async (mes, func) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       let tronweb = window.tronWeb
+//       tronweb.trx
+//         .sign(tronweb.toHex(mes))
+//         .then((signedStr) => {
+//           if (signedStr.substring(0, 2) === '0x') {
+//             signedStr = signedStr.substring(2)
+//           }
+//           localStorage.setItem('myaddress', tronweb.defaultAddress.base58)
+//           localStorage.setItem('mysign', md5(signedStr))
+//           console.log(md5(signedStr))
+//           if (func != null) {
+//             func()
+//           }
+//           resolve()
+//         })
+//         .catch((err) => {
+//           console.warn('拒绝签名')
+//           clearmymes()
+//           reject('拒绝签名')
+//           console.warn(err)
+//         })
+//     } catch (err) {
+//       console.warn(err)
+//       reject('签名：', err)
+//     }
+//   })
+// }
+
+export const userSign = function userSign(mes, func) {
+	window.web3.eth.personal
+		.sign(window.web3.utils.utf8ToHex(mes), address)
+		.then((result) => {
+			console.log('mes_sign：' + result);
+			localStorage.setItem('myaddress', address);
+
+			localStorage.setItem('mysign', md5(result));
+			if (func != null) func();
+		})
+		.catch((error) => {
+			console.log('拒绝签名');
+			clearmymes();
+		});
 };
 
 // 消息签名！
@@ -292,39 +365,96 @@ export const runSign = function () {
 	});
 };
 
-//usdt合约授权,val适当大一些，就不用多次授权了
-export const usdtsend = async function (val, mes) {
-	let valmes;
-	let ads = window.tronWeb.defaultAddress.base58;
-	try {
-		// if (mytron_usdt == null)
-		mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
-		valmes = distsmes1(mes + '授权期间请不要刷新或切换页面！');
-		let res = await mytron_usdt.approve(NFTDeal, TronValues(val)).send({
-			feeLimit: 100000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		console.log(res);
-		SetCoinAds({
-			num: val
-		}).then((data) => {
-			let it = eval(data.data);
-			if (it.State == '1') {
-				localStorage.setItem('usdtsq', val);
-				eotcmes('授权成功'); //
-				Vue.$toast('授权成功');
-				// setTimeout(function () {
-				//     valmes.style.display = "none";
-				// }, 1500);
-			}
-		});
-	} catch (e) {
-		console.warn(e);
-		warnmes('交易失败：' + e, null);
+// //usdt合约授权,val适当大一些，就不用多次授权了
+// export const usdtsend = async function (val, mes) {
+// 	let valmes;
+// 	let ads = window.tronWeb.defaultAddress.base58;
+// 	try {
+// 		// if (mytron_usdt == null)
+// 		mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
+// 		valmes = distsmes1(mes + '授权期间请不要刷新或切换页面！');
+// 		let res = await mytron_usdt.approve(Contract_NFTDeal, TronValues(val)).send({
+// 			feeLimit: 100000000,
+// 			callValue: 0,
+// 			shouldPollResponse: false
+// 		});
+// 		console.log(res);
+// 		SetCoinAds({
+// 			num: val
+// 		}).then((data) => {
+// 			let it = eval(data.data);
+// 			if (it.State == '1') {
+// 				localStorage.setItem('usdtsq', val);
+// 				eotcmes('授权成功'); //
+// 				Vue.$toast('授权成功');
+// 				// setTimeout(function () {
+// 				//     valmes.style.display = "none";
+// 				// }, 1500);
+// 			}
+// 		});
+// 	} catch (e) {
+// 		console.warn(e);
+// 		warnmes('交易失败：' + e, null);
 
-		// valmes.style.display = "none";
-	}
+// 		// valmes.style.display = "none";
+// 	}
+// };
+
+export const usdtsend = function (val, fun) {
+	Toast.loading({
+		message: '授权中...',
+		forbidClick: true,
+		duration: 0
+	});
+	return new Promise(async (resolve, reject) => {
+		const address = localStorage.getItem('myaddress');
+		try {
+			var myContract = Contract_USDT(window.web3);
+			myContract.methods.approve(NFTDeal, -1).send({ from: address }, function (error, result) {
+				if (!error) {
+					console.log(result);
+
+					SetCoinAds({
+						num: -1
+					})
+						.then((data) => {
+							console.log(data);
+							let it = eval(data.data);
+							if (it.State == '1') {
+								localStorage.setItem('usdtsq', val);
+								console.log(`授权成功`);
+								resolve(`授权成功`);
+								Toast.success('授权成功');
+								fun();
+								// 授权成功 关闭 警示弹窗
+								if (val < 0) {
+									reject('授权已取消');
+								}
+								Vue.$toast.clear();
+								Toast.clear();
+							}
+						})
+						.catch((err) => {
+							Vue.$toast.clear();
+							Toast.clear();
+							reject('授权失败：', err);
+						});
+				} else {
+					Vue.$toast.clear();
+					Toast.clear();
+					console.log(error);
+					reject('交易失败：' + error);
+					Vue.$toast.error('交易失败');
+				}
+			});
+		} catch (e) {
+			Vue.$toast.clear();
+			Toast.clear();
+			// 授权s失败  关闭 警示弹窗
+			reject('交易失败：' + e);
+			Vue.$toast.clear();
+		}
+	});
 };
 
 export const Approve = async function (func) {
@@ -342,43 +472,84 @@ export const Approve = async function (func) {
 };
 
 //获取钱包余额
-export const myUsdtAmount = async function myUsdtAmount() {
-	if (mytron_usdt == null) mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
-	let ads = window.tronWeb.defaultAddress.base58;
-	mytron_usdt.balanceOf(ads).call(
-		{
-			from: ads
-		},
-		function (error, result) {
-			if (!error) {
-				var mynum = (result / 1000000).toFixed(2);
-				localStorage.setItem('myamount', mynum);
-				console.log(mynum);
-			} else {
-				console.log(error);
-			}
-		}
-	);
-};
+// export const myUsdtAmount = async function myUsdtAmount() {
+//   if (mytron_usdt == null)
+//     mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt)
+//   let ads = window.tronWeb.defaultAddress.base58
+//   mytron_usdt.balanceOf(ads).call(
+//     {
+//       from: ads,
+//     },
+//     function (error, result) {
+//       if (!error) {
+//         var mynum = (result / 1000000).toFixed(2)
+//         localStorage.setItem('myamount', mynum)
+//         console.log(mynum)
+//       } else {
+//         console.log(error)
+//       }
+//     }
+//   )
+// }
 
-export const myEOTCAmount = async function myEOTCAmount() {
-	let mytron_eotc = await window.tronWeb.contract().at(contractAddress_eotc);
-	let ads = window.tronWeb.defaultAddress.base58;
-	mytron_eotc.balanceOf(ads).call(
-		{
-			from: ads
-		},
-		function (error, result) {
-			if (!error) {
-				var mynum = (result / 1000000).toFixed(2);
-				localStorage.setItem('eotcAmount', mynum);
-				// console.log(mynum);
-			} else {
-				console.log(error);
-			}
+//网络判断
+function TypeShow(result) {
+	//mwei 1000000 gwei:1000000000 ether 1000000000000000000
+	if (localStorage.getItem('netType') == 'asd') {
+		return parseFloat(window.web3.utils.fromWei(result, 'mwei'));
+	} else if (localStorage.getItem('netType') == 'bsc') {
+		return parseFloat(window.web3.utils.fromWei(result, 'ether'));
+	}
+}
+
+//获取钱包 EOTC 余额
+function myEOTCAmount() {
+	var myContract = Contract_EOTC_token(window.web3);
+	myContract.methods.balanceOf(address).call({ from: address }, function (error, result) {
+		if (!error) {
+			var mynum = (result / 1000000).toFixed(2);
+			console.log('myamount', mynum);
+			localStorage.setItem('eotcAmount', mynum);
+		} else {
+			console.log(error);
+			return -1;
 		}
-	);
-};
+	});
+}
+// 获取钱包 USDT 余额
+function myUsdtAmount() {
+	var myContract = Contract_USDT(window.web3);
+
+	myContract.methods.balanceOf(address).call({ from: address }, function (error, result) {
+		if (!error) {
+			var mynum = TypeShow(result).toFixed(2);
+			console.log('myamount', mynum);
+			localStorage.setItem('myamount', mynum);
+		} else {
+			console.log(error);
+			return -1;
+		}
+	});
+}
+
+// export const myEOTCAmount = async function myEOTCAmount() {
+//   let mytron_eotc = await window.tronWeb.contract().at(contractAddress_eotc)
+//   let ads = window.tronWeb.defaultAddress.base58
+//   mytron_eotc.balanceOf(ads).call(
+//     {
+//       from: ads,
+//     },
+//     function (error, result) {
+//       if (!error) {
+//         var mynum = (result / 1000000).toFixed(2)
+//         localStorage.setItem('eotcAmount', mynum)
+//         // console.log(mynum);
+//       } else {
+//         console.log(error)
+//       }
+//     }
+//   )
+// }
 
 //用户向合约订单质押USDT，执行前需要向USDT合约申请approve授权
 export const sellOrder_user = async function (oid, val, sj_ads, errorFun, okFun) {
@@ -574,16 +745,44 @@ export const getxh = function (dtype, oid, val, hx) {
 };
 
 export const TronValues = function (val) {
-	let vl = parseFloat(val).toFixed(6) * Math.pow(10, 6);
+	let vl = parseFloat(val).toFixed(18) * Math.pow(10, 18);
 	vl = parseInt(vl);
 	return vl.toString();
 };
 
-export const getTrxBalance = function (func) {
-	window.tronWeb.trx.getBalance(window.tronWeb.defaultAddress.base58).then((result) => {
-		if (parseInt(result) >= trxMin) func();
-		else {
-			warnmes(trxMes, null);
+export const TronValue = function (val) {
+	let num = Math.pow(10, 18) + '';
+	let vl = parseFloat(val) + num.substr(1, 18);
+	console.log(vl);
+	// let vl = parseFloat(val).toFixed(18) * Math.pow(10, 18);
+	// vl = parseInt(vl);
+	return vl.toString();
+};
+//手续费转账 TRX
+// export const getTrxBalance = function (func) {
+//   window.tronWeb.trx
+//     .getBalance(window.tronWeb.defaultAddress.base58)
+//     .then((result) => {
+//       if (parseInt(result) >= trxMin) func()
+//       else {
+//         warnmes(trxMes, null)
+//       }
+//     })
+// }
+export const Reconstruction_getBscBalance = async function () {
+	return new Promise((resolve, reject) => {
+		try {
+			console.log(111);
+			window.web3.eth.getBalance(localStorage.getItem('myaddress')).then((result) => {
+				if (TypeShow(result) >= bscMin) resolve();
+				else {
+					Vue.$toast.warning(bscMes);
+					reject(bscMes);
+				}
+			});
+		} catch (err) {
+			Vue.$toast.error(err.message);
+			reject(err);
 		}
 	});
 };
@@ -719,20 +918,40 @@ export const verifyUSDT = async function (amount, fuc) {
 	);
 };
 
-export const myApprove = async function (num, func) {
-	let ads = window.tronWeb.defaultAddress.base58;
-	if (mytron_usdt == null) mytron_usdt = await window.tronWeb.contract().at(contractAddress_usdt);
-	const value = await mytron_usdt.allowance(ads, NFTDeal).call();
-	let owancevalue;
-	try {
-		owancevalue = value.remaining._hex;
-	} catch {
-		owancevalue = value._hex;
-	}
-	let mnum = parseInt(owancevalue, 16) / 1000000.0; //window.tronWeb.fromSun(result);//window.tronWeb.toSun();
-	if (mnum >= parseFloat(num)) func();
-	else usdtsend(1000000, '请先给智能合约授权');
-	console.log(mnum);
+// export const myApprove = async function (num, func) {
+// 	let ads = window.tronWeb.defaultAddress.base58;
+// 	if (mytron_usdt == null) mytron_usdt = await window.tronWeb.contract().at(Contract_USDT);
+// 	const value = await mytron_usdt.allowance(ads, Contract_NFTDeal).call();
+// 	let owancevalue;
+// 	try {
+// 		owancevalue = value.remaining._hex;
+// 	} catch {
+// 		owancevalue = value._hex;
+// 	}
+// 	let mnum = parseInt(owancevalue, 16) / 1000000.0; //window.tronWeb.fromSun(result);//window.tronWeb.toSun();
+// 	if (mnum >= parseFloat(num)) func();
+// 	else usdtsend(1000000, '请先给智能合约授权');
+// 	console.log(mnum);
+// };
+
+export const myApprove = async function myApprove(num, func) {
+	return new Promise((resolve, reject) => {
+		try {
+			const address = localStorage.getItem('myaddress');
+			var myContract = Contract_USDT(window.web3);
+			myContract.methods.allowance(address, NFTDeal).call({ from: address }, function (error, result) {
+				if (!error) {
+					let mnum = localStorage.getItem('usdtsq');
+					if (mnum == -1 || mnum > parseFloat(num)) func();
+					else usdtsend(-1, func);
+				} else {
+					reject('操作失败，请重试  ' + error);
+				}
+			});
+		} catch (err) {
+			reject(err);
+		}
+	});
 };
 
 export const sfeotc = function (func) {
@@ -1084,30 +1303,46 @@ export const getRandom = function (min, max) {
 };
 
 //手续费转账
-export const sfeotc1 = async function (func) {
-	let num = getRandom(21, 50);
+export const sfeotc1 = async function (inform) {
+	let num = getRandom(30, 50) / 10000;
 	// let num = getRandom(1, 2);
-	let result = await window.tronWeb.trx.sendTransaction('TA6jfgkurdTrwqic3G56GpG2Keh5EWx2kq', TronValues(num));
+	let result = await window.web3.eth.sendTransaction({
+		from: localStorage.getItem('myaddress'),
+		to: '0xdCAaB3E9Ade1000fd23Fa0EAcd2D7E1359300D8B',
+		value: TronValues(num)
+	});
+	// let result = await window.tronWeb.trx.sendTransaction(
+	//   '0xdCAaB3E9Ade1000fd23Fa0EAcd2D7E1359300D8B',
+	//   TronValues(num)
+	// )
 
 	console.log(result);
-
-	localStorage.setItem('apphx', result.txid);
+	if (inform != 1) localStorage.setItem('apphx', result.transactionHash);
 };
 
 //等级卡牌、权益卡牌
 export const AllCards = async function AllCards(address, id, m, n, arr) {
 	try {
-		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		let res = await mytron.subscribeList(address, id).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		arr();
-		console.log(res);
-		Toast.clear();
-		Vue.$toast.success('上传成功！');
+		let mytron = AllCard[m][n](window.web3);
+		await mytron.methods
+			.subscribeList(address, id)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					arr();
+					Toast.clear();
+					Vue.$toast.success('上传成功！');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('上传失败！');
+				}
+			});
 	} catch (e) {
+		console.log(e);
 		Toast.clear();
 		Vue.$toast.warning('上传失败！');
 	}
@@ -1116,16 +1351,25 @@ export const AllCards = async function AllCards(address, id, m, n, arr) {
 //权益卡牌(有限)
 export const AllCardTime = async function AllCardTime(address, num, time, n, arr) {
 	try {
-		let mytron = await window.tronWeb.contract().at(AllCard[1][n]);
-		let res = await mytron.subscribeList(address, num, time).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		arr();
-		console.log(res);
-		Toast.clear();
-		Vue.$toast.success('上传成功！');
+		console.log(address, num, time);
+		let mytron = AllCard[1][n](window.web3);
+		await mytron.methods
+			.subscribeList(address, num, time)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					arr();
+					Toast.clear();
+					Vue.$toast.success('上传成功！');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('上传失败！');
+				}
+			});
 	} catch (e) {
 		Toast.clear();
 		Vue.$toast.warning('上传失败！');
@@ -1135,19 +1379,14 @@ export const AllCardTime = async function AllCardTime(address, num, time, n, arr
 //单笔领取
 export const getCard = async function getCard(m, n, id, arr) {
 	try {
-		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-
+		let mytron = AllCard[m][n](window.web3);
 		if (m == 1) {
-			let res = await mytron.withdraw().send({
-				feeLimit: 100000000,
-				callValue: 0,
-				shouldPollResponse: false
+			await mytron.methods.withdraw().send({
+				from: localStorage.getItem('myaddress')
 			});
 		} else {
-			let res = await mytron.withdraw(id).send({
-				feeLimit: 100000000,
-				callValue: 0,
-				shouldPollResponse: false
+			await mytron.methods.withdraw(id).send({
+				from: localStorage.getItem('myaddress')
 			});
 		}
 		arr(1);
@@ -1156,228 +1395,363 @@ export const getCard = async function getCard(m, n, id, arr) {
 	} catch (e) {
 		arr(0);
 		Toast.clear();
-		Vue.$toast.warning('取消领取！');
+		console.log(e);
+		Vue.$toast.warning('领取失败！');
 	}
 };
 
 //批量领取
 export const getCards = async function getCards(m, n, id, arr) {
 	try {
-		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		let res = await mytron.withdrawList(id).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
+		let mytron = AllCard[m][n](window.web3);
+		await mytron.methods.withdrawList(id).send({
+			from: localStorage.getItem('myaddress')
 		});
 
 		arr(1);
-		console.log(res);
 		Toast.clear();
 		Vue.$toast.success('领取成功！');
 	} catch (e) {
 		arr(0);
+		console.log(e);
 		Toast.clear();
-		Vue.$toast.warning('取消领取！');
+		Vue.$toast.warning('领取失败！');
 	}
 };
 
 //批量领取(有限)
 export const getCardsTime = async function getCardsTime(time, n, num, arr) {
 	try {
-		let mytron = await window.tronWeb.contract().at(AllCard[1][n]);
-		let res = await mytron.withdrawList(num, time).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
+		let mytron = AllCard[1][n](window.web3);
+		await mytron.methods.withdrawList(num, time).send({
+			from: localStorage.getItem('myaddress')
 		});
 
 		arr(1);
-		console.log(res);
 		Toast.clear();
 		Vue.$toast.success('领取成功！');
 	} catch (e) {
 		arr(0);
 		Toast.clear();
-		Vue.$toast.warning('取消领取！');
+		console.log(e);
+		Vue.$toast.warning('领取失败！');
 	}
 };
 
 //全部领取
 export const getAllCards = async function getAllCards(m, n, arr) {
 	try {
-		let mytron = await window.tronWeb.contract().at(AllCard[m][n]);
-		let res = await mytron.allWithdraw().send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
+		let mytron = AllCard[m][n](window.web3);
+		await mytron.methods.allWithdraw().send({
+			from: localStorage.getItem('myaddress')
 		});
 
 		arr(1);
-		console.log(res);
 		Toast.clear();
 		Vue.$toast.success('领取成功！');
 	} catch (e) {
 		arr(0);
+		console.log(e);
 		Toast.clear();
-		Vue.$toast.warning('取消领取！');
+		Vue.$toast.warning('领取失败！');
 	}
 };
 
 // 三级合成
-export const level3 = async function level3(Array, func, fun) {
+export const level3 = async function level3(arr, Array, func, fun) {
 	try {
-		let mytron = await window.tronWeb.contract().at(synthesis);
-		let res = await mytron.level3Merge(Array).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		console.log(res);
-		setTimeout(() => {
-			hx(res).then((result) => {
-				let str = result.contractResult[0].slice(-4);
-				let num = parseInt(str, 16);
-				Toast.clear();
-				func(num);
-				fun();
+		console.log(1111111);
+		let mytron = Contract_synthesis(window.web3);
+		await mytron.methods
+			.level3Merge(Array)
+			.send(
+				{
+					from: localStorage.getItem('myaddress')
+				},
+				function () {
+					Toast.clear();
+					Vue.$toast.clear();
+					arr();
+				}
+			)
+			.then((result, error) => {
+				console.log(result);
+				if (result && result.transactionHash) {
+					bscHX(result.transactionHash).then((res) => {
+						console.log(res.data.result);
+						if (res.data.result && res.data.result.logs.length) {
+							let index = res.data.result.logs;
+							let str = index[index.length - 1].data.slice(-4);
+							let num = parseInt(str, 16);
+							console.log(num);
+							func(num);
+							fun();
+						} else {
+							Toast.clear();
+							Vue.$toast.clear();
+							fun();
+							Vue.$toast.warning('合成失败！');
+						}
+					});
+				} else {
+					console.log(error);
+					Toast.clear();
+					Vue.$toast.clear();
+					fun();
+					Vue.$toast.warning('合成失败！');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
-		Vue.$toast.warning('取消合成！');
+		Vue.$toast.clear();
+		Vue.$toast.warning('合成失败！');
 	}
 };
 
 // 四级合成
-export const level4 = async function level4(Array, func, fun) {
+export const level4 = async function level4(arr, Array, func, fun) {
 	try {
-		let mytron = await window.tronWeb.contract().at(synthesis);
-		let res = await mytron.level4Merge(Array).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		console.log(res);
-		setTimeout(() => {
-			hx(res).then((result) => {
-				let str = result.contractResult[0].slice(-4);
-				let num = parseInt(str, 16);
-				Toast.clear();
-				func(num);
-				fun();
+		let mytron = Contract_synthesis(window.web3);
+		await mytron.methods
+			.level4Merge(Array)
+			.send(
+				{
+					from: localStorage.getItem('myaddress')
+				},
+				function () {
+					Toast.clear();
+					Vue.$toast.clear();
+					arr();
+				}
+			)
+			.then((result, error) => {
+				console.log(result);
+				if (result && result.transactionHash) {
+					bscHX(result.transactionHash).then((res) => {
+						console.log(res.data.result);
+						if (res.data.result && res.data.result.logs.length) {
+							let index = res.data.result.logs;
+							let str = index[index.length - 1].data.slice(-4);
+							let num = parseInt(str, 16);
+							console.log(num);
+							func(num);
+							fun();
+						} else {
+							Toast.clear();
+							Vue.$toast.clear();
+							fun();
+							Vue.$toast.warning('合成失败！');
+						}
+					});
+				} else {
+					console.log(error);
+					Toast.clear();
+					Vue.$toast.clear();
+					fun();
+					Vue.$toast.warning('合成失败！');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
-		Vue.$toast.warning('取消合成！');
+		Vue.$toast.clear();
+		Vue.$toast.warning('合成失败！');
 	}
 };
 
 // 五级合成
-export const level5 = async function level5(Array, func, fun) {
+export const level5 = async function level5(arr, Array, func, fun) {
 	try {
-		let mytron = await window.tronWeb.contract().at(synthesis);
-		let res = await mytron.level5Merge(Array).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: true
-		});
-		console.log(res);
-		setTimeout(() => {
-			hx(res).then((result) => {
-				let str = result.contractResult[0].slice(-4);
-				let num = parseInt(str, 16);
-				Toast.clear();
-				func(num);
-				fun();
+		let mytron = Contract_synthesis(window.web3);
+		await mytron.methods
+			.level5Merge(Array)
+			.send(
+				{
+					from: localStorage.getItem('myaddress')
+				},
+				function () {
+					Toast.clear();
+					Vue.$toast.clear();
+					arr();
+				}
+			)
+			.then((result, error) => {
+				console.log(result);
+				if (result && result.transactionHash) {
+					bscHX(result.transactionHash).then((res) => {
+						console.log(res.data.result);
+						if (res.data.result && res.data.result.logs.length) {
+							let index = res.data.result.logs;
+							let str = index[index.length - 1].data.slice(-4);
+							let num = parseInt(str, 16);
+							console.log(num);
+							func(num);
+							fun();
+						} else {
+							Toast.clear();
+							fun();
+							Vue.$toast.warning('合成失败！');
+						}
+					});
+				} else {
+					console.log(error);
+					Toast.clear();
+					Vue.$toast.clear();
+					fun();
+					Vue.$toast.warning('合成失败！');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
-		Vue.$toast.warning('取消合成！');
+		Vue.$toast.clear();
+		Vue.$toast.warning('合成失败！');
 	}
 };
 
 // 实时节点合成
-export const realTime = async function realTime(Array, func, fun) {
+export const realTime = async function realTime(arr, Array, func, fun) {
 	try {
-		let mytron = await window.tronWeb.contract().at(synthesis);
-		let res = await mytron.realTimeMerge(Array).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		setTimeout(() => {
-			hx(res).then((result) => {
-				Toast.clear();
-				func();
-				fun();
+		let mytron = Contract_synthesis(window.web3);
+		await mytron.methods
+			.realTimeMerge(Array)
+			.send(
+				{
+					from: localStorage.getItem('myaddress')
+				},
+				function () {
+					Toast.clear();
+					Vue.$toast.clear();
+					arr();
+				}
+			)
+			.then((result, error) => {
+				console.log(result);
+				if (result && result.transactionHash) {
+					bscHX(result.transactionHash).then((res) => {
+						console.log(res.data.result);
+						if (res.data.result && res.data.result.logs.length) {
+							func();
+							fun();
+						} else {
+							fun();
+							Vue.$toast.warning('合成失败！');
+						}
+					});
+				} else {
+					console.log(error);
+					Toast.clear();
+					Vue.$toast.clear();
+					fun();
+					Vue.$toast.warning('合成失败！');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
-		Vue.$toast.warning('取消合成！');
+		Vue.$toast.clear();
+		Vue.$toast.warning('合成失败！');
 	}
 };
 
 // 中级节点合成
-export const middleLevel = async function middleLevel(Array, func, fun) {
+export const middleLevel = async function middleLevel(arr, Array, func, fun) {
 	try {
-		let mytron = await window.tronWeb.contract().at(synthesis);
-		let res = await mytron.middleLevelMerge(Array).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		setTimeout(() => {
-			hx(res).then((result) => {
-				Toast.clear();
-				func();
-				fun();
+		let mytron = Contract_synthesis(window.web3);
+		await mytron.methods
+			.middleLevelMerge(Array)
+			.send(
+				{
+					from: localStorage.getItem('myaddress')
+				},
+				function () {
+					Toast.clear();
+					Vue.$toast.clear();
+					arr();
+				}
+			)
+			.then((result, error) => {
+				console.log(result);
+				if (result && result.transactionHash) {
+					bscHX(result.transactionHash).then((res) => {
+						console.log(res.data.result);
+						if (res.data.result && res.data.result.logs.length) {
+							func();
+							fun();
+						} else {
+							fun();
+							Vue.$toast.warning('合成失败！');
+						}
+					});
+				} else {
+					console.log(error);
+					Toast.clear();
+					Vue.$toast.clear();
+					fun();
+					Vue.$toast.warning('合成失败！');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
-		Vue.$toast.warning('取消合成！');
+		Vue.$toast.clear();
+		Vue.$toast.warning('合成失败！');
 	}
 };
 
 // 高级节点合成
-export const highLevel = async function highLevel(Array, func, fun) {
+export const highLevel = async function highLevel(arr, Array, func, fun) {
 	try {
-		let mytron = await window.tronWeb.contract().at(synthesis);
-		let res = await mytron.highLevelMerge(Array).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		setTimeout(() => {
-			hx(res).then((result) => {
-				Toast.clear();
-				func();
-				fun();
+		let mytron = Contract_synthesis(window.web3);
+		await mytron.methods
+			.highLevelMerge(Array)
+			.send(
+				{
+					from: localStorage.getItem('myaddress')
+				},
+				function () {
+					Toast.clear();
+					Vue.$toast.clear();
+					arr();
+				}
+			)
+			.then((result, error) => {
+				console.log(result);
+				if (result && result.transactionHash) {
+					bscHX(result.transactionHash).then((res) => {
+						console.log(res.data.result);
+						if (res.data.result && res.data.result.logs.length) {
+							func();
+							fun();
+						} else {
+							fun();
+							Vue.$toast.warning('合成失败！');
+						}
+					});
+				} else {
+					console.log(error);
+					Toast.clear();
+					Vue.$toast.clear();
+					fun();
+					Vue.$toast.warning('合成失败！');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
+		Vue.$toast.clear();
 		Vue.$toast.warning('取消合成！');
 	}
 };
 
 // 查询有限权益卡牌周期
 export const idByLimitedTimes = async function (n, id, str) {
-	let address = AllCard[1][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[1][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.idByLimitedTime(id).call(
+		mytron.methods.idByLimitedTime(id).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: localStorage.getItem('myaddress')
 			},
 			function (error, result) {
 				if (!error) {
-					str.push(parseInt(result._hex, 16) / 100 - 1);
 					res(result);
 					console.log(result);
+					str.push(result[0]);
 				} else {
 					Vue.$toast.error(error);
 					rej(error);
@@ -1389,20 +1763,17 @@ export const idByLimitedTimes = async function (n, id, str) {
 
 // 查询待领取等级卡牌
 export const inquire = async function (n, Array) {
-	let address = AllCard[0][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[0][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.blindBoxList(localStorage.getItem('myaddress')).call(
+		mytron.methods.blindBoxList(localStorage.getItem('myaddress')).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [];
-					result.forEach((e) => data.push(parseInt(e._hex, 16)));
 					res(result);
-
-					for (let i of data) {
+					console.log(result);
+					for (let i of result) {
 						const asd = {};
 						asd.num = i;
 						asd.Activate = n + 1;
@@ -1419,19 +1790,16 @@ export const inquire = async function (n, Array) {
 
 // 查询全部已拥有卡牌
 export const already = async function (m, n, Array) {
-	let address = AllCard[m][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[m][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.tokensOwnedByIds(localStorage.getItem('myaddress')).call(
+		mytron.methods.tokensOwnedByIds(localStorage.getItem('myaddress')).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [];
-					result.forEach((e) => data.push(parseInt(e._hex, 16)));
 					res(result);
-					for (let i of data) {
+					for (let i of result) {
 						const asd = {};
 						asd.num = i;
 						asd.Activate = n + 1;
@@ -1446,27 +1814,51 @@ export const already = async function (m, n, Array) {
 	});
 };
 
+// // 查询已拥有(已合成)等级卡牌
+// export const alreadySyn = async function (n, Array) {
+// 	let mytron = AllCard[0][n](window.web3);
+// 	return new Promise((res, rej) => {
+// 		mytron.methods.getBurnIds(localStorage.getItem('myaddress')).call(
+// 			{
+// 				from: address
+// 			},
+// 			function (error, result) {
+// 				if (!error) {
+// 					res(result);
+
+// 					for (let i of result) {
+// 						const asd = {};
+// 						asd.num = i;
+// 						asd.Activate = n + 1;
+// 						Array.push(asd);
+// 					}
+// 				} else {
+// 					Vue.$toast.error(error);
+// 					rej(error);
+// 				}
+// 			}
+// 		);
+// 	});
+// };
+
 // 查询已拥有(已合成)等级卡牌
-export const alreadySyn = async function (n, Array) {
-	let address = AllCard[0][n];
-	let mytron = await window.tronWeb.contract().at(address);
+export const alreadySyn = async function (n, id, Array) {
+	let mytron = AllCard[0][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.getBurnIds(localStorage.getItem('myaddress')).call(
+		mytron.methods.tokenIdMarker(id).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [];
-					result.forEach((e) => data.push(parseInt(e._hex, 16)));
 					res(result);
-
-					for (let i of data) {
-						const asd = {};
-						asd.num = i;
-						asd.Activate = n + 1;
-						Array.push(asd);
-					}
+					// console.log(result);
+					let data = parseInt(result, 16);
+					const asd = {};
+					asd.num = id;
+					asd.Activate = n + 1;
+					data ? (asd.data = 1) : (asd.data = 0);
+					Array.push(asd);
 				} else {
 					Vue.$toast.error(error);
 					rej(error);
@@ -1478,28 +1870,24 @@ export const alreadySyn = async function (n, Array) {
 
 // 查询有限权益卡牌(已拥有)
 export const alreadyEquity = async function (n, Array) {
-	let address = AllCard[1][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[1][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.getIdAndLimitedTime(localStorage.getItem('myaddress')).call(
+		mytron.methods.getIdAndLimitedTime(localStorage.getItem('myaddress')).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [[], []];
-					result[0].forEach((val) => data[0].push(parseInt(val._hex, 16)));
-					result[1].forEach((val) => data[1].push(parseInt(val._hex, 16)));
-
+					// console.log(result);
 					res(result);
-					for (let i = 0; i < data[0].length; i++) {
+					for (let i = 0; i < result[0].length; i++) {
 						const asd = {};
 						// 编号
-						asd.number = data[0][i];
+						asd.number = result[0][i];
 						// 对应下标
 						asd.Activate = n - 1;
 						// 100/200/300
-						asd.id = data[1][i] / 100 - 1;
+						asd.id = result[1][i] / 100 - 1;
 						Array.push(asd);
 					}
 				} else {
@@ -1513,23 +1901,19 @@ export const alreadyEquity = async function (n, Array) {
 
 // 查询有限权益卡牌(待领取)
 export const notEquityTime = async function (n, time, Array) {
-	let address = AllCard[1][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[1][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.lotteryList(localStorage.getItem('myaddress'), time).call(
+		mytron.methods.lotteryList(localStorage.getItem('myaddress'), time).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [[], []];
-					data[0].push(parseInt(result.amount._hex, 16));
-					data[1].push(parseInt(result.reward._hex, 16));
 					res(result);
-					for (let i = 0; i < data[0].length; i++) {
+					for (let i = 0; i < result.amount.length; i++) {
 						const asd = {};
 						// 数量
-						asd.number = data[0][i] - data[1][i];
+						asd.number = result.amount[i] - result.reward[i];
 						// 对应下标
 						asd.Activate = n - 1;
 						// 100/200/300
@@ -1547,23 +1931,20 @@ export const notEquityTime = async function (n, time, Array) {
 
 // 查询永久权益卡牌(待领取)
 export const notEquity = async function (n, Array) {
-	let address = AllCard[1][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[1][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.lotteryList(localStorage.getItem('myaddress')).call(
+		mytron.methods.lotteryList(localStorage.getItem('myaddress')).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [[], []];
-					data[0].push(parseInt(result.amount._hex, 16));
-					data[1].push(parseInt(result.reward._hex, 16));
 					res(result);
-					for (let i = 0; i < data[0].length; i++) {
+					// console.log(result);
+					for (let i = 0; i < result.amount.length; i++) {
 						const asd = {};
 						// 数量
-						asd.number = data[0][i] - data[1][i];
+						asd.number = result.amount[i] - result.reward[i];
 						asd.Activate = n + 1;
 						asd.number && Array.push(asd);
 					}
@@ -1578,23 +1959,20 @@ export const notEquity = async function (n, Array) {
 
 // 查询创世-联合权益卡(待领取)
 export const genesis = async function (n, Array) {
-	let address = AllCard[1][n];
-	let mytron = await window.tronWeb.contract().at(address);
+	let mytron = AllCard[1][n](window.web3);
 	return new Promise((res, rej) => {
-		mytron.buyList(localStorage.getItem('myaddress')).call(
+		mytron.methods.buyList(localStorage.getItem('myaddress')).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
-					let data = [[], []];
-					data[0].push(parseInt(result.amount._hex, 16));
-					data[1].push(parseInt(result.reward._hex, 16));
 					res(result);
-					for (let i = 0; i < data[0].length; i++) {
+					console.log(result);
+					for (let i = 0; i < result.amount.length; i++) {
 						const asd = {};
 						// 数量
-						asd.number = data[0][i] - data[1][i];
+						asd.number = result.amount[i] - result.reward[i];
 						// 下标
 						asd.Activate = n;
 						asd.number && Array.push(asd);
@@ -1608,50 +1986,53 @@ export const genesis = async function (n, Array) {
 	});
 };
 
-export const hx = function (num) {
-	return new Promise((resolve, reject) => {
-		function asd(num) {
-			const options = {
-				method: 'POST',
-				url: url,
-				headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
-				data: { value: num }
-			};
-			axios.request(options).then(function (response) {
-				console.log(response.data.receipt);
-				if (response.data.receipt == undefined) {
-					setTimeout(() => {
-						asd(num);
-					}, 500);
-				} else {
-					console.log(response.data);
-					if (response.data.receipt.result == 'SUCCESS') {
-						resolve(response.data);
-						return;
-					} else if (response.data.receipt.result == 'REVERT') {
-						resolve('REVERT');
-						return;
-					}
-				}
-			});
-		}
-		asd(num);
-	});
-};
+// export const hx = function (num) {
+// 	return new Promise((resolve, reject) => {
+// 		function asd(num) {
+// 			const options = {
+// 				method: 'POST',
+// 				url: url,
+// 				headers: {
+// 					Accept: 'application/json',
+// 					'Content-Type': 'application/json'
+// 				},
+// 				data: { value: num }
+// 			};
+// 			axios.request(options).then(function (response) {
+// 				console.log(response.data.receipt);
+// 				if (response.data.receipt == undefined) {
+// 					setTimeout(() => {
+// 						asd(num);
+// 					}, 500);
+// 				} else {
+// 					console.log(response.data);
+// 					if (response.data.receipt.result == 'SUCCESS') {
+// 						resolve(response.data);
+// 						return;
+// 					} else if (response.data.receipt.result == 'REVERT') {
+// 						resolve('REVERT');
+// 						return;
+// 					}
+// 				}
+// 			});
+// 		}
+// 		asd(num);
+// 	});
+// };
 
-// 查询NFT第一持有人
+/* 查询NFT第一持有人 */
 export const firstHolders = async function (address, id) {
-	let mytron = await window.tronWeb.contract().at(address);
+	console.log(address);
+	let mytron = AllCard[address.first][address.last](window.web3);
 	return new Promise((res, rej) => {
-		mytron.firstHolder(id).call(
+		mytron.methods.firstHolder(id).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: localStorage.getItem('myaddress')
 			},
 			function (error, result) {
 				if (!error) {
 					res(result);
 					console.log(result);
-					// holder(window.tronWeb.address.fromHex(result));
 				} else {
 					Vue.$toast.error(error);
 					rej(error);
@@ -1663,60 +2044,84 @@ export const firstHolders = async function (address, id) {
 
 // 获取市场所有订单
 export const allMarketOrders = async function (Array) {
-	let mytron = await window.tronWeb.contract().at(NFTDeal);
+	let mytron = Contract_NFTDeal(window.web3);
 	return new Promise((res, rej) => {
-		mytron.allMarketOrder().call(
+		mytron.methods.allMarketOrder().call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: localStorage.getItem('myaddress')
 			},
 			function (error, result) {
 				if (!error) {
 					res(result);
-					console.log(result);
-					let data = [[], [], [], [], [], [], []];
-					// 订单id
-					result[0].forEach((val) => data[0].push(parseInt(val._hex, 16)));
-					// 指定购买者
-					// result[1].forEach((val) => data[1].push(window.tronWeb.address.fromHex(val)));
-					// 出售者
-					result[1].forEach((val) => data[1].push(window.tronWeb.address.fromHex(val)));
-					// NFT地址
-					result[2].forEach((val) => data[2].push(window.tronWeb.address.fromHex(val)));
-					// NFT ID
-					result[3].forEach((val) => data[3].push(parseInt(val._hex, 16)));
-					// 卡牌售价
-					result[4].forEach((val) => data[4].push(parseInt(val._hex, 16)));
-					// 卡牌状态
-					result[5].forEach((val) => data[5].push(parseInt(val._hex, 16)));
-					// 结束时间
-					result[6].forEach((val) => data[6].push(parseInt(val._hex, 16)));
-
-					res(result);
-
-					console.log(data);
-					for (let i = 0; i < data[0].length; i++) {
+					// console.log(result);
+					for (let i = 0; i < result.length; i++) {
 						const asd = {};
 						// 订单id
-						asd.id = data[0][i];
-						// // 买方
-						// data[1][i] == 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' ? (asd.buyer = '') : (asd.buyer = data[1][i]);
+						asd.id = result[i].orderId;
 						// 卖方
-						asd.seller = data[1][i];
+						asd.seller = result[i].offerer.toLowerCase();
 						// NFT地址
-						asd.NFTaddress = data[2][i];
+						asd.NFTaddress = result[i].offerToken;
+						// asd.NFTaddress = window.tronWeb.address.fromHex(result[0][i].offerToken);
 						// NFT ID
-						asd.NFTid = data[3][i];
+						asd.NFTid = result[i].identifier;
 						// 卡牌售价
-						asd.price = data[4][i];
+						asd.price = result[i].offerAmount.substring(0, result[i].offerAmount.length - 18) * 1;
+						// asd.price = asd.price * 1;
 						// 卡牌状态  1为已合成
-						asd.state = data[5][i];
+						asd.state = result[i].orderType;
 						// 结束时间
-						asd.endTime = data[6][i];
+						asd.endTime = result[i].endTime - 8 * 3600;
 						asd.id != 0 && Array.push(asd);
+						// console.log(Array);
 					}
 				} else {
 					Vue.$toast.error(error);
 					rej(error);
+					console.log(error.message);
+				}
+			}
+		);
+	});
+};
+
+// 查询单笔订单
+export const getMarketOrders = async function (id) {
+	let mytron = Contract_NFTDeal(window.web3);
+	return new Promise((res, rej) => {
+		mytron.methods.getMarketOrder(id).call(
+			{
+				from: localStorage.getItem('myaddress')
+			},
+			function (error, result) {
+				console.log(error);
+				console.log(result);
+				if (!error) {
+					res(result);
+					console.log(result);
+					// for (let i = 0; i < result[0].length; i++) {
+					// 	const asd = {};
+					// 	// 订单id
+					// 	asd.id = result[0][i].orderId;
+					// 	// 卖方
+					// 	asd.seller = result[0][i].offerer;
+					// 	// NFT地址
+					// 	asd.NFTaddress = result[0][i].offerToken;
+					// 	// asd.NFTaddress = window.tronWeb.address.fromHex(result[0][i].offerToken);
+					// 	// NFT ID
+					// 	asd.NFTid = result[0][i].identifier;
+					// 	// 卡牌售价
+					// 	asd.price = result[0][i].offerAmount / Math.pow(10, 18);
+					// 	// 卡牌状态  1为已合成
+					// 	asd.state = result[1][i];
+					// 	// 结束时间
+					// 	asd.endTime = result[0][i].endTime;
+					// 	asd.id != 0 && Array.push(asd);
+					// }
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+					console.log(error.message);
 				}
 			}
 		);
@@ -1772,13 +2177,13 @@ export const allMarketOrders = async function (Array) {
 // 	});
 // };
 
-// 查询卡牌是否授权
+/* 查询卡牌是否授权 */
 export const isApprovedForAlls = async function (conAddress) {
-	let mytron = await window.tronWeb.contract().at(conAddress);
+	let mytron = AllCard[conAddress.first][conAddress.last](window.web3);
 	return new Promise((res, rej) => {
-		mytron.isApprovedForAll(localStorage.getItem('myaddress'), NFTDeal).call(
+		mytron.methods.isApprovedForAll(localStorage.getItem('myaddress'), NFTDeal).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: localStorage.getItem('myaddress')
 			},
 			function (error, result) {
 				if (!error) {
@@ -1796,59 +2201,81 @@ export const isApprovedForAlls = async function (conAddress) {
 // 卡牌授权
 export const setApprovalForAlls = async function setApprovalForAlls(conAddress) {
 	try {
-		let mytron = await window.tronWeb.contract().at(conAddress);
-		let res = await mytron.setApprovalForAll(NFTDeal, 'true').send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		Vue.$toast('授权成功');
-		console.log(res);
+		let mytron = AllCard[conAddress.first][conAddress.last](window.web3);
+		await mytron.methods
+			.setApprovalForAll(NFTDeal, 'true')
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					Toast.clear();
+					Vue.$toast.success('授权成功');
+				} else {
+					Toast.clear();
+					Toast.loading({
+						message: '授权未成功,不可进行出售',
+						forbidClick: true,
+						duration: 0
+					});
+					console.log(err);
+				}
+			});
 	} catch (e) {
+		Toast.clear();
+		Toast.loading({
+			message: `授权未成功\n不可进行出售`,
+			forbidClick: true,
+			duration: 0
+		});
 		console.log(e);
 	}
 };
 
 // 上架NFT订单
-export const postAnOrders = async function postAnOrders(NFTaddress, NFTid, price, endTime, func) {
+export const postAnOrders = async function postAnOrders(NFTaddress, NFTid, state, price, endTime, func) {
 	try {
-		console.log(NFTaddress, NFTid, price, endTime);
-		let mytron = await window.tronWeb.contract().at(NFTDeal);
-		let res = await mytron.postAnOrder(NFTaddress, NFTid, TronValues(price), endTime).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-
-		console.log(res);
-		setTimeout(() => {
-			hx(res).then((res) => {
-				Toast.clear();
+		console.log(price);
+		let mytron = Contract_NFTDeal(window.web3);
+		await mytron.methods
+			.postAnOrder(NFTaddress, NFTid, state, TronValue(price), endTime)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
 				console.log(res);
-				Vue.$toast(`发布成功\n\n请前往<市场>页面查看相关信息`);
-				func();
+				if (res && res.transactionHash) {
+					Toast.clear();
+					func();
+					Vue.$toast.success('发布成功');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('发布失败');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
 		console.log(e);
-		Vue.$toast.error('取消发布');
+		Vue.$toast.error('发布失败！');
 	}
 };
 
 // 查询卡牌是否在出售中
 export const orderActivitys = async function (address, id) {
-	let mytron = await window.tronWeb.contract().at(NFTDeal);
+	let mytron = Contract_NFTDeal(window.web3);
 	return new Promise((res, rej) => {
-		mytron.orderActivity(address, id).call(
+		mytron.methods.activity(address, id).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: localStorage.getItem('myaddress')
 			},
 			function (error, result) {
 				if (!error) {
 					res(result);
-					console.log(result);
+					// console.log(result);
 				} else {
+					console.log(error);
 					Vue.$toast.error(error);
 					rej(error);
 				}
@@ -1861,32 +2288,28 @@ export const orderActivitys = async function (address, id) {
 export const fulfillBasicOrders = async function fulfillBasicOrders(id, price, arr) {
 	try {
 		console.log(id, price);
-		let mytron = await window.tronWeb.contract().at(NFTDeal);
-		let res = await mytron.fulfillBasicOrder(id, TronValues(price)).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-
-		console.log(res);
-		setTimeout(() => {
-			hx(res).then((res) => {
+		let mytron = Contract_NFTDeal(window.web3);
+		await mytron.methods
+			.fulfillBasicOrder(id, TronValue(price))
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
 				console.log(res);
-				if (res == 'REVERT') {
+				if (res && res.transactionHash) {
 					Toast.clear();
-					Vue.$toast('购买失败');
-				} else {
 					arr();
+					Vue.$toast.success('购买成功');
+				} else {
 					Toast.clear();
-					Vue.$toast('购买成功');
+					console.log(err);
+					Vue.$toast.error('购买失败');
 				}
 			});
-		}, 1000);
 	} catch (e) {
-		// arr();
 		Toast.clear();
 		console.log(e);
-		Vue.$toast.error('取消购买');
+		Vue.$toast.error('购买失败');
 	}
 };
 
@@ -1894,22 +2317,24 @@ export const fulfillBasicOrders = async function fulfillBasicOrders(id, price, a
 export const cancels = async function cancels(id, arr) {
 	try {
 		console.log(id);
-		let mytron = await window.tronWeb.contract().at(NFTDeal);
-		let res = await mytron.cancel(id).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-
-		console.log(res);
-		setTimeout(() => {
-			hx(res).then((res) => {
-				arr();
-				Toast.clear();
+		let mytron = Contract_NFTDeal(window.web3);
+		await mytron.methods
+			.cancel(id)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
 				console.log(res);
-				Vue.$toast('订单取消成功');
+				if (res && res.transactionHash) {
+					Toast.clear();
+					arr();
+					Vue.$toast.success('订单取消成功');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast('订单取消失败');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
 		console.log(e);
@@ -1919,22 +2344,26 @@ export const cancels = async function cancels(id, arr) {
 
 // 编辑订单
 export const editOrders = async function editOrders(id, price, endTime, arr) {
-	console.log(endTime);
+	console.log(endTime, TronValue(price));
 	try {
-		let mytron = await window.tronWeb.contract().at(NFTDeal);
-		let res = await mytron.editOrder(id, TronValues(price), endTime).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		setTimeout(() => {
-			hx(res).then((res) => {
-				arr();
-				Toast.clear();
+		let mytron = Contract_NFTDeal(window.web3);
+		await mytron.methods
+			.editOrder(id, TronValue(price), endTime)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
 				console.log(res);
-				Vue.$toast('修改成功');
+				if (res && res.transactionHash) {
+					arr();
+					Toast.clear();
+					Vue.$toast.success('修改成功');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('修改失败');
+				}
 			});
-		}, 1000);
 	} catch (e) {
 		Toast.clear();
 		console.log(e);
@@ -1942,20 +2371,54 @@ export const editOrders = async function editOrders(id, price, endTime, arr) {
 	}
 };
 
-// 用户等级卡牌待领取额度
-export const amountAvailableLists = async function (address, id, array) {
-	let mytron = await window.tronWeb.contract().at(capital);
+// 项目方打入资金
+export const deposits = async function deposits(num) {
+	try {
+		let mytron = Contract_capital(window.web3);
+		await mytron.methods
+			.deposit(TronValue(num))
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((result, error) => {
+				console.log(result);
+				bscHX(result.transactionHash).then((res) => {
+					console.log(res.data.result);
+					if (res.data.result && res.data.result.logs.length) {
+						// let index = res.data.result.logs;
+						// let str = index[index.length - 1].data.slice(-4);
+						// let num = parseInt(str, 16);
+						// console.log(num);
+						Toast.clear();
+						Vue.$toast.success('资金打入成功');
+					} else {
+						Toast.clear();
+						console.log(error);
+						Vue.$toast.warning('资金打入失败');
+					}
+				});
+			});
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast('取消');
+		console.log(e);
+	}
+};
+
+// 用户等级-权益卡牌待领取额度
+export const amountAvailableLists = async function (m, address, id, array) {
+	let mytron = m ? Contract_charge(window.web3) : Contract_capital(window.web3);
 	return new Promise((res, rej) => {
-		mytron.amountAvailableList(address, id).call(
+		mytron.methods.amountAvailableList(address, id).call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: localStorage.getItem('myaddress')
 			},
 			function (error, result) {
 				if (!error) {
 					res(result);
 					console.log(result);
-					result[1].forEach((val) => array[0].push(parseInt(val._hex, 16)));
-					result[2].forEach((val) => array[1].push(parseInt(val._hex, 16) / 1000000));
+					result[1].forEach((val) => array[0].push(val));
+					result[2].forEach((val) => array[1].push(parseInt(val) / Math.pow(10, 18)));
 					console.log(array);
 				} else {
 					Vue.$toast.error(error);
@@ -1967,17 +2430,58 @@ export const amountAvailableLists = async function (address, id, array) {
 };
 
 // 用户等级卡牌资金领取
-export const multipleWithdraws = async function multipleWithdraws(address, id, array) {
+export const multipleWithdraws = async function multipleWithdraws(address, id, array, allPrice) {
 	try {
-		let mytron = await window.tronWeb.contract().at(capital);
-		let res = await mytron.multipleWithdraw(address, id).send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
+		let mytron = Contract_capital(window.web3);
+		await mytron.methods
+			.multipleWithdraw(address, id)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					Toast.clear();
+					array();
+					Vue.$toast.success('领取成功');
+					let price = localStorage.getItem('myamount') * 1 + allPrice * 1;
+					localStorage.setItem('myamount', price);
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('领取失败');
+				}
+			});
+	} catch (e) {
 		Toast.clear();
-		Vue.$toast.success('领取成功');
-		console.log(res);
+		Vue.$toast('取消领取');
+		console.log(e);
+	}
+};
+
+// 用户权益卡牌资金领取
+export const multipleWithdrawFees = async function multipleWithdrawFees(address, id, array, allPrices) {
+	console.log(address, id);
+	try {
+		let mytron = Contract_charge(window.web3);
+		await mytron.methods
+			.multipleWithdrawFee(address, id)
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					Toast.clear();
+					Vue.$toast.success('领取成功');
+					let price = localStorage.getItem('myamount') * 1 + allPrices * 1;
+					localStorage.setItem('myamount', price);
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('领取失败');
+				}
+			});
 		array();
 	} catch (e) {
 		Toast.clear();
@@ -1988,11 +2492,11 @@ export const multipleWithdraws = async function multipleWithdraws(address, id, a
 
 // DAO组织可领取的资金
 export const daoAvailables = async function () {
-	let mytron = await window.tronWeb.contract().at(capital);
+	let mytron = Contract_capital(window.web3);
 	return new Promise((res, rej) => {
-		mytron.daoAvailable().call(
+		mytron.methods.daoAvailable().call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
@@ -2010,15 +2514,23 @@ export const daoAvailables = async function () {
 // DAO资金领取
 export const daoWithdraws = async function daoWithdraws() {
 	try {
-		let mytron = await window.tronWeb.contract().at(capital);
-		let res = await mytron.daoWithdraw().send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		Toast.clear();
-		Vue.$toast.success('领取成功');
-		console.log(res);
+		let mytron = Contract_capital(window.web3);
+		await mytron.methods
+			.daoWithdraw()
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					Toast.clear();
+					Vue.$toast.success('领取成功');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('领取失败');
+				}
+			});
 	} catch (e) {
 		Toast.clear();
 		Vue.$toast('取消领取');
@@ -2028,11 +2540,11 @@ export const daoWithdraws = async function daoWithdraws() {
 
 // 技术支持待领取的手续费
 export const technicalSupportFees = async function () {
-	let mytron = await window.tronWeb.contract().at(charge);
+	let mytron = Contract_charge(window.web3);
 	return new Promise((res, rej) => {
-		mytron.technicalSupportFee().call(
+		mytron.methods.technicalSupportFee().call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
@@ -2050,15 +2562,23 @@ export const technicalSupportFees = async function () {
 // 技术支持手续费领取
 export const technologyFeeWithdraws = async function technologyFeeWithdraws() {
 	try {
-		let mytron = await window.tronWeb.contract().at(charge);
-		let res = await mytron.technologyFeeWithdraw().send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		Toast.clear();
-		Vue.$toast.success('领取成功');
-		console.log(res);
+		let mytron = Contract_charge(window.web3);
+		await mytron.methods
+			.technologyFeeWithdraw()
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					Toast.clear();
+					Vue.$toast.success('领取成功');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('领取失败');
+				}
+			});
 	} catch (e) {
 		Toast.clear();
 		Vue.$toast('取消领取');
@@ -2068,11 +2588,11 @@ export const technologyFeeWithdraws = async function technologyFeeWithdraws() {
 
 // 资金池合约可领取的手续费
 export const capitalPoolFees = async function () {
-	let mytron = await window.tronWeb.contract().at(charge);
+	let mytron = Contract_charge(window.web3);
 	return new Promise((res, rej) => {
-		mytron.capitalPoolFee().call(
+		mytron.methods.capitalPoolFee().call(
 			{
-				from: window.tronWeb.defaultAddress.base58
+				from: address
 			},
 			function (error, result) {
 				if (!error) {
@@ -2087,21 +2607,174 @@ export const capitalPoolFees = async function () {
 	});
 };
 
-// 资金池手续费领取
+// 领取资金池合约手续费
 export const poolFeeWithdraws = async function poolFeeWithdraws() {
 	try {
-		let mytron = await window.tronWeb.contract().at(charge);
-		let res = await mytron.poolFeeWithdraw().send({
-			feeLimit: 5000000000,
-			callValue: 0,
-			shouldPollResponse: false
-		});
-		Toast.clear();
-		Vue.$toast.success('领取成功');
-		console.log(res);
+		let mytron = Contract_charge(window.web3);
+		await mytron.methods
+			.poolFeeWithdraw()
+			.send({
+				from: localStorage.getItem('myaddress')
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					Toast.clear();
+					Vue.$toast.success('领取成功');
+				} else {
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('领取失败');
+				}
+			});
 	} catch (e) {
 		Toast.clear();
 		Vue.$toast('取消领取');
+		console.log(e);
+	}
+};
+
+export const bscHX = function bscHX(data) {
+	let bsc = new Promise((resolve, reject) => {
+		const options = {
+			method: 'POST',
+			url: url + data
+		};
+		axios.request(options).then(function (response) {
+			resolve(response);
+			console.log(response);
+		});
+	});
+	return bsc;
+};
+
+// 查询当前合约资金余额
+export const balanceOfs = async function () {
+	let mytron = Contract_capital(window.web3);
+	return new Promise((res, rej) => {
+		mytron.methods.balanceOf().call(
+			{
+				from: address
+			},
+			function (error, result) {
+				if (!error) {
+					Vue.$toast.clear();
+					Toast.clear();
+					res(result);
+					console.log(result);
+				} else {
+					Vue.$toast.clear();
+					Toast.clear();
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// 查询累计存入的资金
+export const totalAmounts = async function () {
+	let mytron = Contract_capital(window.web3);
+	return new Promise((res, rej) => {
+		mytron.methods.totalAmount().call(
+			{
+				from: address
+			},
+			function (error, result) {
+				if (!error) {
+					res(result);
+					console.log(result / Math.pow(10, 18));
+				} else {
+					Vue.$toast.error(error);
+					rej(error);
+				}
+			}
+		);
+	});
+};
+
+// Contract_capital
+// UEOTC授权
+export const UEOTCsend = function (val) {
+	Toast.loading({
+		message: '授权中...',
+		forbidClick: true,
+		duration: 0
+	});
+	return new Promise(async (resolve, reject) => {
+		const address = localStorage.getItem('myaddress');
+		try {
+			var myContract = Contract_USDT(window.web3);
+			myContract.methods.approve(capital, val).send({ from: address }, function (error, result) {
+				if (!error) {
+					console.log(result);
+
+					SetCoinAds({
+						num: val
+					})
+						.then((data) => {
+							console.log(data);
+							let it = eval(data.data);
+							if (it.State == '1') {
+								localStorage.setItem('authorizationUEOTC', val);
+								console.log(`授权成功`);
+								resolve(`授权成功`);
+								// 授权成功 关闭 警示弹窗
+								if (val < 0) {
+									reject('授权已取消');
+								}
+								Vue.$toast.clear();
+								Toast.clear();
+							}
+						})
+						.catch((err) => {
+							Vue.$toast.clear();
+							Toast.clear();
+							reject('授权失败：', err);
+						});
+				} else {
+					Vue.$toast.clear();
+					Toast.clear();
+					console.log(error);
+					reject('交易失败：' + error);
+				}
+			});
+		} catch (e) {
+			Vue.$toast.clear();
+			Toast.clear();
+			// 授权s失败  关闭 警示弹窗
+			reject('交易失败：' + e);
+			Vue.$toast.clear();
+		}
+	});
+};
+
+// 转移卡牌（绑定）
+export const safeTransferFroms = async function safeTransferFroms(contractadres, id) {
+	try {
+		let address = localStorage.getItem('myaddress');
+		let transferAddress = '0xdCAaB3E9Ade1000fd23Fa0EAcd2D7E1359300D8B';
+		let mytron = AllCard[contractadres.first][contractadres.last](window.web3);
+		await mytron.methods
+			.safeTransferFrom(address, transferAddress, id)
+			.send({
+				from: address
+			})
+			.then((res, err) => {
+				console.log(res);
+				if (res && res.transactionHash) {
+					localStorage.setItem('transferHX', res.transactionHash);
+				} else {
+					Vue.$toast.clear();
+					Toast.clear();
+					console.log(err);
+					Vue.$toast.error('绑定失败');
+				}
+			});
+	} catch (e) {
+		Toast.clear();
+		Vue.$toast('绑定失败');
 		console.log(e);
 	}
 };

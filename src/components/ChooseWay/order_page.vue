@@ -194,11 +194,11 @@ export default {
         // this.show = true
         if (this.appU * 1 < this.moneyU * 1 || this.appE * 1 < this.moneyE * 1) {
           //跳转充值
-          location.href = 'https://trx.eotc.im/#/recharge'
+          location.href = 'https://bsc.eotc.im/#/recharge'
         } else {
           // 购买
           BuyBlindBox(this.moneyU, this.moneyE).then((res) => {
-            console.log(res)
+            // console.log(res)
             // res.data.State > 0 ? this.$toast('支付成功') : this.$toast('支付失败')
             if (res.data.State > 0) {
               this.$toast('支付成功')
@@ -234,7 +234,7 @@ export default {
     // 点击确定
     sureHandler() {
       this.buynum = parseInt(this.buynum)
-      console.log(this.buynum)
+      // console.log(this.buynum)
       this.inputNum = this.buynum
       this.costnum = this.buynum
       this.activeIndex = this.currentIndex

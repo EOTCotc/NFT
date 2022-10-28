@@ -20,13 +20,13 @@
           <p class="l">{{item.title}}(USDT)</p>
           <p class="r">
             <van-button round
-                        :disabled="!item.receive"
+                        :disabled="index!=3?!item.receive:false"
                         @click="success(index)"
                         color="#227AEE"
-                        type="primary">领取</van-button>
+                        type="primary">{{item.text}}</van-button>
           </p>
         </div>
-        <div class="amount">{{parseFloat(item.receive).toFixed(2)}}</div>
+        <div class="amount">{{parseFloat(item.receive).toFixed(10)}}</div>
         <!-- <div class="bottom">
           <p class="l">已领取手续费分红</p>
           <p class="r">{{parseFloat(item.already).toFixed(2)}} USDT</p>
@@ -34,20 +34,28 @@
       </div>
     </div>
 
+    <!-- 尾部 -->
+    <!-- <footer>
+      <van-button @click="fund"
+                  type="info">打入资金</van-button>
+    </footer> -->
+
   </div>
 </template>
 
 <script>
 import { Toast } from 'vant'
-import { daoWithdraws, daoAvailables, poolFeeWithdraws, technicalSupportFees, technologyFeeWithdraws, capitalPoolFees } from '@/utils/web3'
+import { totalAmounts, TronValue, UEOTCsend, balanceOfs, deposits, daoWithdraws, daoAvailables, poolFeeWithdraws, technicalSupportFees, technologyFeeWithdraws, capitalPoolFees } from '@/utils/web3'
 export default {
   data() {
     return {
       allData: [
-        { title: '技术支持分红', receive: 0, already: 0 },
-        { title: '资金池分红', receive: 0, already: 0 },
-        { title: 'DAO资金', receive: 0, already: 0 }
+        { title: '技术支持分红', text: '领取', receive: 0 },
+        { title: '资金池分红', text: '领取', receive: 0 },
+        { title: 'DAO资金', text: '领取', receive: 0 },
+        { title: '合约资金余额', text: '存款', receive: 0 }
       ]
+      // total: 0 //累计存入的资金
       // receive: [] //待领取
       // already: [], //已领取
     }
@@ -59,14 +67,21 @@ export default {
   },
   methods: {
     async getFund() {
+      // 合约资金余额
+      await balanceOfs().then((res) => (this.allData[3].receive = parseFloat(res) / Math.pow(10, 18)))
       // 技术支持待领取
-      await technicalSupportFees().then((res) => (this.allData[0].receive = parseInt(res._hex, 16) / 1000000))
+      await technicalSupportFees().then((res) => (this.allData[0].receive = parseFloat(res) / Math.pow(10, 18)))
       // 资金池待领取
-      await capitalPoolFees().then((res) => (this.allData[1].receive = parseInt(res._hex, 16) / 1000000))
+      await capitalPoolFees().then((res) => (this.allData[1].receive = parseFloat(res) / Math.pow(10, 18)))
       // DAO资金待领取
-      await daoAvailables().then((res) => (this.allData[2].receive = parseInt(res._hex, 16) / 1000000))
+      await daoAvailables().then((res) => (this.allData[2].receive = parseFloat(res) / Math.pow(10, 18)))
     },
     async success(i) {
+      Toast.loading({
+        message: '领取中...',
+        forbidClick: true,
+        duration: 0
+      })
       if (i == 0) {
         await technologyFeeWithdraws().then(() => {
           this.allData[i].receive = 0
@@ -79,6 +94,26 @@ export default {
         await daoWithdraws().then(() => {
           this.allData[i].receive = 0
         })
+      } else if (i == 3) {
+        this.$toast.clear()
+        Toast.loading({
+          message: '请稍等...',
+          forbidClick: true,
+          duration: 0
+        })
+        let authorizationUEOTC = localStorage.getItem('authorizationUEOTC')
+        if (authorizationUEOTC == -1 || authorizationUEOTC >= TronValue(1000000)) {
+          await deposits(1000000).then(async (res) => {
+            await balanceOfs().then((res) => (this.allData[3].receive = parseFloat(res) / Math.pow(10, 18)))
+          })
+        } else {
+          await UEOTCsend(-1).then(async (data) => {
+            // console.log(data)
+            if (data == '授权成功') {
+              await deposits(1000000)
+            }
+          })
+        }
       }
     },
     onClickLeft() {
@@ -124,7 +159,8 @@ export default {
         align-items: center;
         letter-spacing: 2px;
         .van-button {
-          width: 180px;
+          padding: 0 40px;
+          // width: 180px;
           height: 74px;
           font-size: 32px;
           letter-spacing: 2px;
@@ -143,6 +179,18 @@ export default {
           color: #858992;
         }
       }
+    }
+  }
+
+  // 尾部
+  footer {
+    width: 100vw;
+    position: fixed;
+    bottom: 1em;
+    text-align: center;
+    .van-button {
+      width: 90vw;
+      font-size: 34px;
     }
   }
 }

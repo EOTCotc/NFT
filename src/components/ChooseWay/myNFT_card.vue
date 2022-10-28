@@ -70,7 +70,7 @@ export default {
     },
     async getMyNFT() {
       const { data } = await myNft(1)
-      console.log(data)
+      // console.log(data)
       this.cardList = data
     },
     createCard(item) {

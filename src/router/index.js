@@ -1,7 +1,8 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-// import { loadweb3, userBaseMes } from '@/utils/web3';
+import { loadweb3, userBaseMes } from '@/utils/web3';
+import { Toast } from 'vant';
 
 Vue.use(VueRouter);
 
@@ -159,5 +160,19 @@ const router = new VueRouter({
 // 	}
 // 	next();
 // });
+
+router.beforeEach((to, from, next) => {
+	if (to.path != '/index/nft_home' && !localStorage.getItem('uid')) {
+		next('/index/nft_home');
+		loadweb3(userBaseMes);
+		Toast.fail('请先登录');
+	}
+	if (to.path == '/admin' || to.path == '/chargesAdmin') {
+		if (localStorage.getItem('Token') != 'DFDC568B71C6A5B817D4421EC466217F') {
+			next('/verify');
+		}
+	}
+	next();
+});
 
 export default router;

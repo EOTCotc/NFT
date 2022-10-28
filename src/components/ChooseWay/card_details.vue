@@ -37,6 +37,16 @@
       <p class="cost"><img src="@/assets/img/logo-removebg-preview.png">{{price}}</p>
       <p class="time">销售将于{{time}}结束</p>
     </div>
+    <!-- 售卖通知 -->
+    <div class="inform"
+         v-if="inform">
+      <p class="title">售卖通知</p>
+      <p class="content">
+        卡牌正在售卖中
+        <br>请前往&lt;市场&gt;页面--&lt;我的卡牌&gt;进行查看 <br><br>
+        <span style="color:#FC7542">注：正在售卖中的卡牌不可进行合成</span>
+      </p>
+    </div>
     <!-- 作品简介 -->
     <div class="intro">
       <p class="title">作品简介</p>
@@ -49,13 +59,21 @@
          :class="show?'reveal':''">
       <p class="msgtitle">作品信息</p>
       <ul class="list">
+        <li v-show="serviceCharge">
+          <p>可领取手续费</p>
+          <p style="color:#FC7542">{{serviceCharge.toFixed(10)}} USDT</p>
+        </li>
+        <li v-show="possessor">
+          <p>持有者</p>
+          <p>{{user|ellipsis}}</p>
+        </li>
         <li v-show="holder">
           <p>第一持有人</p>
           <p>{{holder|ellipsis}}</p>
         </li>
         <li>
           <p>铸造平台</p>
-          <p>TRON</p>
+          <p>BSC</p>
         </li>
         <li>
           <p>TokenID</p>
@@ -125,6 +143,10 @@
            class="unbindBtn">
         <p>解绑</p>
       </div>
+      <div v-if="toggle5"
+           class="unbindBtn">
+        <p style="color:#FC7542; font-size:">卡牌赎回中，请耐心等候</p>
+      </div>
     </div>
 
     <!-- 购买弹窗 -->
@@ -160,6 +182,7 @@
                 show-cancel-button>
       <div class="input">
         <van-field v-model="priceChange"
+                   oninput="if(value>1000000000000000)value=1000000000000000"
                    :border="false"
                    label="修改价格"
                    type="digit"
@@ -195,14 +218,18 @@
   </div>
 </template>
 <script>
+import { BindNft } from '@/api/newReqets'
 import { Toast, Dialog } from 'vant'
 import { contract, cardList, allCard, allCards } from '@/utils/options'
-import { orderActivitys, myApprove, firstHolders, fulfillBasicOrders, cancels, editOrders } from '@/utils/web3'
+import { sfeotc1, safeTransferFroms, orderActivitys, myApprove, firstHolders, fulfillBasicOrders, cancels, editOrders, amountAvailableLists } from '@/utils/web3'
 export default {
   data() {
     return {
+      possessor: false,
+      user: '000000',
       dateChanged: true,
       orderEditing: false,
+      serviceCharge: 0,
       priceChange: '',
       data: '',
       contract,
@@ -222,11 +249,13 @@ export default {
       showShop: false,
       off: false,
       show: false,
+      inform: false, //售卖通知
       toggle: false, //购买
       toggle1: false, //领取
       toggle2: false, //绑定、出售
       toggle3: false, //取消/编辑订单
       toggle4: false, //解绑
+      toggle5: false, //卡牌赎回中
       btnShow: false, //上方按钮
       pattern: /^[A-Za-z0-9]{34}|^[0]{0}$/,
       checked: false,
@@ -240,14 +269,19 @@ export default {
         { text: '三月后（60天）', value: 60 },
         { text: '六月后（180天）', value: 180 }
       ],
-      optionTime: ''
+      optionTime: '',
+      addressIndex: { first: null, last: null },
+      transferHX: '',
+      appid: '',
+      ads: localStorage.getItem('myaddress'),
+      sign: localStorage.getItem('mysign')
     }
   },
   created() {
     this.query = this.$route.query
     console.log(this.query)
     this.optionTime = this.formatDate(this.query.endTime)
-    console.log(this.optionTime)
+    // console.log(this.optionTime)
     this.getMsg()
   },
   methods: {
@@ -255,25 +289,53 @@ export default {
     getMsg() {
       // this.arr = []
       if (this.query.url == 'hvae_card') {
+        this.user = localStorage.getItem('myaddress')
+        this.possessor = true
         // 权益卡牌
         this.rights()
         setTimeout(async () => {
-          await firstHolders(this.address, this.query.id).then((res) => (this.holder = window.tronWeb.address.fromHex(res)))
+          await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
           await orderActivitys(this.address, this.query.id).then((res) => {
-            if (parseInt(res._hex, 16) == 1 || this.query.sell == 1) {
+            if (this.query.sell == 1 || res == 1) {
               this.show = false
+              this.inform = true
             } else {
+              this.inform = false
               this.show = true
+
+              if (['3', '4', '5', '6', '7', '8'].includes(this.query.Activate)) {
+                this.query.time ? (this.appid = this.query.Activate + this.query.time / 100) : (this.appid = this.query.Activate)
+                BindNft('null', 'null', this.appid, this.query.id, 'null', 0)
+                  .then((res) => {
+                    console.log(res)
+                    if (res.data.length && res.data[0].ok == 1) {
+                      // 该卡牌已绑定
+                      this.toggle4 = true
+                    } else if (res.data.length && res.data[0].ok == 2) {
+                      // 卡牌待赎回
+                      this.toggle5 = true
+                    } else if (res.data.length && res.data[0].ok == 3) {
+                      // 卡牌已赎回
+                      this.toggle2 = true
+                    } else {
+                      // 卡牌未绑定
+                      this.toggle2 = true
+                    }
+                  })
+                  .catch((err) => {
+                    console.log(err)
+                    // 卡牌未绑定
+                    this.toggle2 = true
+                  })
+              } else {
+                this.toggle1 = true
+              }
             }
           })
         })
-
-        if (['3', '4', '5'].includes(this.query.Activate)) {
-          this.toggle2 = true
-        } else {
-          this.toggle1 = true
-        }
       } else if (this.query.url == 'rank_card') {
+        this.user = localStorage.getItem('myaddress')
+        this.possessor = true
         // 等级卡牌
         this.grade()
         if (['1', '2'].includes(this.query.Activate)) {
@@ -282,11 +344,14 @@ export default {
           this.toggle1 = true
           // this.query.sell == 1 ? (this.show = false) : (this.show = true)
           setTimeout(async () => {
-            await firstHolders(this.address, this.query.id).then((res) => (this.holder = window.tronWeb.address.fromHex(res)))
+            await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
             await orderActivitys(this.address, this.query.id).then((res) => {
-              if (parseInt(res._hex, 16) == 1 || this.query.sell == 1) {
+              if (this.query.sell == 1 || res == 1) {
                 this.show = false
+                this.inform = true
+                // this.$toast(`卡牌正在售卖中\n\n请前往<市场>页面查看相关信息`)
               } else {
+                this.inform = false
                 this.show = true
               }
             })
@@ -296,13 +361,23 @@ export default {
         this.time = this.formatDate(this.query.endTime)
         this.query.form == 1 ? this.grade() : this.rights()
         this.query.status == 4 ? (this.toggle3 = true) : (this.toggle = true)
+        // this.toggle = true
         setTimeout(async () => {
-          await firstHolders(this.address, this.query.id).then((res) => (this.holder = window.tronWeb.address.fromHex(res)))
-          await orderActivitys(this.address, this.query.id).then((res) => {
-            if (parseInt(res._hex, 16) == 1) {
+          await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
+          await orderActivitys(this.address, this.query.id).then(async (res) => {
+            if (res == 1) {
+              let arr = [[], []]
               this.show = true
+              this.user = this.query.seller
               this.price = parseInt(this.query.price).toFixed(2)
+              this.possessor = true
+              // console.log(this.addressIndex.first)
+              await amountAvailableLists(this.addressIndex.first, [this.address], [this.query.id], arr)
+              // console.log(arr[1][0])
+              this.serviceCharge = arr[1][0]
             } else {
+              this.user = '00000'
+              this.possessor = false
               this.show = false
               this.price = 0
             }
@@ -317,6 +392,11 @@ export default {
       this.address = this.contract[0][Activate - 1]
       this.brief = this.allCard[Activate - 1].text
       this.query.state ? (this.img = this.allCards[Activate - 1].image) : (this.img = this.allCard[Activate - 1].image)
+      for (let i = 0; i < 2; i++) {
+        let index = contract[i].indexOf(this.address)
+        // console.log(index)
+        if (index != -1) (this.addressIndex.first = i), (this.addressIndex.last = index)
+      }
     },
     // 权益卡牌
     rights() {
@@ -340,6 +420,11 @@ export default {
           this.img = this.cardList[Activate - 2][2].image
           this.brief = this.cardList[Activate - 2][2].text
         }
+      }
+      for (let i = 0; i < 2; i++) {
+        let index = contract[i].indexOf(this.address)
+        // console.log(index)
+        if (index != -1) (this.addressIndex.first = i), (this.addressIndex.last = index)
       }
     },
     formatDate(timestamp) {
@@ -370,12 +455,32 @@ export default {
     // 点击解绑卡牌
     unbindHandler() {
       Dialog.confirm({
-        message: '解绑后权益卡相关权益将停止' + `</br>` + '确定解绑此权益卡？'
+        message: '解绑权益卡后手续费无法到账' + `</br>` + '确定解绑此权益卡？'
       })
-        .then(() => {
-          this.toggle2 = true
-          this.toggle4 = false
-          Toast({ message: '解绑成功', duration: 500 })
+        .then(async () => {
+          Toast.loading({
+            message: '解除绑定中...',
+            forbidClick: true,
+            duration: 0
+          })
+          await sfeotc1(1)
+          await BindNft(this.ads, this.sign, this.appid, this.query.id, 'null', 1).then((res) => {
+            // console.log(res)
+            if (res.data.Code > 0) {
+              this.$toast.clear()
+              Toast.clear()
+              this.toggle1 = false
+              this.toggle2 = false
+              this.toggle3 = false
+              this.toggle4 = false
+              this.toggle5 = true
+              Toast({ message: '解绑中，请耐心等候', duration: 500 })
+            } else {
+              this.$toast.clear()
+              Toast.clear()
+              Toast({ message: '解绑失败', duration: 500 })
+            }
+          })
         })
         .catch(() => {
           Toast({ message: '取消解绑', duration: 500 })
@@ -385,14 +490,39 @@ export default {
     unitybindHandler() {
       Dialog.confirm({
         title: '绑定',
-        message: '绑定之后不可进行出售操作'
+        message: `绑定后手续费自动到账\n不可进行出售操作`
       })
-        .then(() => {
-          this.toggle2 = false
-          this.toggle4 = true
-          Toast({ message: '绑定成功', duration: 500 })
+        .then(async () => {
+          Toast.loading({
+            message: '卡牌绑定中...',
+            forbidClick: true,
+            duration: 0
+          })
+          await safeTransferFroms(this.addressIndex, this.query.id)
+          this.transferHX = localStorage.getItem('transferHX')
+          let time = ''
+          this.query.time ? (time = this.query.time) : (time = 9999)
+          await BindNft(this.ads, this.sign, this.appid, this.query.id, this.transferHX, time).then((res) => {
+            // console.log(res)
+            if (res.data.Code > 0) {
+              this.$toast.clear()
+              Toast.clear()
+              this.toggle1 = false
+              this.toggle2 = false
+              this.toggle3 = false
+              this.toggle5 = false
+              this.toggle4 = true
+              Toast({ message: '绑定成功', duration: 500 })
+            } else {
+              this.$toast.clear()
+              Toast.clear()
+              Toast({ message: '绑定失败', duration: 500 })
+            }
+          })
         })
         .catch(() => {
+          this.$toast.clear()
+          Toast.clear()
           Toast({ message: '取消绑定', duration: 500 })
         })
     },
@@ -426,6 +556,11 @@ export default {
     async onBeforeClose(action, done) {
       if (action === 'confirm') {
         // 点击确定走这里
+        Toast.loading({
+          message: '购买中...',
+          forbidClick: true,
+          duration: 0
+        })
         await fulfillBasicOrders(this.query.orderID, this.query.price, this.receiveSuccessHandler)
         done(true)
         // if (this.pattern.test(this.value) || this.value == '') {
@@ -448,9 +583,12 @@ export default {
       }
     },
     receiveSuccessHandler() {
+      Toast.clear()
+      this.$toast.clear()
       // this.arr = []
       this.show = false
       this.price = 0
+      this.user = localStorage.getItem('myaddress')
       // projectState(this.address, this.query.id, this.arr)
     },
     // 编辑订单
@@ -464,14 +602,14 @@ export default {
             duration: 0
           })
           let timeDate = Math.floor(new Date().getTime() / 1000)
-          let endTime = timeDate + this.radio * 3600 * 24
+          let endTime = timeDate + this.radio * 3600 * 24 + 8 * 3600
           console.log(timeDate, endTime)
           let arr = () => {
             this.price = parseFloat(this.priceChange).toFixed(2)
-            if (!this.dateChanged) this.time = this.formatDate(endTime)
+            if (!this.dateChanged) this.time = this.formatDate(endTime - 8 * 3600)
           }
           this.dateChanged ? await editOrders(this.query.orderID, this.priceChange, 0, arr) : await editOrders(this.query.orderID, this.priceChange, endTime, arr)
-          // this.dateChanged ? await editOrders(this.query.orderID, this.priceChange, 0, arr) : await editOrders(this.query.orderID, this.priceChange, endTime, arr)
+          // this.dateChanged ? await editOrders(this.query.orderID, this.priceChange, 0, arr) : await editOrders(this.query.orderID, this.priceChendTimeange, , arr)
           done(true)
         } else {
           this.$toast('请填写卡牌价格')
@@ -485,12 +623,12 @@ export default {
   },
   watch: {
     checked(i) {
-      console.log(i)
+      // console.log(i)
       if (!i) this.value = ''
     },
     dateChanged: {
       handler(i) {
-        console.log(i)
+        // console.log(i)
         i ? ((this.optionTime = this.time), (this.radio = 1)) : (this.optionTime = '')
       },
       immediate: true
@@ -593,6 +731,31 @@ html {
           font-size: 36px;
         }
       }
+    }
+  }
+  // 售卖通知
+  .inform {
+    width: 690px;
+    background: #1b2333;
+    margin: 0 auto;
+    margin-bottom: 30px;
+    border-radius: 20px;
+    padding: 30px;
+    box-sizing: border-box;
+    color: #fff;
+    font-size: 32px;
+    .title {
+      color: #fff;
+      margin-bottom: 30px;
+    }
+    .content {
+      width: 630px;
+      font-size: 28px;
+      font-family: PingFang SC-Light, PingFang SC;
+      font-weight: 300;
+      line-height: 44px;
+      text-align: justify;
+      color: #bbb;
     }
   }
   //作品简介,卡牌售价
