@@ -167,7 +167,7 @@ export default {
           this.isContractCheckLoading = false
           this.loading_buy = false
         } catch (err) {
-          console.log(err)
+          // console.log(err)
           this.$toast.clear()
           this.$toast.error(err)
           this.$toast.error('购买失败！')

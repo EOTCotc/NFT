@@ -59,29 +59,33 @@
          :class="show?'reveal':''">
       <p class="msgtitle">作品信息</p>
       <ul class="list">
-        <li v-show="serviceCharge">
-          <p>可领取手续费</p>
-          <p style="color:#FC7542">{{serviceCharge.toFixed(10)}} USDT</p>
+        <li>
+          <p>合约地址</p>
+          <p v-if="grades">{{address|ellipsis}}</p>
+          <a v-else
+             :href="'https://bscscan.com/address/'+address">{{address|ellipsis}}</a>
+        </li>
+        <li>
+          <p>TokenID</p>
+          <p v-if="grades">#{{query.id.padStart(6, 0)}}</p>
+          <a v-else
+             :href="url">#{{query.id.padStart(6, 0)}}</a>
+        </li>
+        <li>
+          <p>铸造平台</p>
+          <p>BscScan</p>
         </li>
         <li v-show="possessor">
           <p>持有者</p>
           <p>{{user|ellipsis}}</p>
         </li>
         <li v-show="holder">
-          <p>第一持有人</p>
+          <p>创作者</p>
           <p>{{holder|ellipsis}}</p>
         </li>
-        <li>
-          <p>铸造平台</p>
-          <p>BSC</p>
-        </li>
-        <li>
-          <p>TokenID</p>
-          <p>#{{query.id.padStart(6, 0)}}</p>
-        </li>
-        <li>
-          <p>合约地址</p>
-          <p>{{address|ellipsis}}</p>
+        <li v-show="serviceCharge">
+          <p>可领取手续费</p>
+          <p style="color:#FC7542">{{serviceCharge.toFixed(10)}} USDT</p>
         </li>
       </ul>
     </div>
@@ -221,10 +225,12 @@
 import { BindNft } from '@/api/newReqets'
 import { Toast, Dialog } from 'vant'
 import { contract, cardList, allCard, allCards } from '@/utils/options'
-import { sfeotc1, safeTransferFroms, orderActivitys, myApprove, firstHolders, fulfillBasicOrders, cancels, editOrders, amountAvailableLists } from '@/utils/web3'
+import { tokenURIs, sfeotc1, safeTransferFroms, orderActivitys, myApprove, firstHolders, fulfillBasicOrders, cancels, editOrders, amountAvailableLists } from '@/utils/web3'
 export default {
   data() {
     return {
+      grades: false,
+      url: '',
       possessor: false,
       user: '000000',
       dateChanged: true,
@@ -279,7 +285,7 @@ export default {
   },
   created() {
     this.query = this.$route.query
-    console.log(this.query)
+    // console.log(this.query)
     this.optionTime = this.formatDate(this.query.endTime)
     // console.log(this.optionTime)
     this.getMsg()
@@ -287,6 +293,11 @@ export default {
   methods: {
     // 获取页面信息
     getMsg() {
+      Toast.loading({
+        message: '数据加载中...',
+        forbidClick: true,
+        duration: 0
+      })
       // this.arr = []
       if (this.query.url == 'hvae_card') {
         this.user = localStorage.getItem('myaddress')
@@ -294,7 +305,6 @@ export default {
         // 权益卡牌
         this.rights()
         setTimeout(async () => {
-          await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
           await orderActivitys(this.address, this.query.id).then((res) => {
             if (this.query.sell == 1 || res == 1) {
               this.show = false
@@ -307,7 +317,7 @@ export default {
                 this.query.time ? (this.appid = this.query.Activate + this.query.time / 100) : (this.appid = this.query.Activate)
                 BindNft('null', 'null', this.appid, this.query.id, 'null', 0)
                   .then((res) => {
-                    console.log(res)
+                    // console.log(res)
                     if (res.data.length && res.data[0].ok == 1) {
                       // 该卡牌已绑定
                       this.toggle4 = true
@@ -323,7 +333,7 @@ export default {
                     }
                   })
                   .catch((err) => {
-                    console.log(err)
+                    // console.log(err)
                     // 卡牌未绑定
                     this.toggle2 = true
                   })
@@ -332,7 +342,7 @@ export default {
               }
             }
           })
-        })
+        }, 500)
       } else if (this.query.url == 'rank_card') {
         this.user = localStorage.getItem('myaddress')
         this.possessor = true
@@ -340,11 +350,14 @@ export default {
         this.grade()
         if (['1', '2'].includes(this.query.Activate)) {
           this.show = false
+          this.$toast.clear()
+          Toast.clear()
+          this.grades = true
+          return false
         } else {
           this.toggle1 = true
           // this.query.sell == 1 ? (this.show = false) : (this.show = true)
           setTimeout(async () => {
-            await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
             await orderActivitys(this.address, this.query.id).then((res) => {
               if (this.query.sell == 1 || res == 1) {
                 this.show = false
@@ -355,7 +368,7 @@ export default {
                 this.show = true
               }
             })
-          })
+          }, 500)
         }
       } else if (this.query.url == 'marketNFT') {
         this.time = this.formatDate(this.query.endTime)
@@ -363,7 +376,6 @@ export default {
         this.query.status == 4 ? (this.toggle3 = true) : (this.toggle = true)
         // this.toggle = true
         setTimeout(async () => {
-          await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
           await orderActivitys(this.address, this.query.id).then(async (res) => {
             if (res == 1) {
               let arr = [[], []]
@@ -384,6 +396,12 @@ export default {
           })
         }, 500)
       }
+
+      setTimeout(async () => {
+        await firstHolders(this.addressIndex, this.query.id).then((res) => (this.holder = res))
+        await tokenURIs(this.addressIndex, this.query.id).then((res) => (this.url = res))
+        Toast.clear()
+      }, 500)
     },
     // 等级卡牌
     grade() {
@@ -433,7 +451,8 @@ export default {
       let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '月'
       let D = date.getDate() + '日'
       let h = date.getHours() + '时'
-      return Y + M + D + h
+      let m = date.getMinutes() + '分'
+      return Y + M + D + h + m
     },
     formatDates(timestamp) {
       var date = new Date(timestamp * 1000) //时间戳为10位需*1000，时间戳为13位的话不需乘1000
@@ -603,7 +622,7 @@ export default {
           })
           let timeDate = Math.floor(new Date().getTime() / 1000)
           let endTime = timeDate + this.radio * 3600 * 24 + 8 * 3600
-          console.log(timeDate, endTime)
+          // console.log(timeDate, endTime)
           let arr = () => {
             this.price = parseFloat(this.priceChange).toFixed(2)
             if (!this.dateChanged) this.time = this.formatDate(endTime - 8 * 3600)
@@ -830,6 +849,10 @@ html {
         justify-content: space-between;
         align-items: center;
         margin-bottom: 30px;
+        a {
+          font-size: 28px;
+          color: rgb(32, 129, 226);
+        }
         &:last-child(1) {
           margin-bottom: 0;
         }

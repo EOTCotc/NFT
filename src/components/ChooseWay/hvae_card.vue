@@ -173,8 +173,7 @@
          class="rankmask">
       <div class="maskbox">
         <div>
-          本次铸造需要扣除0.0030--0.0050不等的bsc
-          现在立即铸造？
+          本次铸造需要扣除<br>0.0030--0.0050不等的bsc<br>现在立即铸造？
         </div>
         <div>
           <p @click="cancelHandler">取消</p>
@@ -189,7 +188,7 @@
          class="rankmask">
       <div class="maskbox">
         <div>
-          已成功提交铸造，请等待铸造铸造完成后即可领取至钱包
+          已成功提交铸造<br>交易将在5分钟内完成<br>请耐心等待不要重复铸造同一卡牌
         </div>
         <div>
           <p @click="confirmSuccHandler">确定</p>
@@ -275,13 +274,12 @@ export default {
     },
     // 确定铸造
     async confirmHandler() {
+      await Reconstruction_getBscBalance()
       Toast.loading({
         message: '铸造中...',
         forbidClick: true,
         duration: 0
       })
-      // getTrxBalance(() => {
-      await Reconstruction_getBscBalance()
       sfeotc1().then(
         (res) => {
           this.apphx = localStorage.getItem('apphx')
@@ -302,7 +300,6 @@ export default {
           this.maskFlag1 = false
         }
       )
-      // })
     },
     res() {
       this.currentIndex = this.index
@@ -414,7 +411,7 @@ export default {
         // console.log(i)
         const asd = {}
         asd.key = Math.random()
-        asd.bind = true
+        if (i.ok != 3) asd.bind = true
         asd.num = i.kid + ''
         asd.status = false
         asd.ischecked = false
@@ -443,7 +440,7 @@ export default {
           asd.title = this.cardList[3][i.id - 51].title
         }
         // console.log(asd)
-        i.id < 100 && this.cartItem.push(asd)
+        if (i.ok != 3 && i.id < 100) this.cartItem.push(asd)
       }
     },
     async getMyNFT() {
@@ -581,7 +578,8 @@ export default {
         asd.text = this.cardList[0][i.Activate].text
         this.cardState.push(asd)
       }
-      this.getNotTime()
+      // this.getNotTime()
+      Toast.clear()
     },
     // 有限权益卡牌（待领取）
     async getNotTime() {

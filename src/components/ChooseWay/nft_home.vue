@@ -134,15 +134,12 @@
 </template>
 
 <script>
-import { loadweb3, userBaseMes } from '@/utils/web3'
+// import { Init } from '@/utils/web3'
 export default {
   data() {
     return {
       show: false
     }
-  },
-  created() {
-    loadweb3(userBaseMes)
   },
   methods: {
     toRouter_view() {

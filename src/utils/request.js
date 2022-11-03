@@ -4,7 +4,11 @@ import Vue from 'vue';
 
 import $router from '@/router';
 
-export const domain = 'api.eotc.me';
+// 正式
+export const domain = 'api.eotcyu.club';
+
+// 测试
+// export const domain = 'api.eotc.me';
 
 export const baseUrl = `https://${domain}/Upload/`;
 

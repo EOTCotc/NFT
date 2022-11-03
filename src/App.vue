@@ -15,6 +15,7 @@ export default {
       reload: this.reload
     }
   },
+  created() {},
   methods: {
     reload() {
       this.isRouterAlive = false

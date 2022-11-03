@@ -108,7 +108,7 @@ export default {
   },
   created() {
     this.query = this.$route.query
-    console.log(this.query)
+    // console.log(this.query)
     this.start()
   },
   methods: {
@@ -124,7 +124,7 @@ export default {
     // 查询卡牌是否授权
     authorization() {
       Toast.loading({
-        message: '卡牌授权中...',
+        message: '加载中...',
         forbidClick: true,
         duration: 0
       })
@@ -227,7 +227,7 @@ export default {
       let h = date.getHours() + ':'
       let m = date.getMinutes() + ':'
       let s = date.getSeconds()
-      console.log(Y + M + D + h + m + s)
+      // console.log(Y + M + D + h + m + s)
     }
   }
 }

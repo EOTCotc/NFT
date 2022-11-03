@@ -1,20 +1,31 @@
 <!DOCTYPE html>
 <html lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>EOTC NFT </title>
-    <script src="./web3.min.js"></script>
 
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <strong></strong>
-    <div id="app"></div>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>EOTC NFT </title>
+  <script src="./web3.min.js"></script>
 
-  </body>
+</head>
+
+<body>
+  <noscript>
+    <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
+        Please enable it to continue.</strong>
+  </noscript>
+  <strong></strong>
+  <div id="app"></div>
+
+</body>
+
 </html>
+<script>
+  var test = window.location.href;
+  console.log(test);
+  if (test == 'https://nft.eotc.im' || test == 'http://192.168.0.14:8080/') {
+    alert(`请前往BSC链进行NFT相关操作`);
+  }
+</script>

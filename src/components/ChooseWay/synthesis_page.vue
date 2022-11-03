@@ -882,7 +882,7 @@ export default {
             this.empty()
           })
           .catch((err) => {
-            console.log(err)
+            // console.log(err)
           })
       }
       if (this.synthNum == 3) {
@@ -899,7 +899,7 @@ export default {
             this.empty()
           })
           .catch((err) => {
-            console.log(err)
+            // console.log(err)
           })
       }
       if (this.synthNum == 5) {

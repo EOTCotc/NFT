@@ -86,11 +86,11 @@ export default {
     },
     // 点击取消按钮
     off(id) {
-      console.log('取消id为' + id + '的订单')
+      // console.log('取消id为' + id + '的订单')
     },
     // 点击付款按钮
     pay(id) {
-      console.log('去支付id为' + id + '的订单')
+      // console.log('去支付id为' + id + '的订单')
     }
   },
   watch: {
