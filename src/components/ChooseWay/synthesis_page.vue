@@ -578,7 +578,7 @@
 </template>
 <script>
 import { contract, allCard, cardList, selectAll } from '@/utils/options'
-import { myNft, FusingNFT } from '@/api/newReqets'
+import { myNft, FusingNFT, metadata } from '@/api/newReqets'
 import { orderActivitys, level3, level4, level5, realTime, middleLevel, highLevel, already, alreadySyn, alreadyEquity } from '@/utils/web3'
 import { Toast } from 'vant'
 import One from './layout/one.vue'
@@ -859,7 +859,7 @@ export default {
       }, 500)
     },
     //合成动画
-    confirmHandler2() {
+    async confirmHandler2() {
       Toast.loading({
         message: '正在确认中...',
         forbidClick: true,
@@ -915,13 +915,19 @@ export default {
         }
 
         if (this.msg == 'three') {
+          await metadata('bronze', this.selectAll[1][0].join('-'))
+
           // console.log(this.selectAll[1][0])
           level3(arr, this.selectAll[1][0], synthcard, this.empty)
         }
         if (this.msg == 'four') {
+          await metadata('gold', this.selectAll[1][1].join('-'))
+
           level4(arr, this.selectAll[1][1], synthcard, this.empty)
         }
         if (this.msg == 'five') {
+          await metadata('silver', this.selectAll[1][2].join('-'))
+
           level5(arr, this.selectAll[1][2], synthcard, this.empty)
         }
       }

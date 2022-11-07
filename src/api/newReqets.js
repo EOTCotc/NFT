@@ -140,3 +140,15 @@ export const BindNft = (ads, sign, id, kid, hx, day) => {
 		params
 	});
 };
+
+export const metadata = (type, ids) => {
+	const params = {
+		type,
+		ids
+	};
+	return request({
+		url: 'http://192.168.0.21:6565/metadata',
+		method: 'get',
+		params
+	});
+};

@@ -630,7 +630,7 @@
 // 		type: 'function'
 // 	}
 // ];
-
+/*  */
 export const realTime = '0x9267e2Cc841334bc9d5eAeF09958c67E24abB0B8'; //实时有限
 export const middleTime = '0x8Da6ecD7AF37313beA5a20dD8Ac0f5e4b4e9F987'; //中级有限
 export const highTime = '0x2EE0bb3b40137ddEB9b2a25343De4df207010ecd'; //高级有限
@@ -1841,14 +1841,11 @@ export const unionAbi = [
 	}
 ];
 
-//
-//
-//
 /* 测试网 */
 // export const realTime = '0xB139F98bA950d6D4c4d3a1C8A932D01fa6c7adF3'; //实时有限
 // export const middleTime = '0xD9aC711903c6f5A3D0A3d56ba5FF09e008A579F5'; //中级有限
 // export const highTime = '0x7A91CFD673EF47d36b644C1a33f572c2923A747a'; //高级有限
-//有限卡牌Abi
+// // 有限卡牌Abi;
 // export const TimeAbi = [
 // 	{
 // 		inputs: [

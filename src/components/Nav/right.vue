@@ -1,19 +1,13 @@
 <template>
   <div class="content">
     <header class="header">
-      <p class="top">
-        <span>
-          钱包资产
-          <img src="@/assets/img/walletChangeIcon.png"
-               v-if="UID"
-               @click="changeVal" />
-        </span>
-        <span class="sp1"
-              v-if="UID">UID:{{UID}}</span>
-        <span class="sp1"
-              v-else
-              @click="goUrl(1)">连接钱包</span>
-      </p>
+      <div class="top">
+        <div class="left">
+          <p> 用户钱包</p>
+          <p>{{myaddress|ellipsis}}</p>
+        </div>
+        <p class="right"> <span class="sp1">UID:{{UID}}</span> </p>
+      </div>
       <div class="main">
         <p>
           <span>USDT</span>
@@ -193,7 +187,8 @@ export default {
         { id: 4, name: 'aw', number: '0x3929fe0…7cE25478' }
       ],
       active: 1,
-      changeAct: 0
+      changeAct: 0,
+      myaddress: localStorage.getItem('myaddress')
     }
   },
   async created() {
@@ -230,6 +225,16 @@ export default {
     sureWallet() {
       this.active = this.changeAct
       this.changeValue = false
+    }
+  },
+  filters: {
+    ellipsis(value) {
+      let len = value.length
+      if (!value) return ''
+      if (value.length > 20) {
+        return value.substring(0, 6) + '...' + value.substring(len - 6, len)
+      }
+      return value
     }
   }
 }
@@ -322,9 +327,11 @@ export default {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      img {
-        width: 30px;
-        height: 30px;
+      .left {
+        font-size: 34px;
+        p:nth-last-of-type(1) {
+          margin-top: 6px;
+        }
       }
       .sp1 {
         border: 1px solid #fff;
