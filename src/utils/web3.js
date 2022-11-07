@@ -48,10 +48,10 @@ var mytron = null;
 // const url = 'https://api.shasta.trongrid.io/wallet/gettransactioninfobyid';
 
 // bsc主网
-// const url = 'https://api.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&apikey=MTFE3X1WXZJJCW53UKHW2MXC6J7Q7CKMVS&txhash=';
+const url = 'https://api.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&apikey=MTFE3X1WXZJJCW53UKHW2MXC6J7Q7CKMVS&txhash=';
 
 // bsc测试网
-const url = 'https://api-testnet.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&apikey=MTFE3X1WXZJJCW53UKHW2MXC6J7Q7CKMVS&txhash=';
+// const url = 'https://api-testnet.bscscan.com/api?module=proxy&action=eth_getTransactionReceipt&apikey=MTFE3X1WXZJJCW53UKHW2MXC6J7Q7CKMVS&txhash=';
 
 const AllCard = [
 	[Contract_level1, Contract_level2, Contract_level3, Contract_level4, Contract_level5],
@@ -138,7 +138,7 @@ export const userBaseMes = async function () {
 				localStorage.setItem('ucid', myid[1].trim()); //身份证号码
 				localStorage.setItem('uphone', myid[2].trim()); //电话
 				localStorage.setItem('iskyc', it.VIP); //是否已实名 -1 审核未通过  0 未实名  1 已提交 未审核或   2 实名认证审核通过
-				localStorage.setItem('usdtsql', it.Ztrs); //USDT授权金额
+				localStorage.setItem('usdtsq', it.Ztrs); //USDT授权金额
 
 				localStorage.setItem('item', it.item); //节点类型
 
@@ -169,14 +169,14 @@ export const userBaseMes = async function () {
 
 				PubSub.publish('setUid', localStorage.getItem('uid'));
 			} else {
-				// console.warn('请先注册EOTC');
+				Vue.$toast.warning('请先注册EOTC');
 				$router.replace({
 					name: 'login'
 				});
 			}
 		})
 		.catch((err) => {
-			// console.log(err);
+			console.log(err);
 			Vue.$toast.warning('数据加载频繁', {
 				position: 'bottom-right'
 			});
@@ -422,7 +422,7 @@ export const usdtsend = function (val, fun) {
 							// console.log(data);
 							let it = eval(data.data);
 							if (it.State == '1') {
-								localStorage.setItem('usdtsql', val);
+								// localStorage.setItem('usdtsq', val);
 								// console.log(`授权成功`);
 								resolve(`授权成功`);
 								Toast.success('授权成功');
@@ -941,8 +941,8 @@ export const myApprove = async function myApprove(num, func) {
 			var myContract = Contract_USDT(window.web3);
 			myContract.methods.allowance(address, NFTDeal).call({ from: address }, function (error, result) {
 				if (!error) {
-					let mnum = localStorage.getItem('usdtsql');
-					if (mnum == -1 || mnum > parseFloat(num)) func();
+					// console.log(result);
+					if (result > parseFloat(num)) func();
 					else usdtsend(-1, func);
 				} else {
 					reject('操作失败，请重试  ' + error);
@@ -1083,7 +1083,7 @@ export const Reconstruction_usdtsend = function (val, message) {
 				.then((data) => {
 					let it = eval(data.data);
 					if (it.State == '1') {
-						localStorage.setItem('usdtsql', val);
+						localStorage.setItem('usdtsq', val);
 						// console.log(`${message}授权成功`);
 						resolve(`${message}授权成功`);
 						// 授权成功 关闭 警示弹窗

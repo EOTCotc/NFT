@@ -165,7 +165,7 @@ router.beforeEach((to, from, next) => {
 	if (to.name == 'nft_home') {
 		loadweb3(userBaseMes);
 	}
-	if (to.path != '/index/nft_home' && !localStorage.getItem('uid')) {
+	if (to.path != '/login' && to.path != '/index/nft_home' && !localStorage.getItem('uid')) {
 		next('/index/nft_home');
 		loadweb3(userBaseMes);
 		Toast.fail('请先登录');

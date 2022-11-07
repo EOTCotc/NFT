@@ -134,7 +134,7 @@
 </template>
 
 <script>
-// import { Init } from '@/utils/web3'
+import { myApprove } from '@/utils/web3'
 export default {
   data() {
     return {
