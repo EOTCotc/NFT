@@ -10,6 +10,7 @@
   "dependencies": {
     "@better-scroll/core": "^2.4.2",
     "@better-scroll/wheel": "^2.4.2",
+    "@soda/friendly-errors-webpack-plugin": "^1.8.1",
     "animate.css": "^4.1.1",
     "axios": "^0.27.2",
     "core-js": "^3.8.3",

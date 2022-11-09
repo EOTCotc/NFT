@@ -179,22 +179,22 @@ export default {
     }
   },
   created() {
-    for (let i = 1; i <= 10; i++) {
-      this.equityCard.push({
-        id: Math.random(),
-        Activate: 1,
-        type: 0,
-        // type: 1,
-        time: 0,
-        status: false,
-        ischecked: false,
-        num: i + 5 + '',
-        image: require('@/assets/img/Compose/3-before.png'),
-        title: '3级青铜甲犀牛',
-        casting: '0x04DA18A861206A11E702852e6d8F42706B9d52C2'
-      })
-    }
-    // this.hallmark()
+    // for (let i = 1; i <= 10; i++) {
+    //   this.equityCard.push({
+    //     id: Math.random(),
+    //     Activate: 1,
+    //     type: 0,
+    //     // type: 1,
+    //     time: 0,
+    //     status: false,
+    //     ischecked: false,
+    //     num: i + 5 + '',
+    //     image: require('@/assets/img/Compose/3-before.png'),
+    //     title: '3级青铜甲犀牛',
+    //     casting: '0x04DA18A861206A11E702852e6d8F42706B9d52C2'
+    //   })
+    // }
+    this.hallmark()
   },
   methods: {
     // 领取手续费页面
@@ -353,15 +353,15 @@ export default {
         .then(
           (res) => {
             Toast.clear()
-            console.log(res)
+            // console.log(res)
             this.hallmark()
           },
           (rej) => {
-            console.log(rej)
+            // console.log(rej)
           }
         )
         .catch((err) => {
-          console.log(err)
+          // console.log(err)
         })
     },
     // 上传等级卡牌
@@ -380,15 +380,15 @@ export default {
         .then(
           (res) => {
             Toast.clear()
-            console.log(res)
+            // console.log(res)
             this.hallmark()
           },
           (rej) => {
-            console.log(rej)
+            // console.log(rej)
           }
         )
         .catch((err) => {
-          console.log(err)
+          // console.log(err)
         })
     },
     // 上传权益卡牌

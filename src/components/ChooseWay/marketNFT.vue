@@ -26,6 +26,7 @@
           <p class="title">{{item.title }}</p>
           <p class="text">{{item.text|ellipsis }}</p>
           <p class="price"><img src="@/assets/img/logo-removebg-preview.png">{{item.price}}</p>
+          <!-- <p class="time">{{item.time}}</p> -->
         </div>
       </template>
 
@@ -157,6 +158,7 @@ export default {
           asd.id = n.id
           asd.num = n.NFTid
           asd.endTime = n.endTime
+          asd.time = this.formatDate(n.endTime)
           asd.Activate = n.NFTaddress.index + 1
           asd.status = n.state //合成前、后 1为合成过的卡牌
           asd.title = allCard[n.NFTaddress.index].title
@@ -254,6 +256,15 @@ export default {
       this.col = false
       this.number = 0
       this.$nextTick(() => (this.num = 0))
+    },
+    formatDate(timestamp) {
+      var date = new Date(timestamp * 1000) //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      let Y = date.getFullYear() + '-'
+      let M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+      let D = date.getDate() + '--'
+      let h = date.getHours() + ':'
+      let m = date.getMinutes()
+      return Y + M + D + h + m
     }
   },
 
@@ -374,6 +385,10 @@ export default {
           width: 28px;
           height: 28px;
         }
+      }
+      .time {
+        font-size: 24px;
+        color: #878d9a;
       }
     }
     .empty {

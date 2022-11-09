@@ -47,7 +47,7 @@ export default {
   },
   methods: {
     showTime() {
-      console.log(this.time)
+      // console.log(this.time)
       this.show = true
       this.show1 = true
       setTimeout(() => {

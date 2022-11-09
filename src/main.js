@@ -53,8 +53,8 @@ Vue.use(Toast, {
 Vue.config.productionTip = false;
 
 Vue.config.errorHandler = function (err, vm, info) {
-	console.log(err);
-	console.log(vm);
+	// console.log(err);
+	// console.log(vm);
 	Vue.$toast.error(err.message, {
 		timeout: false
 	});

@@ -50,7 +50,7 @@ export default {
     showTime() {
       // console.log(this.primaryCard)
       // let time = Math.random()
-      console.log(this.time)
+      // console.log(this.time)
       this.show = true
       this.show1 = true
       setTimeout(() => {

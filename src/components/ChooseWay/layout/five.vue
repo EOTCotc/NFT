@@ -39,7 +39,7 @@ export default {
   },
   methods: {
     showTime() {
-      console.log(this.nodeMade)
+      // console.log(this.nodeMade)
       if (this.nodeMade == 'three') {
         this.imgs = [
           { id: Math.random(), img: require('@/assets/img/Compose/3-before.png') },

@@ -40,7 +40,7 @@ export default {
   },
   methods: {
     showTime() {
-      console.log(this.cardNode)
+      // console.log(this.cardNode)
       if (this.cardNode == 'actual') {
         this.imgs = [
           { id: Math.random(), img: require('@/assets/img/Compose/actual-100-before.jpg') },
